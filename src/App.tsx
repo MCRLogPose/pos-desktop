@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { initDB } from './services/db/index.ts'
+import { seedDatabase } from './services/db/seed'
+import { useEffect, useState } from 'react'
+import { isTauri } from './services/db/tauri.ts'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [ready, setReady] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const start = async () => {
+      console.log("Iniciando DB...")
+
+      const tauri = await isTauri()
+
+      if (!tauri) {
+        console.warn("Modo navegador: SQLite deshabilitado")
+        setReady(true)
+        return
+      }
+
+      try {
+        await initDB()
+        await seedDatabase()
+        console.log("DB lista con datos iniciales")
+        setReady(true)
+      } catch (err) {
+        console.error("DB error", err)
+        setError("Error inicializando DB")
+      }
+    }
+
+    start()
+  }, [])
+
+  if (!ready)
+    return (
+      <div className="min-h-screen bg-blue-600 flex items-center justify-center">
+        Loading...
+      </div>
+    )
+
+  if (error)
+    return (
+      <div className="min-h-screen bg-red-600 flex items-center justify-center">
+        Error: {error}
+      </div>
+    )
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+    <div className="min-h-screen bg-green-600 flex flex-col gap-2 items-center justify-center">
+      <h1 className="text-3xl font-bold text-white">
+        POS Desktop listo 🚀
+      </h1>
+      <p className="text-white">
+        SQLite conectada correctamente
       </p>
-      <p className="text-3xl text-red-500">Pos Desktop</p>
-    </>
+    </div>
   )
 }
 
