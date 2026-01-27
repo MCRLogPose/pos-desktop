@@ -9,7 +9,7 @@ const FormLogin = () => {
         e.preventDefault();
         if (username === "manuel" && password === "123456") {
             console.log("Usuario correcto");
-            navigate("/home");
+            navigate("/home"); 
         } else {
             console.log("Usuario incorrecto");
         }
