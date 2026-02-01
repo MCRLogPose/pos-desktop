@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/features/auth/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { User, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
