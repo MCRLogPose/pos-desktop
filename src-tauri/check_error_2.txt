@@ -1,0 +1,18 @@
+   Compiling chrono v0.4.43
+    Checking sqlx-core v0.8.6
+    Checking sqlx-sqlite v0.8.6
+   Compiling sqlx-macros-core v0.8.6
+   Compiling sqlx-macros v0.8.6
+    Checking sqlx v0.8.6
+    Checking tauri-plugin-sql v2.3.1
+    Checking app v0.1.0 (C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src-tauri)
+warning: unused variable: `handle`
+  --> src\lib.rs:21:13
+   |
+21 |         let handle = app.handle();
+   |             ^^^^^^ help: if this is intentional, prefix it with an underscore: `_handle`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `app` (lib) generated 1 warning (run `cargo fix --lib -p app` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 16.68s

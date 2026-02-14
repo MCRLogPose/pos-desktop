@@ -18,6 +18,8 @@ export async function getDB(): Promise<Database> {
 }
 
 export async function runMigrations(): Promise<void> {
+    console.log("⚠️ Frontend migrations disabled. Backend (sqlx) handles schema.");
+    /*
     const database = await getDB();
 
     const migrations = [
@@ -43,6 +45,7 @@ export async function runMigrations(): Promise<void> {
     }
 
     console.log("✅ Todas las migraciones completadas");
+    */
 }
 
 export async function initDB(): Promise<void> {

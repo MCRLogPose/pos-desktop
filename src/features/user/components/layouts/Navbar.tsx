@@ -33,11 +33,11 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
 
                 <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
                     <div className="text-right hidden sm:block">
-                        <p className="text-sm font-semibold text-gray-700">{user?.name || 'User'}</p>
+                        <p className="text-sm font-semibold text-gray-700">{user?.username || 'User'}</p>
                         <p className="text-xs text-gray-500 capitalize">{user?.role || 'Role'}</p>
                     </div>
                     <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shadow-sm">
-                        {user?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
+                        {user?.username?.charAt(0).toUpperCase() || <User className="w-5 h-5" />}
                     </div>
                 </div>
             </div>

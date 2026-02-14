@@ -14,45 +14,58 @@ export async function seedDatabase(): Promise<void> {
     console.log("🌱 Iniciando seed de datos...");
 
     // 1. Crear tienda por defecto
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO stores (id, name, code, address) 
      VALUES ('store-1', 'Tienda Principal', 'TP001', 'Av. Principal 123')`
     );
+    */
 
     // 2. Crear roles
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO roles (id, name) VALUES ('role-admin', 'ADMIN')`
     );
     await db.execute(
         `INSERT OR IGNORE INTO roles (id, name) VALUES ('role-seller', 'SELLER')`
     );
+    */
 
     // 3. Crear usuario admin (password: admin123)
     // En producción, usar bcrypt o similar
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO users (id, username, password_hash, email) 
      VALUES ('user-admin', 'admin', 'admin123', 'admin@pos.com')`
     );
+    */
 
     // 4. Asignar rol admin
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO user_roles (user_id, role_id) 
      VALUES ('user-admin', 'role-admin')`
     );
+    */
 
     // 5. Asignar tienda al admin
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO user_stores (user_id, store_id) 
      VALUES ('user-admin', 'store-1')`
     );
+    */
 
     // 6. Crear impuesto IGV (18%)
+    /*
     await db.execute(
         `INSERT OR IGNORE INTO taxes (id, name, rate) 
      VALUES ('tax-igv', 'IGV', 18.00)`
     );
+    */
 
     // 7. Crear productos de ejemplo
+    /*
     const products = [
         {
             id: "prod-1",
@@ -84,8 +97,10 @@ export async function seedDatabase(): Promise<void> {
             [product.id, product.sku, product.title, product.price, product.tax_id]
         );
     }
+    */
 
     // 8. Crear inventario inicial
+    /*
     for (const product of products) {
         await db.execute(
             `INSERT OR IGNORE INTO inventory_movements 
@@ -94,6 +109,7 @@ export async function seedDatabase(): Promise<void> {
             [`inv-${product.id}`, product.id]
         );
     }
+    */
 
-    console.log("✅ Seed completado");
+    console.log("✅ Seed desactivado (backend handles it)");
 }

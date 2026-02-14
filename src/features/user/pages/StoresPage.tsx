@@ -1,64 +1,127 @@
-import { useState } from 'react';
-import { Store, User, MapPin, Plus, Building2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Store as StoreIcon, User as UserIcon, MapPin, Plus, Pencil, Trash2 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import { invoke } from '@tauri-apps/api/core';
+import StoreModal from '../../stores/components/StoreModal';
+import PasswordConfirmationModal from '../../auth/components/PasswordConfirmationModal';
 
-// Mock Data
-const INITIAL_STORES = [
-    { id: '1', name: 'Sede Central', address: 'Av. Principal 123' },
-    { id: '2', name: 'Sucursal Norte', address: 'Av. Norte 456' },
-    { id: '3', name: 'Sucursal Sur', address: 'Av. Sur 789' },
-];
+interface Store {
+    id: number;
+    name: string;
+    address: string | null;
+    code: string | null;
+    is_active: boolean;
+}
 
-const INITIAL_USERS = [
-    { id: '1', name: 'Juan Pérez', role: 'Vendedor', storeId: '1' },
-    { id: '2', name: 'Maria Lopez', role: 'Gerente', storeId: '1' },
-    { id: '3', name: 'Carlos Ruiz', role: 'Vendedor', storeId: '2' },
-    { id: '4', name: 'Ana Gomez', role: 'Cajero', storeId: '3' },
-    { id: '5', name: 'Pedro Dias', role: 'Vendedor', storeId: null }, // Unassigned
-];
+interface User {
+    id: number;
+    username: string;
+    // role: string; // Backend User struct doesn't have role directly on it yet in get_users, maybe need to join? 
+    // For now get_users returns User struct which has id, username, email, is_active.
+    // We might need to fetch roles separately or update get_users to return DTO.
+    // Prompt said "listar los usuarios disponibles". simpler is fine.
+}
 
 const StoresPage = () => {
-    const [stores, setStores] = useState(INITIAL_STORES);
-    const [users, setUsers] = useState(INITIAL_USERS);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [stores, setStores] = useState<Store[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Form State
-    const [newStoreName, setNewStoreName] = useState('');
-    const [newStoreAddress, setNewStoreAddress] = useState('');
+    // Modals
+    const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
+    const [editingStore, setEditingStore] = useState<Store | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [storeToDelete, setStoreToDelete] = useState<Store | null>(null);
 
-    const handleCreateStore = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!newStoreName || !newStoreAddress) {
-            toast.error("Por favor complete todos los campos");
-            return;
+    const fetchData = async () => {
+        try {
+            const [storesData, usersData] = await Promise.all([
+                invoke<Store[]>('get_stores'),
+                invoke<User[]>('get_users')
+            ]);
+            setStores(storesData);
+            setUsers(usersData);
+        } catch (error) {
+            console.error("Failed to fetch data", error);
+            toast.error("Error al cargar datos");
+        } finally {
+            setIsLoading(false);
         }
-
-        const newStore = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: newStoreName,
-            address: newStoreAddress
-        };
-
-        setStores([...stores, newStore]);
-        setNewStoreName('');
-        setNewStoreAddress('');
-        setIsCreateModalOpen(false);
-        toast.success("Tienda creada exitosamente");
     };
 
-    const handleAssignUser = (userId: string, storeId: string | null) => {
-        setUsers(users.map(u => u.id === userId ? { ...u, storeId } : u));
-        toast.success("Usuario reasignado correctamente");
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const handleCreateStore = async (name: string, address: string, code: string) => {
+        try {
+            await invoke('create_store', { name, address: address || null, code: code || null });
+            toast.success("Tienda creada exitosamente");
+            setIsStoreModalOpen(false);
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al crear tienda");
+        }
     };
+
+    const handleUpdateStore = async (name: string, address: string, code: string) => {
+        if (!editingStore) return;
+        try {
+            await invoke('update_store', {
+                id: editingStore.id,
+                name,
+                address: address || null,
+                code: code || null
+            });
+            toast.success("Tienda actualizada exitosamente");
+            setIsStoreModalOpen(false);
+            setEditingStore(null);
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al actualizar tienda");
+        }
+    };
+
+    const handleDeleteClick = (store: Store) => {
+        setStoreToDelete(store);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDeleteStore = async () => {
+        if (!storeToDelete) return;
+        try {
+            await invoke('delete_store', { id: storeToDelete.id });
+            toast.success("Tienda eliminada"); // Soft delete
+            setIsDeleteModalOpen(false);
+            setStoreToDelete(null);
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al eliminar tienda");
+        }
+    };
+
+    const openCreateModal = () => {
+        setEditingStore(null);
+        setIsStoreModalOpen(true);
+    };
+
+    const openEditModal = (store: Store) => {
+        setEditingStore(store);
+        setIsStoreModalOpen(true);
+    };
+
+    if (isLoading) return <div className="p-8 text-center text-gray-500">Cargando...</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold text-gray-900">Gestión de Tiendas y Usuarios</h1>
                 <button
-                    onClick={() => setIsCreateModalOpen(!isCreateModalOpen)}
+                    onClick={openCreateModal}
                     className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-medium transition-all shadow-lg shadow-slate-900/20"
                 >
                     <Plus className="w-5 h-5" />
@@ -66,146 +129,121 @@ const StoresPage = () => {
                 </button>
             </div>
 
-            {/* Create Store Section (Collapsible) */}
-            <motion.div
-                initial={false}
-                animate={{ height: isCreateModalOpen ? 'auto' : 0, opacity: isCreateModalOpen ? 1 : 0 }}
-                className="overflow-hidden"
-            >
-                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4">Registrar Nueva Sede</h3>
-                    <form onSubmit={handleCreateStore} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Nombre de la Sede</label>
-                            <div className="relative">
-                                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    value={newStoreName}
-                                    onChange={(e) => setNewStoreName(e.target.value)}
-                                    placeholder="Ej. Sede Miraflores"
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Dirección</label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    value={newStoreAddress}
-                                    onChange={(e) => setNewStoreAddress(e.target.value)}
-                                    placeholder="Ej. Av. Larco 101"
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                                />
-                            </div>
-                        </div>
-                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-md shadow-blue-600/20">
-                            Guardar Sede
-                        </button>
-                    </form>
-                </div>
-            </motion.div>
-
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-                {/* Users List (Draggable conceptually - simpler UI first) */}
+                {/* Users List */}
                 <div className="xl:col-span-1 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm h-[calc(100vh-12rem)] flex flex-col">
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <User className="w-5 h-5 text-gray-500" />
+                        <UserIcon className="w-5 h-5 text-gray-500" />
                         Personal Disponible
                     </h3>
                     <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                         {users.map(user => (
                             <div key={user.id} className="p-4 bg-gray-50 border border-gray-200 rounded-xl group hover:border-blue-300 transition-all">
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-start">
                                     <div>
-                                        <h4 className="font-semibold text-gray-900">{user.name}</h4>
-                                        <p className="text-xs text-gray-500">{user.role}</p>
+                                        <h4 className="font-semibold text-gray-900">{user.username}</h4>
+                                        <p className="text-xs text-gray-500">ID: {user.id}</p>
                                     </div>
-                                    <span className={clsx(
-                                        "text-xs px-2 py-1 rounded-full font-medium",
-                                        user.storeId ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                                    )}>
-                                        {user.storeId ? 'Asignado' : 'Sin Asignar'}
+                                    <span className="text-xs px-2 py-1 rounded-full font-medium bg-green-100 text-green-700">
+                                        Activo
                                     </span>
-                                </div>
-
-                                <div className="pt-2 border-t border-gray-200 mt-2">
-                                    <label className="text-xs font-medium text-gray-500 mb-1 block">Asignar a Tienda:</label>
-                                    <select
-                                        value={user.storeId || ''}
-                                        onChange={(e) => handleAssignUser(user.id, e.target.value || null)}
-                                        className="w-full text-sm bg-white border border-gray-200 rounded-lg px-2 py-1.5 focus:border-blue-500 outline-none"
-                                    >
-                                        <option value="">-- Sin Asignar --</option>
-                                        {stores.map(store => (
-                                            <option key={store.id} value={store.id}>{store.name}</option>
-                                        ))}
-                                    </select>
                                 </div>
                             </div>
                         ))}
+                        {users.length === 0 && (
+                            <div className="text-center py-10 text-gray-400 text-sm">No hay usuarios registrados</div>
+                        )}
                     </div>
                 </div>
 
                 {/* Stores Visualization */}
                 <div className="xl:col-span-2 space-y-6 overflow-y-auto h-[calc(100vh-12rem)] pr-2 custom-scrollbar">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 sticky top-0 bg-gray-50/50 backdrop-blur-sm py-2">
-                        <Store className="w-5 h-5 text-gray-500" />
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 sticky top-0 bg-gray-50/50 backdrop-blur-sm py-2 z-10">
+                        <StoreIcon className="w-5 h-5 text-gray-500" />
                         Vista General de Sedes
                     </h3>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {stores.map(store => {
-                            const storeEmployees = users.filter(u => u.storeId === store.id);
+                        {stores.map(store => (
+                            <div key={store.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group relative">
+                                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={() => openEditModal(store)}
+                                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
+                                        title="Editar"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteClick(store)}
+                                        className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+                                        title="Eliminar"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
 
-                            return (
-                                <div key={store.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                                <Store className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-gray-900">{store.name}</h4>
-                                                <p className="text-xs text-gray-500 flex items-center gap-1">
-                                                    <MapPin className="w-3 h-3" />
-                                                    {store.address}
-                                                </p>
-                                            </div>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                            <StoreIcon className="w-5 h-5" />
                                         </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between text-sm py-2 border-b border-gray-50">
-                                            <span className="text-gray-500">Personal Asignado</span>
-                                            <span className="font-bold text-gray-900">{storeEmployees.length}</span>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            {storeEmployees.length > 0 ? (
-                                                storeEmployees.map(emp => (
-                                                    <div key={emp.id} className="flex items-center justify-between text-sm bg-gray-50 px-3 py-2 rounded-lg">
-                                                        <span className="text-gray-700">{emp.name}</span>
-                                                        <span className="text-xs text-gray-400">{emp.role}</span>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="text-center py-4 text-gray-400 text-sm italic bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                                                    Sin personal asignado
-                                                </div>
-                                            )}
+                                        <div>
+                                            <h4 className="font-bold text-gray-900">{store.name}</h4>
+                                            {store.code && <span className="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-600">{store.code}</span>}
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })}
+
+                                <div className="space-y-3">
+                                    <div className="text-sm text-gray-500 flex items-center gap-2">
+                                        <MapPin className="w-4 h-4" />
+                                        {store.address || "Sin dirección"}
+                                    </div>
+
+                                    <div className="flex justify-between text-sm py-2 border-t border-gray-50 mt-2 pt-2">
+                                        <span className="text-gray-400 text-xs">ID: {store.id}</span>
+                                        <span className={clsx(
+                                            "text-xs px-2 py-0.5 rounded-full font-medium",
+                                            store.is_active ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+                                        )}>
+                                            {store.is_active ? 'Operativa' : 'Inactiva'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        {stores.length === 0 && (
+                            <div className="col-span-full text-center py-10 text-gray-400 text-sm bg-white rounded-2xl border border-dashed border-gray-200">
+                                No hay sedes registradas. Crea una nueva sede para comenzar.
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            <StoreModal
+                isOpen={isStoreModalOpen}
+                onClose={() => setIsStoreModalOpen(false)}
+                onSubmit={editingStore ? handleUpdateStore : handleCreateStore}
+                initialData={editingStore ? { name: editingStore.name, address: editingStore.address || '', code: editingStore.code || '' } : null}
+            />
+
+            <PasswordConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={async () => {
+                    await confirmDeleteStore();
+                    // Close happens in confirmDeleteStore but also need to ensure modal closes if error? 
+                    // Actually best to handle it there.
+                    return Promise.resolve();
+                }}
+                title="Eliminar Sede"
+                description={`¿Estás seguro que deseas eliminar la sede "${storeToDelete?.name}"? Esta acción requiere confirmación de administrador.`}
+            />
         </div>
     );
 };

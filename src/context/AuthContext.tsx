@@ -1,12 +1,22 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { invoke } from '@tauri-apps/api/core';
 
-// Mock Auth Context
+// Auth Context
+interface User {
+    id: number;
+    username: string;
+    email?: string;
+    is_active: boolean;
+    role?: string;
+}
+
 interface AuthContextType {
     isAuthenticated: boolean;
-    user: { name: string; role: string } | null;
-    login: (username: string) => void;
+    user: User | null;
+    login: (username: string, password: string) => Promise<void>;
     logout: () => void;
+    error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,22 +29,37 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for session simulation
+        // Check local storage
         const storedUser = localStorage.getItem('pos_user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
-            setIsAuthenticated(true);
+            try {
+                const parsed = JSON.parse(storedUser);
+                setUser(parsed);
+                setIsAuthenticated(true);
+            } catch (e) {
+                localStorage.removeItem('pos_user');
+            }
         }
+        setIsLoading(false);
     }, []);
 
-    const login = (username: string) => {
-        const mockUser = { name: username, role: 'admin' };
-        setUser(mockUser);
-        setIsAuthenticated(true);
-        localStorage.setItem('pos_user', JSON.stringify(mockUser));
+    const login = async (username: string, password: string) => {
+        setError(null);
+        try {
+            const user = await invoke<User>('login', { username, password });
+            setUser(user);
+            setIsAuthenticated(true);
+            localStorage.setItem('pos_user', JSON.stringify(user));
+        } catch (err) {
+            console.error("Login failed", err);
+            setError(typeof err === 'string' ? err : "Login failed");
+            throw err;
+        }
     };
 
     const logout = () => {
@@ -43,8 +68,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('pos_user');
     };
 
+    if (isLoading) return <div>Loading...</div>; // Or return children? Better to block if checking auth.
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, error }}>
             {children}
         </AuthContext.Provider>
     );

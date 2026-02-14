@@ -1,0 +1,68 @@
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\context\AuthContext.tsx
+  24:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-refresh/only-export-components
+  42:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\context\AuthContext.tsx:42:17
+  40 |             try {
+  41 |                 const parsed = JSON.parse(storedUser);
+> 42 |                 setUser(parsed);
+     |                 ^^^^^^^ Avoid calling setState() directly within an effect
+  43 |                 setIsAuthenticated(true);
+  44 |             } catch (e) {
+  45 |                 localStorage.removeItem('pos_user');  react-hooks/set-state-in-effect
+  44:22  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\context\NotificationContext.tsx
+  25:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\auth\components\cards\LoginCard.tsx
+  17:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\stores\components\StoreModal.tsx
+  20:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\stores\components\StoreModal.tsx:20:13
+  18 |     useEffect(() => {
+  19 |         if (initialData) {
+> 20 |             setName(initialData.name);
+     |             ^^^^^^^ Avoid calling setState() directly within an effect
+  21 |             setAddress(initialData.address);
+  22 |             setCode(initialData.code);
+  23 |         } else {  react-hooks/set-state-in-effect
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\user\pages\DashboardPage.tsx
+  21:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\user\pages\POSPage.tsx
+  151:38  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\features\user\pages\POSPage.tsx:151:38
+  149 |                     </h2>
+  150 |                     <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">
+> 151 |                         #{Math.floor(Math.random() * 10000)}
+      |                                      ^^^^^^^^^^^^^ Cannot call impure function
+  152 |                     </span>
+  153 |                 </div>
+  154 |  react-hooks/purity
+
+C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src\services\db\seed.ts
+  12:11  error  'db' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 10 problems (10 errors, 0 warnings)
+

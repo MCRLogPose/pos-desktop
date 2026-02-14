@@ -15,15 +15,13 @@ export default function LoginCard() {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
     const onSubmit = async (data: any) => {
-        // Simulating API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        if (data.username && data.password) {
-            login(data.username);
+        try {
+            await login(data.username, data.password);
             toast.success(`Bienvenido de nuevo, ${data.username}`);
             const from = (location.state as any)?.from?.pathname || '/home';
             navigate(from, { replace: true });
-        } else {
+        } catch (error) {
+            console.error(error);
             toast.error('Credenciales inválidas');
         }
     };

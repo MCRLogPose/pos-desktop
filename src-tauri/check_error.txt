@@ -1,0 +1,130 @@
+    Checking app v0.1.0 (C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src-tauri)
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `tokio`
+ --> src\commands\auth.rs:5:5
+  |
+5 | use tokio::sync::Mutex; 
+  |     ^^^^^ use of unresolved module or unlinked crate `tokio`
+  |
+  = help: if you wanted to use a crate named `tokio`, use `cargo add tokio` to add it to your `Cargo.toml`
+
+warning: unused import: `std::sync::Arc`
+ --> src\services\auth_service.rs:5:5
+  |
+5 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `AppHandle`
+ --> src\commands\auth.rs:3:13
+  |
+3 | use tauri::{AppHandle, State};
+  |             ^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+ --> src\commands\auth.rs:4:5
+  |
+4 | use std::sync::Arc;
+  |     ^^^^^^^^^^^^^^
+
+error[E0277]: the trait bound `NaiveDateTime: sqlx::Decode<'_, _>` is not satisfied
+   --> src\repositories\user_repo.rs:15:40
+    |
+ 15 |         let user = sqlx::query_as::<_, User>(
+    |                                        ^^^^ the trait `sqlx::Decode<'_, _>` is not implemented for `NaiveDateTime`
+    |
+    = help: the following other types implement trait `sqlx::Decode<'r, DB>`:
+              `&'a str` implements `sqlx::Decode<'a, sqlx::Any>`
+              `&'r JsonRawValue` implements `sqlx::Decode<'r, DB>`
+              `&'r [u8]` implements `sqlx::Decode<'r, sqlx::Any>`
+              `&'r [u8]` implements `sqlx::Decode<'r, sqlx::Sqlite>`
+              `&'r str` implements `sqlx::Decode<'r, sqlx::Sqlite>`
+              `Box<[u8]>` implements `sqlx::Decode<'_, sqlx::Sqlite>`
+              `Box<str>` implements `sqlx::Decode<'_, sqlx::Sqlite>`
+              `Cow<'r, str>` implements `sqlx::Decode<'r, sqlx::Sqlite>`
+            and 40 others
+    = note: required for `std::option::Option<NaiveDateTime>` to implement `sqlx::Decode<'_, _>`
+note: required for `user::User` to implement `for<'r> FromRow<'r, _>`
+   --> src\models\user.rs:5:41
+    |
+  5 | #[derive(Debug, Serialize, Deserialize, FromRow)]
+    |                                         ^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
+  6 | pub struct User {
+    |            ^^^^
+note: required by a bound in `sqlx::query_as`
+   --> C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\query_as.rs:345:8
+    |
+342 | pub fn query_as<'q, DB, O>(sql: &'q str) -> QueryAs<'q, DB, O, <DB as Database>::Arguments<'q>>
+    |        -------- required by a bound in this function
+...
+345 |     O: for<'r> FromRow<'r, DB::Row>,
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `query_as`
+    = note: this error originates in the derive macro `FromRow` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0277]: the trait bound `NaiveDateTime: Type<_>` is not satisfied
+   --> src\repositories\user_repo.rs:15:40
+    |
+ 15 |         let user = sqlx::query_as::<_, User>(
+    |                                        ^^^^ the trait `Type<_>` is not implemented for `NaiveDateTime`
+    |
+    = help: the following other types implement trait `Type<DB>`:
+              `&T` implements `Type<DB>`
+              `Box<[u8]>` implements `Type<sqlx::Sqlite>`
+              `Box<str>` implements `Type<sqlx::Sqlite>`
+              `Cow<'_, str>` implements `Type<sqlx::Sqlite>`
+              `Hyphenated` implements `Type<sqlx::Sqlite>`
+              `JsonRawValue` implements `Type<DB>`
+              `JsonValue` implements `Type<DB>`
+              `NonZero<i16>` implements `Type<DB>`
+            and 41 others
+    = note: required for `std::option::Option<NaiveDateTime>` to implement `Type<_>`
+note: required for `user::User` to implement `for<'r> FromRow<'r, _>`
+   --> src\models\user.rs:5:41
+    |
+  5 | #[derive(Debug, Serialize, Deserialize, FromRow)]
+    |                                         ^^^^^^^ unsatisfied trait bound introduced in this `derive` macro
+  6 | pub struct User {
+    |            ^^^^
+note: required by a bound in `sqlx::query_as`
+   --> C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\query_as.rs:345:8
+    |
+342 | pub fn query_as<'q, DB, O>(sql: &'q str) -> QueryAs<'q, DB, O, <DB as Database>::Arguments<'q>>
+    |        -------- required by a bound in this function
+...
+345 |     O: for<'r> FromRow<'r, DB::Row>,
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `query_as`
+    = note: this error originates in the derive macro `FromRow` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: the method `fetch_optional` exists for struct `QueryAs<'_, _, user::User, _>`, but its trait bounds were not satisfied
+  --> src\repositories\user_repo.rs:19:10
+   |
+15 |           let user = sqlx::query_as::<_, User>(
+   |  ____________________-
+16 | |             "SELECT id, username, password_hash, email, is_active, created_at FROM users WHERE username = ?"
+17 | |         )
+18 | |         .bind(username)
+19 | |         .fetch_optional(&self.pool)
+   | |         -^^^^^^^^^^^^^^ method cannot be called on `QueryAs<'_, _, user::User, _>` due to unsatisfied trait bounds
+   | |_________|
+   |
+   |
+  ::: src\models\user.rs:6:1
+   |
+ 6 |   pub struct User {
+   |   --------------- doesn't satisfy `user::User: FromRow<'r, _>`
+   |
+  ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\chrono-0.4.43\src\naive\datetime\mod.rs:76:1
+   |
+76 |   pub struct NaiveDateTime {
+   |   ------------------------ doesn't satisfy `NaiveDateTime: Type<_>` or `NaiveDateTime: sqlx::Decode<'_, _>`
+   |
+   = note: the following trait bounds were not satisfied:
+           `NaiveDateTime: sqlx::Decode<'_, _>`
+           which is required by `user::User: FromRow<'r, _>`
+           `NaiveDateTime: Type<_>`
+           which is required by `user::User: FromRow<'r, _>`
+
+Some errors have detailed explanations: E0277, E0433, E0599.
+For more information about an error, try `rustc --explain E0277`.
+warning: `app` (lib) generated 3 warnings
+error: could not compile `app` (lib) due to 4 previous errors; 3 warnings emitted
