@@ -8,7 +8,7 @@ import InventoryPage from "@/features/user/pages/InventoryPage.tsx";
 import FinancePage from "@/features/user/pages/FinancePage.tsx";
 import ReportsPage from "@/features/user/pages/ReportsPage.tsx";
 import SettingsPage from "@/features/user/pages/SettingsPage.tsx";
-import StoresPage from "@/features/user/pages/StoresPage.tsx";
+import StoresPage from "@/features/stores/pages/StoresPage.tsx";
 
 const AppRoutes = () => {
     return (

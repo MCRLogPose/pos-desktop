@@ -1,18 +1,20 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { User, Lock, ArrowRight } from 'lucide-react';
+import { User, Lock, ArrowRight, EyeOff, Eye } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
 import Lottie from "lottie-react";
 import shoppingBagAnim from "@/assets/lotties/Shopping-Bag.json";
+import { useState } from 'react';
 
 export default function LoginCard() {
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+    const [passwordVisible, setPasswordVisible] = useState(false);
 
     const onSubmit = async (data: any) => {
         try {
@@ -47,7 +49,7 @@ export default function LoginCard() {
                 <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-600 ml-1 uppercase tracking-wider">Usuario</label>
                     <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-100 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
                         <input
                             type="text"
                             placeholder="Ingresa tu usuario"
@@ -61,13 +63,20 @@ export default function LoginCard() {
                 <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-600 ml-1 uppercase tracking-wider">Contraseña</label>
                     <div className="relative group">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
                         <input
-                            type="password"
+                            type={passwordVisible ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...register('password', { required: 'Contraseña es requerida' })}
                             className="w-full pl-12 pr-4 py-3.5 bg-gray-50/50 border border-gray-200 text-gray-900 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400 font-medium"
                         />
+                        <button
+                            type="button"
+                            onClick={() => setPasswordVisible(!passwordVisible)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            {passwordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
                     </div>
                     {errors.password && <span className="text-red-500 text-xs ml-1 font-medium">{errors.password.message as string}</span>}
                 </div>

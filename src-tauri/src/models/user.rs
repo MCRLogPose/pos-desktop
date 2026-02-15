@@ -8,7 +8,9 @@ pub struct User {
     pub username: String,
     #[serde(skip_serializing)] // Don't send hash to frontend
     pub password_hash: String,
+    pub cargo: Option<String>,
     pub email: Option<String>,
+    pub store_id: Option<i64>,
     pub is_active: bool, // stored as INTEGER 0/1 in SQLite
     pub created_at: Option<NaiveDateTime>,
 }
@@ -16,7 +18,7 @@ pub struct User {
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct Role {
     pub id: i64,
-    pub name: String,
+    pub role_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -31,8 +31,8 @@ impl AuthService {
 
         if count == 0 {
             log::info!("No users found. Creating default admin user...");
-            let password_hash = hash("root", DEFAULT_COST)?;
-            let admin_user = self.user_repo.create_user("admin", &password_hash, None).await?;
+            let password_hash = bcrypt::hash("root", bcrypt::DEFAULT_COST)?;
+            let admin_user = self.user_repo.create_user("admin", &password_hash, Some("ADMIN"), None, None).await?;
             
             if let Some(role) = admin_role {
                 self.user_repo.assign_role(admin_user.id, role.id).await?;
@@ -50,7 +50,7 @@ impl AuthService {
             .map_err(|e| format!("Database error: {}", e))?;
 
         if let Some(user) = user_opt {
-            if verify(password, &user.password_hash).map_err(|e| format!("Hash error: {}", e))? {
+            if bcrypt::verify(password, &user.password_hash).map_err(|e| format!("Hash error: {}", e))? {
                 Ok(user)
             } else {
                 Err("Invalid credentials".to_string())
@@ -65,8 +65,9 @@ impl AuthService {
             return Err("Username already exists".to_string());
         }
 
-        let password_hash = hash(password, DEFAULT_COST).map_err(|e| e.to_string())?;
-        self.user_repo.create_user(username, &password_hash, email).await
+        let password_hash = bcrypt::hash(password, bcrypt::DEFAULT_COST).map_err(|e| e.to_string())?;
+        // For backward compatibility with auth::create_user
+        self.user_repo.create_user(username, &password_hash, Some("ADMIN"), email, None).await
             .map_err(|e| e.to_string())
     }
 

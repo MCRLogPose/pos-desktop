@@ -19,14 +19,17 @@ CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
+  cargo TEXT,
   email TEXT,
+  store_id INTEGER,
   is_active INTEGER DEFAULT 1,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (store_id) REFERENCES stores(id)
 );
 
 CREATE TABLE IF NOT EXISTS roles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT UNIQUE NOT NULL -- ADMIN, SELLER
+  role_name TEXT UNIQUE NOT NULL -- ADMIN, GERENTE, VENDEDOR
 );
 
 CREATE TABLE IF NOT EXISTS user_roles (
@@ -37,10 +40,3 @@ CREATE TABLE IF NOT EXISTS user_roles (
   FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
-CREATE TABLE IF NOT EXISTS user_stores (
-  user_id INTEGER,
-  store_id INTEGER,
-  PRIMARY KEY (user_id, store_id),
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (store_id) REFERENCES stores(id)
-);

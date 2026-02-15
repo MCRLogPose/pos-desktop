@@ -4,7 +4,7 @@ pub mod repositories;
 pub mod services;
 pub mod commands;
 
-use commands::auth::{login, create_user, get_users, verify_password, AppState};
+use commands::auth::AppState;
 use services::auth_service::AuthService;
 use tauri::Manager;
 
@@ -41,14 +41,19 @@ pub fn run() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
-        login, 
-        create_user, 
-        get_users, 
-        verify_password,
+        commands::auth::login, 
+        commands::auth::create_user, 
+        commands::auth::get_users, 
+        commands::auth::verify_password,
         commands::store::get_stores,
         commands::store::create_store,
         commands::store::update_store,
-        commands::store::delete_store
+        commands::store::delete_store,
+        commands::user::get_all_users,
+        commands::user::create_staff_user,
+        commands::user::update_user,
+        commands::user::delete_user,
+        commands::user::get_users_by_store
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
