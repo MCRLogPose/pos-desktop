@@ -1,6 +1,6 @@
 use crate::models::user::User;
 use crate::repositories::user_repo::UserRepository;
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{verify};
 use sqlx::SqlitePool;
 
 use crate::repositories::store_repo::StoreRepository;

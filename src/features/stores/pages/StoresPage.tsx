@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Building2, UserPlus, Plus } from 'lucide-react';
-import { toast } from 'sonner';
 import StoreModal from '../components/StoreModal';
 import UserModal from '../components/UserModal';
 import UserCard from '../components/UserCard';
@@ -8,6 +7,8 @@ import StoreCard from '../components/StoreCard';
 import StoreDetailModal from '../components/StoreDetailModal';
 import { invoke } from '@tauri-apps/api/core';
 import { userService, type User } from '@/services/userService';
+import { useNotification } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface Store {
     id: number;
@@ -19,6 +20,8 @@ interface Store {
 }
 
 export default function StoresPage() {
+    const { user } = useAuth();
+    const { showNotification } = useNotification();
     const [stores, setStores] = useState<Store[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
@@ -28,6 +31,8 @@ export default function StoresPage() {
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [selectedStore, setSelectedStore] = useState<Store | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const isAdmin = user?.username === 'admin';
 
     useEffect(() => {
         loadStores();
@@ -39,7 +44,7 @@ export default function StoresPage() {
             const data = await invoke<Store[]>('get_stores');
             setStores(data);
         } catch (error) {
-            toast.error('Error al cargar las sedes');
+            showNotification('error', 'Error', 'Error al cargar las sedes');
             console.error(error);
         }
     };
@@ -49,20 +54,29 @@ export default function StoresPage() {
             const data = await userService.getAllUsers();
             setUsers(data);
         } catch (error) {
-            toast.error('Error al cargar los usuarios');
+            showNotification('error', 'Error', 'Error al cargar los usuarios');
             console.error(error);
         }
     };
 
+    const checkAdmin = () => {
+        if (!isAdmin) {
+            showNotification('warning', 'Acceso Restringido', 'Solo el administrador central "admin" puede realizar esta acción.');
+            return false;
+        }
+        return true;
+    };
+
     const handleCreateStore = async (name: string, address: string, code: string) => {
+        if (!checkAdmin()) return;
         setIsSubmitting(true);
         try {
             await invoke('create_store', { name, address, code });
-            toast.success('Sede creada exitosamente');
+            showNotification('success', 'Éxito', 'Sede creada exitosamente');
             setIsStoreModalOpen(false);
             loadStores();
         } catch (error) {
-            toast.error('Error al crear la sede');
+            showNotification('error', 'Error', 'Error al crear la sede');
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -70,16 +84,17 @@ export default function StoresPage() {
     };
 
     const handleUpdateStore = async (name: string, address: string, code: string) => {
+        if (!checkAdmin()) return;
         if (!editingStore) return;
         setIsSubmitting(true);
         try {
             await invoke('update_store', { id: editingStore.id, name, address, code });
-            toast.success('Sede actualizada exitosamente');
+            showNotification('success', 'Éxito', 'Sede actualizada exitosamente');
             setIsStoreModalOpen(false);
             setEditingStore(null);
             loadStores();
         } catch (error) {
-            toast.error('Error al actualizar la sede');
+            showNotification('error', 'Error', 'Error al actualizar la sede');
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -87,12 +102,13 @@ export default function StoresPage() {
     };
 
     const handleDeleteStore = async (id: number) => {
+        if (!checkAdmin()) return;
         try {
             await invoke('delete_store', { id });
-            toast.success('Sede eliminada exitosamente');
+            showNotification('success', 'Éxito', 'Sede eliminada exitosamente');
             loadStores();
         } catch (error) {
-            toast.error('Error al eliminar la sede');
+            showNotification('error', 'Error', 'Error al eliminar la sede');
             console.error(error);
         }
     };
@@ -105,6 +121,7 @@ export default function StoresPage() {
         storeId: number | null,
         role: string
     ) => {
+        if (!checkAdmin()) return;
         setIsSubmitting(true);
         try {
             await userService.createUser(
@@ -115,11 +132,11 @@ export default function StoresPage() {
                 storeId,
                 role
             );
-            toast.success('Usuario creado exitosamente');
+            showNotification('success', 'Éxito', 'Usuario creado exitosamente');
             setIsUserModalOpen(false);
             loadUsers();
         } catch (error: any) {
-            toast.error(error || 'Error al crear el usuario');
+            showNotification('error', 'Error', error || 'Error al crear el usuario');
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -134,6 +151,7 @@ export default function StoresPage() {
         storeId: number | null,
         _role: string
     ) => {
+        if (!checkAdmin()) return;
         if (!editingUser) return;
         setIsSubmitting(true);
         try {
@@ -143,12 +161,12 @@ export default function StoresPage() {
                 email || null,
                 storeId
             );
-            toast.success('Usuario actualizado exitosamente');
+            showNotification('success', 'Éxito', 'Usuario actualizado exitosamente');
             setIsUserModalOpen(false);
             setEditingUser(null);
             loadUsers();
         } catch (error) {
-            toast.error('Error al actualizar el usuario');
+            showNotification('error', 'Error', 'Error al actualizar el usuario');
             console.error(error);
         } finally {
             setIsSubmitting(false);
@@ -156,17 +174,19 @@ export default function StoresPage() {
     };
 
     const handleDeleteUser = async (userId: number) => {
+        if (!checkAdmin()) return;
         try {
             await userService.deleteUser(userId);
-            toast.success('Usuario eliminado exitosamente');
+            showNotification('success', 'Éxito', 'Usuario eliminado exitosamente');
             loadUsers();
         } catch (error) {
-            toast.error('Error al eliminar el usuario');
+            showNotification('error', 'Error', 'Error al eliminar el usuario');
             console.error(error);
         }
     };
 
     const handleUserStoreChange = async (userId: number, storeId: number | null) => {
+        if (!checkAdmin()) return;
         try {
             const user = users.find(u => u.id === userId);
             if (!user) return;
@@ -177,15 +197,16 @@ export default function StoresPage() {
                 user.email || null,
                 storeId
             );
-            toast.success('Sede asignada exitosamente');
+            showNotification('success', 'Éxito', 'Sede asignada exitosamente');
             loadUsers();
         } catch (error) {
-            toast.error('Error al asignar la sede');
+            showNotification('error', 'Error', 'Error al asignar la sede');
             console.error(error);
         }
     };
 
     const handleUnassignUser = async (userId: number) => {
+        if (!checkAdmin()) return;
         try {
             const user = users.find(u => u.id === userId);
             if (!user) return;
@@ -196,20 +217,22 @@ export default function StoresPage() {
                 user.email || null,
                 null
             );
-            toast.success('Usuario desvinculado exitosamente');
+            showNotification('success', 'Éxito', 'Usuario desvinculado exitosamente');
             loadUsers();
         } catch (error) {
-            toast.error('Error al desvincular el usuario');
+            showNotification('error', 'Error', 'Error al desvincular el usuario');
             console.error(error);
         }
     };
 
     const openEditStore = (store: Store) => {
+        if (!checkAdmin()) return;
         setEditingStore(store);
         setIsStoreModalOpen(true);
     };
 
     const openEditUser = (user: User) => {
+        if (!checkAdmin()) return;
         setEditingUser(user);
         setIsUserModalOpen(true);
     };
@@ -250,7 +273,9 @@ export default function StoresPage() {
                             </div>
                         </div>
                         <button
-                            onClick={() => setIsUserModalOpen(true)}
+                            onClick={() => {
+                                if (checkAdmin()) setIsUserModalOpen(true);
+                            }}
                             className="bg-white hover:bg-gray-50 text-green-600 p-2 rounded-lg border border-gray-100 shadow-sm transition-all active:scale-95"
                             title="Crear Usuario"
                         >
@@ -291,7 +316,9 @@ export default function StoresPage() {
                             </div>
                         </div>
                         <button
-                            onClick={() => setIsStoreModalOpen(true)}
+                            onClick={() => {
+                                if (checkAdmin()) setIsStoreModalOpen(true);
+                            }}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95"
                         >
                             <Plus className="w-4 h-4" />

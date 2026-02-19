@@ -42,7 +42,7 @@ export default function UserCard({ user, stores, onEdit, onDelete, onStoreChange
                     </div>
                     <div>
                         <h3 className="font-bold text-gray-900">{user.username}</h3>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <p className="text-sm text-gray-500">{user.cargo}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">

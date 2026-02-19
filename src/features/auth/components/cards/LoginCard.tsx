@@ -49,7 +49,7 @@ export default function LoginCard() {
                 <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-gray-600 ml-1 uppercase tracking-wider">Usuario</label>
                     <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-100 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-blue-600 transition-colors w-5 h-5" />
                         <input
                             type="text"
                             placeholder="Ingresa tu usuario"
