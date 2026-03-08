@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Edit, Trash2, Package, ArrowUpDown, Layers } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
-import ProductModal from '../components/ProductModal';
-import CategoryModal from '../components/CategoryModal';
+import ProductModal from '../components/modals/ProductModal';
+import CategoryModal from '../components/modals/CategoryModal';
 
 interface Category {
   id: number;

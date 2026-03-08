@@ -28,7 +28,5 @@ CREATE TABLE products (
 );
 
 /* Initial Categories */
-INSERT OR IGNORE INTO categories (name) VALUES ('Bebidas');
-INSERT OR IGNORE INTO categories (name) VALUES ('Comida');
-INSERT OR IGNORE INTO categories (name) VALUES ('Postres');
+INSERT OR IGNORE INTO categories (name) VALUES ('Short');
 INSERT OR IGNORE INTO categories (name) VALUES ('Otros');

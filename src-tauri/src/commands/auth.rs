@@ -11,6 +11,7 @@ use tauri::State;
 pub struct AppState {
     pub auth_service: AuthService,
     pub inventory_service: crate::services::inventory_service::InventoryService,
+    pub sales_service: crate::services::sales_service::SalesService,
 }
 
 #[tauri::command]

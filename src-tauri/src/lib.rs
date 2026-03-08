@@ -22,7 +22,8 @@ pub fn run() {
             let pool = db::init_db(&app_handle).await.expect("Failed to init DB");
             
             let auth_service = AuthService::new(pool.clone());
-            let inventory_service = services::inventory_service::InventoryService::new(pool);
+            let inventory_service = services::inventory_service::InventoryService::new(pool.clone());
+            let sales_service = services::sales_service::SalesService::new(pool);
             
             // Initialize Admin if needed
             auth_service.initialize_admin().await.expect("Failed to initialize admin");
@@ -31,6 +32,7 @@ pub fn run() {
             app_handle.manage(AppState {
                 auth_service,
                 inventory_service,
+                sales_service,
             });
         });
 
@@ -65,7 +67,9 @@ pub fn run() {
         commands::inventory::get_products,
         commands::inventory::create_product,
         commands::inventory::update_product,
-        commands::inventory::delete_product
+        commands::inventory::delete_product,
+        // Sales
+        commands::sales::create_sale
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
