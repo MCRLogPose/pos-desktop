@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, DollarSign, BarChart3, Settings, LogOut, ChevronLeft, ChevronRight, Store } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, DollarSign, BarChart3, Settings, LogOut, ChevronLeft, ChevronRight, Store, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
@@ -22,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { icon: ShoppingCart, label: 'Punta de Venta', path: '/pos' },
+        { icon: ClipboardList, label: 'Ventas', path: '/sales' },
         { icon: Package, label: 'Inventario', path: '/inventory' },
         { icon: DollarSign, label: 'Finanzas', path: '/finance' },
         { icon: BarChart3, label: 'Reportes', path: '/reports' },

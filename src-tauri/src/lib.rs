@@ -69,7 +69,10 @@ pub fn run() {
         commands::inventory::update_product,
         commands::inventory::delete_product,
         // Sales
-        commands::sales::create_sale
+        commands::sales::create_sale,
+        commands::sales::get_sales,
+        commands::sales::get_sale_detail,
+        commands::sales::get_all_order_items,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

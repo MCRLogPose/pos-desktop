@@ -9,6 +9,7 @@ import FinancePage from "@/features/user/pages/FinancePage.tsx";
 import ReportsPage from "@/features/user/pages/ReportsPage.tsx";
 import SettingsPage from "@/features/user/pages/SettingsPage.tsx";
 import StoresPage from "@/features/stores/pages/StoresPage.tsx";
+import SalesPage from "@/features/user/pages/SalesPage.tsx";
 
 const AppRoutes = () => {
     return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/pos" element={<POSPage />} />
+                <Route path="/sales" element={<SalesPage />} />
                 <Route path="/inventory" element={<InventoryPage />} />
                 <Route path="/finance" element={<FinancePage />} />
                 <Route path="/reports" element={<ReportsPage />} />

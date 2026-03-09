@@ -32,6 +32,7 @@ interface CartItem {
     id: string;       // uuid for cart key
     product: Product;
     quantity: number;
+    customPrice?: number; // override price for this sale only
 }
 
 type PaymentMethod = 'cash' | 'card' | 'yape';
@@ -131,6 +132,17 @@ const POSPage = () => {
         }, []));
     };
 
+    const updateCustomPrice = (id: string, value: string) => {
+        const parsed = parseFloat(value);
+        setCart(prev => prev.map(item =>
+            item.id === id
+                ? { ...item, customPrice: isNaN(parsed) || parsed < 0 ? 0 : parsed }
+                : item
+        ));
+    };
+
+    const effectivePrice = (item: CartItem) => item.customPrice ?? item.product.price;
+
     // ─── Filtering ───────────────────────────────────────────
     const filteredProducts = useMemo(() => {
         return products.filter(product => {
@@ -142,7 +154,7 @@ const POSPage = () => {
     }, [products, selectedCategory, searchQuery]);
 
     // ─── Totals ──────────────────────────────────────────────
-    const subtotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const subtotal = cart.reduce((sum, item) => sum + ((item.customPrice ?? item.product.price) * item.quantity), 0);
     const total = subtotal;
     const base = total / 1.18;
     const igv = total - base;
@@ -160,9 +172,9 @@ const POSPage = () => {
             const items = cart.map(item => ({
                 product_id: item.product.id,
                 product_name: item.product.name,
-                unit_price: item.product.price,
+                unit_price: item.customPrice ?? item.product.price,
                 quantity: item.quantity,
-                subtotal: item.product.price * item.quantity,
+                subtotal: (item.customPrice ?? item.product.price) * item.quantity,
             }));
 
             await invoke<number>('create_sale', {
@@ -351,8 +363,23 @@ const POSPage = () => {
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <div className="flex justify-between items-end">
-                                        <p className="text-blue-600 font-bold text-sm">S/ {(item.product.price * item.quantity).toFixed(2)}</p>
+                                    {/* Price editor */}
+                                    <div className="flex items-center gap-1.5 mt-1">
+                                        <span className="text-xs text-gray-400">S/</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.10"
+                                            value={item.customPrice ?? item.product.price}
+                                            onChange={e => updateCustomPrice(item.id, e.target.value)}
+                                            className="w-20 text-sm font-semibold text-blue-600 bg-white border border-gray-200 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        />
+                                        {item.customPrice !== undefined && item.customPrice !== item.product.price && (
+                                            <span className="text-xs text-amber-500 line-through">{item.product.price.toFixed(2)}</span>
+                                        )}
+                                    </div>
+                                    <div className="flex justify-between items-end mt-1">
+                                        <p className="text-xs text-gray-400">Total: <span className="font-semibold text-gray-700">S/ {(effectivePrice(item) * item.quantity).toFixed(2)}</span></p>
                                         <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-1 py-0.5">
                                             <button
                                                 onClick={() => updateQuantity(item.id, -1)}
