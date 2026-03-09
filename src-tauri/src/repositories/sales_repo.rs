@@ -18,8 +18,8 @@ impl SalesRepository {
         // 1. Insert the order header
         let order_id = sqlx::query(
             r#"
-            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(payload.user_id)
@@ -30,9 +30,25 @@ impl SalesRepository {
         .bind(payload.subtotal)
         .bind(payload.igv)
         .bind(payload.total)
+        .bind(payload.cash_session_id)
         .execute(&mut *tx)
         .await?
         .last_insert_rowid();
+
+        // 3. Update cash session balance
+        if payload.payment_method == "cash" {
+            sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ? WHERE id = ?")
+                .bind(payload.total)
+                .bind(payload.cash_session_id)
+                .execute(&mut *tx)
+                .await?;
+        } else {
+            sqlx::query("UPDATE cash_sessions SET expected_closing_virtual = expected_closing_virtual + ? WHERE id = ?")
+                .bind(payload.total)
+                .bind(payload.cash_session_id)
+                .execute(&mut *tx)
+                .await?;
+        }
 
         // 2. Insert each item and decrement stock
         for item in &payload.items {

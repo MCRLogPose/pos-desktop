@@ -1,0 +1,3 @@
+src/features/user/pages/FinancePage.tsx(4,1): error TS6192: All imports in import declaration are unused.
+src/features/user/pages/FinancePage.tsx(21,7): error TS6133: 'WEEKLY_DATA' is declared but its value is never read.
+src/services/db/seed.ts(12,11): error TS6133: 'db' is declared but its value is never read.

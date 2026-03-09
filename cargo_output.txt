@@ -1,0 +1,324 @@
+    Checking app v0.1.0 (C:\Users\cruzr\Documents\ProjectsDesktop\pos-desktop\src-tauri)
+warning: unused imports: `Expense` and `OtherIncome`
+ --> src\repositories\cash_repo.rs:1:75
+  |
+1 | use crate::models::cash::{CashSession, OpenCashPayload, CloseCashPayload, Expense, OtherIncome};
+  |                                                                           ^^^^^^^  ^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `serde_json::Value`
+ --> src\commands\cash.rs:4:5
+  |
+4 | use serde_json::Value;
+  |     ^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:193:45
+    |
+193 |                 "id": format!("order_{}", o.get::<i64, _>("id")),
+    |                                             ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:194:29
+    |
+194 |                 "amount": o.get::<f64, _>("amount"),
+    |                             ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:195:37
+    |
+195 |                 "payment_method": o.get::<String, _>("payment_method"),
+    |                                     ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:196:33
+    |
+196 |                 "created_at": o.get::<String, _>("created_at"),
+    |                                 ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:197:34
+    |
+197 |                 "description": o.get::<String, _>("description"),
+    |                                  ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:198:27
+    |
+198 |                 "type": o.get::<String, _>("type"),
+    |                           ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:205:47
+    |
+205 |                 "id": format!("expense_{}", e.get::<i64, _>("id")),
+    |                                               ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:206:29
+    |
+206 |                 "amount": e.get::<f64, _>("amount"),
+    |                             ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:207:37
+    |
+207 |                 "payment_method": e.get::<String, _>("payment_method"),
+    |                                     ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:208:33
+    |
+208 |                 "created_at": e.get::<String, _>("created_at"),
+    |                                 ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:209:34
+    |
+209 |                 "description": e.get::<String, _>("description"),
+    |                                  ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:210:27
+    |
+210 |                 "type": e.get::<String, _>("type"),
+    |                           ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:217:46
+    |
+217 |                 "id": format!("income_{}", i.get::<i64, _>("id")),
+    |                                              ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:218:29
+    |
+218 |                 "amount": i.get::<f64, _>("amount"),
+    |                             ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:219:37
+    |
+219 |                 "payment_method": i.get::<String, _>("payment_method"),
+    |                                     ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:220:33
+    |
+220 |                 "created_at": i.get::<String, _>("created_at"),
+    |                                 ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:221:34
+    |
+221 |                 "description": i.get::<String, _>("description"),
+    |                                  ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+error[E0599]: no method named `get` found for struct `SqliteRow` in the current scope
+   --> src\repositories\cash_repo.rs:222:27
+    |
+222 |                 "type": i.get::<String, _>("type"),
+    |                           ^^^ method not found in `SqliteRow`
+    |
+   ::: C:\Users\cruzr\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\sqlx-core-0.8.6\src\row.rs:68:8
+    |
+ 68 |     fn get<'r, T, I>(&'r self, index: I) -> T
+    |        --- the method is available for `SqliteRow` here
+    |
+    = help: items from traits can only be used if the trait is in scope
+help: trait `Row` which provides `get` is implemented but not in scope; perhaps you want to import it
+    |
+  1 + use sqlx::Row;
+    |
+
+For more information about this error, try `rustc --explain E0599`.
+warning: `app` (lib) generated 2 warnings
+error: could not compile `app` (lib) due to 18 previous errors; 2 warnings emitted

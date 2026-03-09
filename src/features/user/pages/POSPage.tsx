@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCash } from '@/context/CashContext';
 import CheckoutModal from '../components/modals/CheckoutModal';
 
 // ─── Types ───────────────────────────────────────────────────
@@ -41,6 +42,7 @@ type PaymentMethod = 'cash' | 'card' | 'yape';
 const POSPage = () => {
     const { showNotification } = useNotification();
     const { user } = useAuth();
+    const { activeSession, refreshSession } = useCash();
 
     // Data from DB
     const [products, setProducts] = useState<Product[]>([]);
@@ -179,6 +181,7 @@ const POSPage = () => {
 
             await invoke<number>('create_sale', {
                 userId: user.id,
+                cashSessionId: activeSession?.id,
                 clientDocument: clientDocument.trim() || null,
                 clientPhone: clientPhone.trim() || null,
                 clientName: clientName.trim() || null,
@@ -197,8 +200,8 @@ const POSPage = () => {
             setPaymentMethod('cash');
             setIsCheckoutOpen(false);
 
-            // Reload products to reflect updated stock
-            await loadProducts();
+            // Reload products and cash session to reflect updated stock and balances
+            await Promise.all([loadProducts(), refreshSession()]);
         } catch (error) {
             console.error(error);
             const message = typeof error === 'string' ? error : 'Error al procesar la venta';

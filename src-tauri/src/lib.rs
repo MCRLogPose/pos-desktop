@@ -23,7 +23,8 @@ pub fn run() {
             
             let auth_service = AuthService::new(pool.clone());
             let inventory_service = services::inventory_service::InventoryService::new(pool.clone());
-            let sales_service = services::sales_service::SalesService::new(pool);
+            let sales_service = services::sales_service::SalesService::new(pool.clone());
+            let cash_service = services::cash_service::CashService::new(pool);
             
             // Initialize Admin if needed
             auth_service.initialize_admin().await.expect("Failed to initialize admin");
@@ -33,6 +34,7 @@ pub fn run() {
                 auth_service,
                 inventory_service,
                 sales_service,
+                cash_service,
             });
         });
 
@@ -73,6 +75,14 @@ pub fn run() {
         commands::sales::get_sales,
         commands::sales::get_sale_detail,
         commands::sales::get_all_order_items,
+        // Cash
+        commands::cash::get_active_cash_session,
+        commands::cash::get_last_closed_cash_session,
+        commands::cash::open_cash_session,
+        commands::cash::close_cash_session,
+        commands::cash::add_cash_expense,
+        commands::cash::add_cash_other_income,
+        commands::cash::get_cash_session_transactions,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

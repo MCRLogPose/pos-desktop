@@ -23,6 +23,7 @@ pub struct CreateOrderPayload {
     pub subtotal: f64,
     pub igv: f64,
     pub total: f64,
+    pub cash_session_id: i64,
 }
 
 /// Represents a created order returned to the frontend.

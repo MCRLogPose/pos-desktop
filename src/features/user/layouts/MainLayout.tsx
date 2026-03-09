@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/layouts/Sidebar';
 import Navbar from '../components/layouts/Navbar';
+import { useCash } from '@/context/CashContext';
+import OpenCashModal from '../components/modals/OpenCashModal';
+import SessionSummaryModal from '../components/modals/SessionSummaryModal';
 
 const MainLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [showSummary, setShowSummary] = useState(true);
+    const { activeSession, isLoading, lastClosedSession } = useCash();
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const toggleCollapse = () => setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -25,6 +30,16 @@ const MainLayout = () => {
                     <Outlet />
                 </main>
             </div>
+
+            <SessionSummaryModal
+                session={!activeSession && !isLoading && showSummary ? lastClosedSession : null}
+                onClose={() => setShowSummary(false)}
+            />
+
+            <OpenCashModal 
+                isOpen={!activeSession && !isLoading && (!lastClosedSession || !showSummary)} 
+                onClose={() => {}} // Cannot close without opening if we want to force it
+            />
         </div>
     );
 };

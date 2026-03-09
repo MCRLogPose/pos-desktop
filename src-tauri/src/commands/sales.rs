@@ -14,6 +14,7 @@ pub async fn create_sale(
     subtotal: f64,
     igv: f64,
     total: f64,
+    cash_session_id: i64,
 ) -> Result<i64, String> {
     let payload = CreateOrderPayload {
         user_id,
@@ -25,6 +26,7 @@ pub async fn create_sale(
         subtotal,
         igv,
         total,
+        cash_session_id,
     };
     state.sales_service.create_order(payload).await
 }

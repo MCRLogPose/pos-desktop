@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { User, Lock, ArrowRight, EyeOff, Eye } from 'lucide-react';
+import { User, Lock, ArrowRight, EyeOff, Eye, Power } from 'lucide-react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
@@ -94,6 +95,15 @@ export default function LoginCard() {
                             <ArrowRight className="w-5 h-5" />
                         </>
                     )}
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => getCurrentWindow().close()}
+                    className="w-full bg-white/50 hover:bg-red-50 text-gray-600 hover:text-red-600 font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 border border-gray-100 hover:border-red-100"
+                >
+                    <Power className="w-4 h-4" />
+                    Cerrar Sistema
                 </button>
             </form>
 

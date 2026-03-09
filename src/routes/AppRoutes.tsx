@@ -11,11 +11,13 @@ import SettingsPage from "@/features/user/pages/SettingsPage.tsx";
 import StoresPage from "@/features/stores/pages/StoresPage.tsx";
 import SalesPage from "@/features/user/pages/SalesPage.tsx";
 
+import { useAuth, ProtectedRoute } from "@/context/AuthContext";
+
 const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route element={<MainLayout />}>
+            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/pos" element={<POSPage />} />
