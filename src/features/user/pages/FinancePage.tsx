@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowUpRight, ArrowDownRight, Plus, FileText, Wallet, Clock, CreditCard } from 'lucide-react';
 import { clsx } from 'clsx';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useCash } from '@/context/CashContext';
 import { invoke } from '@tauri-apps/api/core';
 import OpenCashModal from '../components/modals/OpenCashModal';
@@ -17,16 +16,6 @@ interface Transaction {
     created_at: string;
     payment_method: 'cash' | 'virtual';
 }
-
-const WEEKLY_DATA = [
-    { day: 'Lun', ingresos: 4500, egresos: 3200 },
-    { day: 'Mar', ingresos: 5200, egresos: 2800 },
-    { day: 'Mie', ingresos: 4800, egresos: 4100 },
-    { day: 'Jue', ingresos: 6100, egresos: 3500 },
-    { day: 'Vie', ingresos: 7500, egresos: 4200 },
-    { day: 'Sab', ingresos: 8200, egresos: 3800 },
-    { day: 'Dom', ingresos: 6900, egresos: 3100 },
-];
 
 const FinancePage = () => {
     const { activeSession } = useCash();
