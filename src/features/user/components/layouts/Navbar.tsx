@@ -1,6 +1,7 @@
-import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { Menu, User, Bell } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { NAV_ITEMS } from '../../constants/navigation';
 
 interface NavbarProps {
     toggleSidebar: () => void;
@@ -21,7 +22,27 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
                 >
                     <Menu className="w-6 h-6" />
                 </button>
-                {/* You can add breadcrumbs or page title here if needed */}
+                
+                {/* Dynamic Navigation Icons */}
+                {!isSidebarOpen && (
+                    <div className="flex items-center gap-2 ml-4 animate-in fade-in slide-in-from-left-4 duration-300">
+                        {NAV_ITEMS.map((item) => (
+                            <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) => `
+                                    p-2 rounded-lg transition-all duration-200
+                                    ${isActive 
+                                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/20" 
+                                        : "text-blue-600 hover:bg-blue-100"}
+                                `}
+                                title={item.label}
+                            >
+                                <item.icon className="w-5 h-5" />
+                            </NavLink>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="flex items-center gap-4">

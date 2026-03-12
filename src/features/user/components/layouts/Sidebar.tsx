@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, DollarSign, BarChart3, Settings, LogOut, ChevronLeft, ChevronRight, Store, ClipboardList } from 'lucide-react';
+import { LogOut, ChevronLeft, ChevronRight, Store } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
+import { NAV_ITEMS } from '../../constants/navigation';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -19,16 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
         navigate('/');
     };
 
-    const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-        { icon: ShoppingCart, label: 'Punta de Venta', path: '/pos' },
-        { icon: ClipboardList, label: 'Ventas', path: '/sales' },
-        { icon: Package, label: 'Inventario', path: '/inventory' },
-        { icon: DollarSign, label: 'Finanzas', path: '/finance' },
-        { icon: BarChart3, label: 'Reportes', path: '/reports' },
-        { icon: Store, label: 'Tiendas', path: '/stores' },
-        { icon: Settings, label: 'Configuración', path: '/settings' },
-    ];
+    const navItems = NAV_ITEMS;
 
     return (
         <motion.aside
