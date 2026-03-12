@@ -1,8 +1,8 @@
 use crate::models::user::User;
 use crate::services::auth_service::AuthService;
-use tauri::State; 
+use tauri::State;
 
-// We might need to wrap AuthService in a Mutex or Arc if it has internal mutable state, 
+// We might need to wrap AuthService in a Mutex or Arc if it has internal mutable state,
 // but currently it only holds UserRepository which holds SqlitePool which is Clone + Send + Sync.
 // So AuthService can be Clone if we derive it, or we just wrap it in State.
 // Since AuthService implementation doesn't have &mut self methods, we can just share it.
@@ -32,7 +32,10 @@ pub async fn create_user(
     email: Option<String>,
 ) -> Result<User, String> {
     // For now, we allow creating users as requested "ingreso de nuevos usuario".
-    state.auth_service.create_user(&username, &password, email.as_deref()).await
+    state
+        .auth_service
+        .create_user(&username, &password, email.as_deref())
+        .await
 }
 
 #[tauri::command]

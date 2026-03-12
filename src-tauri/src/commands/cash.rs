@@ -1,14 +1,18 @@
-use tauri::State;
 use crate::commands::auth::AppState;
-use crate::models::cash::{CashSession, OpenCashPayload, CloseCashPayload};
+use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload};
+use tauri::State;
 
 #[tauri::command]
-pub async fn get_active_cash_session(state: State<'_, AppState>) -> Result<Option<CashSession>, String> {
+pub async fn get_active_cash_session(
+    state: State<'_, AppState>,
+) -> Result<Option<CashSession>, String> {
     state.cash_service.get_active_session().await
 }
 
 #[tauri::command]
-pub async fn get_last_closed_cash_session(state: State<'_, AppState>) -> Result<Option<CashSession>, String> {
+pub async fn get_last_closed_cash_session(
+    state: State<'_, AppState>,
+) -> Result<Option<CashSession>, String> {
     state.cash_service.get_last_closed_session().await
 }
 
@@ -37,7 +41,10 @@ pub async fn add_cash_expense(
     amount: f64,
     payment_method: String,
 ) -> Result<i64, String> {
-    state.cash_service.add_expense(session_id, description, amount, payment_method).await
+    state
+        .cash_service
+        .add_expense(session_id, description, amount, payment_method)
+        .await
 }
 
 #[tauri::command]
@@ -48,7 +55,10 @@ pub async fn add_cash_other_income(
     amount: f64,
     payment_method: String,
 ) -> Result<i64, String> {
-    state.cash_service.add_other_income(session_id, description, amount, payment_method).await
+    state
+        .cash_service
+        .add_other_income(session_id, description, amount, payment_method)
+        .await
 }
 
 #[tauri::command]
@@ -56,5 +66,8 @@ pub async fn get_cash_session_transactions(
     state: State<'_, AppState>,
     session_id: i64,
 ) -> Result<Vec<serde_json::Value>, String> {
-    state.cash_service.get_session_transactions(session_id).await
+    state
+        .cash_service
+        .get_session_transactions(session_id)
+        .await
 }

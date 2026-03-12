@@ -9,6 +9,7 @@
     "sql:allow-load",
     "sql:allow-execute",
     "sql:allow-select",
-    "core:webview:allow-internal-toggle-devtools"
+    "core:webview:allow-internal-toggle-devtools",
+    "process:default"
   ]
 }

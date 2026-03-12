@@ -2,13 +2,14 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { User, Lock, ArrowRight, EyeOff, Eye, Power } from 'lucide-react';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+//import { getCurrentWindow } from '@tauri-apps/api/window';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
 import Lottie from "lottie-react";
 import shoppingBagAnim from "@/assets/lotties/Shopping-Bag.json";
 import { useState } from 'react';
+import { exit } from "@tauri-apps/plugin-process";
 
 export default function LoginCard() {
     const { login } = useAuth();
@@ -99,7 +100,7 @@ export default function LoginCard() {
 
                 <button
                     type="button"
-                    onClick={() => getCurrentWindow().close()}
+                    onClick={() => exit(0)}
                     className="w-full bg-white/50 hover:bg-red-50 text-gray-600 hover:text-red-600 font-bold py-3 rounded-2xl transition-all flex items-center justify-center gap-2 border border-gray-100 hover:border-red-100"
                 >
                     <Power className="w-4 h-4" />

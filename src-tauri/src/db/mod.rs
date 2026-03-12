@@ -16,7 +16,7 @@ pub async fn init_db(app_handle: &AppHandle) -> Result<SqlitePool, Box<dyn std::
     }
 
     let pool = SqlitePool::connect(&db_url).await?;
-    
+
     // Run migrations
     sqlx::migrate!("./migrations").run(&pool).await?;
 

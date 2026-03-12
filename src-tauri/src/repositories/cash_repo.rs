@@ -1,5 +1,5 @@
-use crate::models::cash::{CashSession, OpenCashPayload, CloseCashPayload};
-use sqlx::{SqlitePool, Row};
+use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload};
+use sqlx::{Row, SqlitePool};
 
 pub struct CashRepository {
     pool: SqlitePool,
@@ -12,7 +12,7 @@ impl CashRepository {
 
     pub async fn get_active_session(&self) -> Result<Option<CashSession>, sqlx::Error> {
         sqlx::query_as::<_, CashSession>(
-            "SELECT * FROM cash_sessions WHERE status = 'open' LIMIT 1"
+            "SELECT * FROM cash_sessions WHERE status = 'open' LIMIT 1",
         )
         .fetch_optional(&self.pool)
         .await
@@ -20,7 +20,7 @@ impl CashRepository {
 
     pub async fn get_last_closed_session(&self) -> Result<Option<CashSession>, sqlx::Error> {
         sqlx::query_as::<_, CashSession>(
-            "SELECT * FROM cash_sessions WHERE status = 'closed' ORDER BY closed_at DESC LIMIT 1"
+            "SELECT * FROM cash_sessions WHERE status = 'closed' ORDER BY closed_at DESC LIMIT 1",
         )
         .fetch_optional(&self.pool)
         .await
@@ -45,9 +45,12 @@ impl CashRepository {
         Ok(id)
     }
 
-    pub async fn close_session(&self, session_id: i64, payload: CloseCashPayload) -> Result<(), sqlx::Error> {
-        let difference = (payload.real_closing_cash + payload.real_closing_virtual) - 
-                         (sqlx::query_scalar::<_, f64>("SELECT expected_closing_cash + expected_closing_virtual FROM cash_sessions WHERE id = ?")
+    pub async fn close_session(
+        &self,
+        session_id: i64,
+        payload: CloseCashPayload,
+    ) -> Result<(), sqlx::Error> {
+        let difference = (payload.real_closing_cash + payload.real_closing_virtual) - (sqlx::query_scalar::<_, f64>("SELECT expected_closing_cash + expected_closing_virtual FROM cash_sessions WHERE id = ?")
                             .bind(session_id)
                             .fetch_one(&self.pool)
                             .await?);
@@ -63,7 +66,7 @@ impl CashRepository {
                 justification = ?, 
                 status = 'closed'
             WHERE id = ?
-            "#
+            "#,
         )
         .bind(payload.closed_by)
         .bind(payload.real_closing_cash)
@@ -77,7 +80,13 @@ impl CashRepository {
         Ok(())
     }
 
-    pub async fn add_expense(&self, session_id: i64, description: String, amount: f64, payment_method: String) -> Result<i64, sqlx::Error> {
+    pub async fn add_expense(
+        &self,
+        session_id: i64,
+        description: String,
+        amount: f64,
+        payment_method: String,
+    ) -> Result<i64, sqlx::Error> {
         let mut tx = self.pool.begin().await?;
 
         let id = sqlx::query(
@@ -109,7 +118,13 @@ impl CashRepository {
         Ok(id)
     }
 
-    pub async fn add_other_income(&self, session_id: i64, description: String, amount: f64, payment_method: String) -> Result<i64, sqlx::Error> {
+    pub async fn add_other_income(
+        &self,
+        session_id: i64,
+        description: String,
+        amount: f64,
+        payment_method: String,
+    ) -> Result<i64, sqlx::Error> {
         let mut tx = self.pool.begin().await?;
 
         let id = sqlx::query(
@@ -141,7 +156,12 @@ impl CashRepository {
         Ok(id)
     }
 
-    pub async fn update_expected_balances(&self, session_id: i64, amount: f64, payment_method: String) -> Result<(), sqlx::Error> {
+    pub async fn update_expected_balances(
+        &self,
+        session_id: i64,
+        amount: f64,
+        payment_method: String,
+    ) -> Result<(), sqlx::Error> {
         if payment_method == "cash" {
             sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ? WHERE id = ?")
                 .bind(amount)
@@ -158,7 +178,10 @@ impl CashRepository {
         Ok(())
     }
 
-    pub async fn get_session_transactions(&self, session_id: i64) -> Result<Vec<serde_json::Value>, sqlx::Error> {
+    pub async fn get_session_transactions(
+        &self,
+        session_id: i64,
+    ) -> Result<Vec<serde_json::Value>, sqlx::Error> {
         // Fetch Orders
         let orders = sqlx::query(
             "SELECT id, total as amount, payment_method, created_at, 'Venta #' || id as description, 'income' as type 
@@ -171,7 +194,7 @@ impl CashRepository {
         // Fetch Expenses
         let expenses = sqlx::query(
             "SELECT id, amount, payment_method, created_at, description, 'expense' as type 
-             FROM expenses WHERE cash_session_id = ?"
+             FROM expenses WHERE cash_session_id = ?",
         )
         .bind(session_id)
         .fetch_all(&self.pool)
@@ -180,7 +203,7 @@ impl CashRepository {
         // Fetch Other Income
         let other_income = sqlx::query(
             "SELECT id, amount, payment_method, created_at, description, 'income' as type 
-             FROM other_income WHERE cash_session_id = ?"
+             FROM other_income WHERE cash_session_id = ?",
         )
         .bind(session_id)
         .fetch_all(&self.pool)

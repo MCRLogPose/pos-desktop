@@ -1,41 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Search, Filter, ArrowUpDown, Eye, Download,
+  Search, Filter, ArrowUpDown, Download,
   ShoppingBag, FileText, X, Calendar, ChevronDown, Check
 } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import { clsx } from 'clsx';
+import ExportModal, { type ExportFormat } from '../components/modals/ExportModal';
+import SaleDetailModal, { type Sale } from '../components/modals/SaleDetailModal';
+import SalesTable from '../components/tables/SalesTable';
 
 // ─── Types ────────────────────────────────────────────────────
-interface SaleItem {
-  id: number;
-  product_id: number;
-  product_name: string;
-  unit_price: number;
-  quantity: number;
-  subtotal: number;
-}
-
-interface Sale {
-  id: number;
-  user_id: number;
-  user_name?: string | null;
-  client_document?: string | null;
-  client_phone?: string | null;
-  client_name?: string | null;
-  payment_method: string;
-  subtotal: number;
-  igv: number;
-  total: number;
-  created_at: string;
-  items?: SaleItem[];
-}
-
-type SortField = 'id' | 'total' | 'created_at' | 'payment_method';
-type SortDir = 'asc' | 'desc';
-type ExportFormat = 'items_csv' | 'orders_csv' | 'pdf';
-
 interface OrderItemExport {
   order_id: number;
   created_at: string;
@@ -48,6 +23,9 @@ interface OrderItemExport {
   subtotal: number;
 }
 
+type SortField = 'id' | 'total' | 'created_at' | 'payment_method';
+type SortDir = 'asc' | 'desc';
+
 // ─── Helpers ──────────────────────────────────────────────────
 const paymentMethodLabel = (method: string) => {
   switch (method) {
@@ -58,262 +36,12 @@ const paymentMethodLabel = (method: string) => {
   }
 };
 
-const paymentMethodColor = (method: string) => {
-  switch (method) {
-    case 'cash': return 'bg-green-100 text-green-700';
-    case 'card': return 'bg-blue-100 text-blue-700';
-    case 'yape': return 'bg-purple-100 text-purple-700';
-    default: return 'bg-gray-100 text-gray-700';
-  }
-};
-
-const formatDate = (dateStr: string) => {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-};
-
 const formatDateTime = (dateStr: string) => {
   const d = new Date(dateStr);
   return d.toLocaleString('es-PE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
-};
-
-// ─── Export Modal ─────────────────────────────────────────────
-interface ExportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: (format: ExportFormat) => void;
-}
-
-const ExportModal = ({ isOpen, onClose, onConfirm }: ExportModalProps) => {
-  const [selected, setSelected] = useState<ExportFormat>('items_csv');
-
-  if (!isOpen) return null;
-
-  const options: { value: ExportFormat; label: string; desc: string; color: string; badge: string }[] = [
-    {
-      value: 'items_csv',
-      label: 'Detalle de Prendas',
-      desc: 'Una fila por prenda vendida con datos de la orden',
-      color: 'border-green-500 bg-green-50',
-      badge: 'CSV',
-    },
-    {
-      value: 'orders_csv',
-      label: 'Resumen de Órdenes',
-      desc: 'Una fila por venta con totales (tabla actual)',
-      color: 'border-blue-500 bg-blue-50',
-      badge: 'CSV',
-    },
-    {
-      value: 'pdf',
-      label: 'Archivo PDF',
-      desc: 'Listo para imprimir o compartir (próximamente)',
-      color: 'border-red-400 bg-red-50',
-      badge: 'PDF',
-    },
-  ];
-
-  const activeColor = selected === 'items_csv'
-    ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20'
-    : selected === 'orders_csv'
-    ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20'
-    : 'bg-red-600 hover:bg-red-700 shadow-red-600/20';
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-xl">
-              <Download className="w-5 h-5 text-blue-600" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-900">Exportar Ventas</h2>
-          </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Options */}
-        <div className="p-5 space-y-2.5">
-          <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-3">Selecciona el formato</p>
-          {options.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setSelected(opt.value)}
-              className={clsx(
-                'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left',
-                selected === opt.value ? opt.color : 'border-gray-200 hover:border-gray-300 bg-white'
-              )}
-            >
-              <div className={clsx(
-                'w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-colors',
-                selected === opt.value
-                  ? opt.value === 'items_csv' ? 'bg-green-600 text-white'
-                    : opt.value === 'orders_csv' ? 'bg-blue-600 text-white'
-                    : 'bg-red-600 text-white'
-                  : 'bg-gray-100 text-gray-500'
-              )}>
-                {opt.badge}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-900 text-sm">{opt.label}</p>
-                <p className="text-xs text-gray-500 leading-snug">{opt.desc}</p>
-              </div>
-              <div className={clsx(
-                'w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors',
-                selected === opt.value
-                  ? opt.value === 'items_csv' ? 'border-green-600 bg-green-600'
-                    : opt.value === 'orders_csv' ? 'border-blue-600 bg-blue-600'
-                    : 'border-red-500 bg-red-500'
-                  : 'border-gray-300'
-              )}>
-                {selected === opt.value && <Check className="w-2.5 h-2.5 text-white" />}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 pb-5 flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => onConfirm(selected)}
-            className={clsx('flex-1 py-2.5 rounded-xl text-white font-medium transition-colors shadow-lg', activeColor)}
-          >
-            Exportar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── Sale Detail Modal ────────────────────────────────────────
-interface SaleDetailModalProps {
-  sale: Sale | null;
-  onClose: () => void;
-}
-
-const SaleDetailModal = ({ sale, onClose }: SaleDetailModalProps) => {
-  if (!sale) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-50 rounded-xl">
-              <FileText className="w-5 h-5 text-indigo-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Venta #{sale.id}</h2>
-              <p className="text-xs text-gray-500">{formatDateTime(sale.created_at)}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
-          {/* Client & Payment Info */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Cliente</p>
-              <p className="font-medium text-gray-900">{sale.client_name || 'Sin nombre'}</p>
-              {sale.client_document && (
-                <p className="text-sm text-gray-500">Doc: {sale.client_document}</p>
-              )}
-              {sale.client_phone && (
-                <p className="text-sm text-gray-500">Tel: {sale.client_phone}</p>
-              )}
-            </div>
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pago</p>
-              <span className={clsx(
-                'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                paymentMethodColor(sale.payment_method)
-              )}>
-                {paymentMethodLabel(sale.payment_method)}
-              </span>
-              {sale.user_name && (
-                <p className="text-sm text-gray-500">Vendedor: {sale.user_name}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Items Table */}
-          {sale.items && sale.items.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Productos</p>
-              <div className="border border-gray-100 rounded-xl overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Producto</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">Cant.</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">P. Unit.</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {sale.items.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-medium text-gray-900">{item.product_name}</td>
-                        <td className="px-4 py-3 text-right text-gray-600">{item.quantity}</td>
-                        <td className="px-4 py-3 text-right text-gray-600">S/ {item.unit_price.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-gray-900">S/ {item.subtotal.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Totals */}
-          <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Subtotal (sin IGV)</span>
-              <span>S/ {sale.subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>IGV (18%)</span>
-              <span>S/ {sale.igv.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
-              <span>Total</span>
-              <span className="text-blue-600">S/ {sale.total.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="p-5 border-t border-gray-100 shrink-0">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
-          >
-            Cerrar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 // ─── Main Component ───────────────────────────────────────────
@@ -340,7 +68,6 @@ const SalesPage = () => {
 
   // Modals
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
 
   useEffect(() => {
@@ -368,7 +95,6 @@ const SalesPage = () => {
       // Fallback: show sale without items detail
       setSelectedSale(sale);
     }
-    setIsDetailOpen(true);
   };
 
   const handleSort = (field: SortField) => {
@@ -697,87 +423,11 @@ const SalesPage = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">N° Venta</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Método</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center gap-3 text-gray-400">
-                      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                      <p className="text-sm">Cargando ventas...</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : paginatedSales.length > 0 ? (
-                paginatedSales.map(sale => (
-                  <tr key={sale.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                          <ShoppingBag className="w-4 h-4 text-indigo-600" />
-                        </div>
-                        <span className="font-semibold text-gray-900">#{sale.id}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{formatDate(sale.created_at)}</div>
-                      <div className="text-xs text-gray-400">
-                        {new Date(sale.created_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{sale.client_name || 'Cliente general'}</div>
-                      {sale.client_document && (
-                        <div className="text-xs text-gray-400">Doc: {sale.client_document}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={clsx(
-                        'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                        paymentMethodColor(sale.payment_method)
-                      )}>
-                        {paymentMethodLabel(sale.payment_method)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <span className="font-bold text-gray-900">S/ {sale.total.toFixed(2)}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button
-                        onClick={() => handleViewDetail(sale)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Detalles
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center gap-3 text-gray-400">
-                      <ShoppingBag className="w-12 h-12 opacity-20" />
-                      <p className="font-medium">No se encontraron ventas</p>
-                      <p className="text-sm">Intenta ajustar los filtros de búsqueda</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <SalesTable
+          sales={paginatedSales}
+          isLoading={isLoading}
+          onViewDetail={handleViewDetail}
+        />
 
         {/* Pagination */}
         <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
@@ -804,15 +454,15 @@ const SalesPage = () => {
         </div>
       </div>
 
-      {/* Modals */}
-      <SaleDetailModal
-        sale={isDetailOpen ? selectedSale : null}
-        onClose={() => { setIsDetailOpen(false); setSelectedSale(null); }}
-      />
       <ExportModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
         onConfirm={handleExport}
+      />
+
+      <SaleDetailModal
+        sale={selectedSale}
+        onClose={() => setSelectedSale(null)}
       />
     </div>
   );

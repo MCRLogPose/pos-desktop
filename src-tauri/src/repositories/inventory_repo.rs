@@ -22,7 +22,7 @@ impl InventoryRepository {
             .bind(name)
             .execute(&self.pool)
             .await?;
-        
+
         Ok(Category {
             id: result.last_insert_rowid(),
             name: name.to_string(),

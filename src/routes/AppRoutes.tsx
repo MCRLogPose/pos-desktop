@@ -11,7 +11,7 @@ import SettingsPage from "@/features/user/pages/SettingsPage.tsx";
 import StoresPage from "@/features/stores/pages/StoresPage.tsx";
 import SalesPage from "@/features/user/pages/SalesPage.tsx";
 
-import { useAuth, ProtectedRoute } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/context/AuthContext";
 
 const AppRoutes = () => {
     return (

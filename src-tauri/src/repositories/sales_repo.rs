@@ -1,4 +1,4 @@
-use crate::models::sales::{CreateOrderPayload, Sale, SaleDetail, SaleItem, OrderItemExport};
+use crate::models::sales::{CreateOrderPayload, OrderItemExport, Sale, SaleDetail, SaleItem};
 use sqlx::SqlitePool;
 
 pub struct SalesRepository {
@@ -53,12 +53,11 @@ impl SalesRepository {
         // 2. Insert each item and decrement stock
         for item in &payload.items {
             // Validate stock before decrementing
-            let current_stock: i64 = sqlx::query_scalar(
-                "SELECT stock FROM products WHERE id = ? AND is_active = 1",
-            )
-            .bind(item.product_id)
-            .fetch_one(&mut *tx)
-            .await?;
+            let current_stock: i64 =
+                sqlx::query_scalar("SELECT stock FROM products WHERE id = ? AND is_active = 1")
+                    .bind(item.product_id)
+                    .fetch_one(&mut *tx)
+                    .await?;
 
             if current_stock < item.quantity {
                 return Err(sqlx::Error::RowNotFound);

@@ -1,6 +1,6 @@
 pub mod auth;
-pub mod store;
-pub mod user;
+pub mod cash;
 pub mod inventory;
 pub mod sales;
-pub mod cash;
+pub mod store;
+pub mod user;

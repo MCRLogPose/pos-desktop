@@ -1,6 +1,8 @@
-use tauri::State;
 use crate::commands::auth::AppState;
-use crate::models::sales::{CreateOrderPayload, CreateOrderItemPayload, Sale, SaleDetail, OrderItemExport};
+use crate::models::sales::{
+    CreateOrderItemPayload, CreateOrderPayload, OrderItemExport, Sale, SaleDetail,
+};
+use tauri::State;
 
 #[tauri::command]
 pub async fn create_sale(
@@ -45,6 +47,8 @@ pub async fn get_sale_detail(
 }
 
 #[tauri::command]
-pub async fn get_all_order_items(state: State<'_, AppState>) -> Result<Vec<OrderItemExport>, String> {
+pub async fn get_all_order_items(
+    state: State<'_, AppState>,
+) -> Result<Vec<OrderItemExport>, String> {
     state.sales_service.get_all_order_items().await
 }

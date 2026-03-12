@@ -1,5 +1,5 @@
-use crate::models::user::User;
 use crate::commands::auth::AppState;
+use crate::models::user::User;
 use tauri::State;
 
 #[tauri::command]
@@ -24,7 +24,7 @@ pub async fn create_staff_user(
     }
 
     let repo = &state.auth_service.user_repo;
-    
+
     // Hash the password
     let password_hash = bcrypt::hash(&password, bcrypt::DEFAULT_COST)
         .map_err(|e| format!("Error hashing password: {}", e))?;
@@ -33,22 +33,34 @@ pub async fn create_staff_user(
     let final_cargo = cargo.unwrap_or_else(|| role_name.clone());
 
     // Create user
-    let user = repo.create_user(
-        &username,
-        &password_hash,
-        Some(&final_cargo),
-        email.as_deref(),
-        store_id
-    ).await.map_err(|e| e.to_string())?;
+    let user = repo
+        .create_user(
+            &username,
+            &password_hash,
+            Some(&final_cargo),
+            email.as_deref(),
+            store_id,
+        )
+        .await
+        .map_err(|e| e.to_string())?;
 
     // Find or create role
-    let role = match repo.find_role_by_name(&role_name).await.map_err(|e| e.to_string())? {
+    let role = match repo
+        .find_role_by_name(&role_name)
+        .await
+        .map_err(|e| e.to_string())?
+    {
         Some(r) => r,
-        None => repo.create_role(&role_name).await.map_err(|e| e.to_string())?
+        None => repo
+            .create_role(&role_name)
+            .await
+            .map_err(|e| e.to_string())?,
     };
 
     // Assign role to user
-    repo.assign_role(user.id, role.id).await.map_err(|e| e.to_string())?;
+    repo.assign_role(user.id, role.id)
+        .await
+        .map_err(|e| e.to_string())?;
 
     Ok(user)
 }
@@ -68,14 +80,9 @@ pub async fn update_user(
 }
 
 #[tauri::command]
-pub async fn delete_user(
-    state: State<'_, AppState>,
-    id: i64,
-) -> Result<(), String> {
+pub async fn delete_user(state: State<'_, AppState>, id: i64) -> Result<(), String> {
     let repo = &state.auth_service.user_repo;
-    repo.soft_delete_user(id)
-        .await
-        .map_err(|e| e.to_string())
+    repo.soft_delete_user(id).await.map_err(|e| e.to_string())
 }
 
 #[tauri::command]

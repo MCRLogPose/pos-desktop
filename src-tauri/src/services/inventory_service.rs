@@ -14,23 +14,38 @@ impl InventoryService {
     }
 
     pub async fn get_categories(&self) -> Result<Vec<Category>, String> {
-        self.inventory_repo.get_categories().await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .get_categories()
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn create_category(&self, name: &str) -> Result<Category, String> {
-        self.inventory_repo.create_category(name).await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .create_category(name)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn update_category(&self, id: i64, name: &str) -> Result<(), String> {
-        self.inventory_repo.update_category(id, name).await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .update_category(id, name)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn delete_category(&self, id: i64) -> Result<(), String> {
-        self.inventory_repo.delete_category(id).await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .delete_category(id)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn get_products(&self) -> Result<Vec<ProductWithCategory>, String> {
-        self.inventory_repo.get_products().await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .get_products()
+            .await
+            .map_err(|e| e.to_string())
     }
 
     pub async fn create_product(
@@ -44,7 +59,8 @@ impl InventoryService {
         unit: Option<&str>,
         image_url: Option<&str>,
     ) -> Result<i64, String> {
-        self.inventory_repo.create_product(code, name, category_id, price, cost, stock, unit, image_url)
+        self.inventory_repo
+            .create_product(code, name, category_id, price, cost, stock, unit, image_url)
             .await
             .map_err(|e| e.to_string())
     }
@@ -61,12 +77,26 @@ impl InventoryService {
         unit: Option<&str>,
         image_url: Option<&str>,
     ) -> Result<(), String> {
-        self.inventory_repo.update_product(id, code, name, category_id, price, cost, stock, unit, image_url)
+        self.inventory_repo
+            .update_product(
+                id,
+                code,
+                name,
+                category_id,
+                price,
+                cost,
+                stock,
+                unit,
+                image_url,
+            )
             .await
             .map_err(|e| e.to_string())
     }
 
     pub async fn delete_product(&self, id: i64) -> Result<(), String> {
-        self.inventory_repo.soft_delete_product(id).await.map_err(|e| e.to_string())
+        self.inventory_repo
+            .soft_delete_product(id)
+            .await
+            .map_err(|e| e.to_string())
     }
 }

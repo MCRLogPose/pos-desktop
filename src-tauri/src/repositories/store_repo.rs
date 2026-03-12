@@ -16,7 +16,12 @@ impl StoreRepository {
             .await
     }
 
-    pub async fn create(&self, name: &str, address: Option<&str>, code: Option<&str>) -> Result<Store, sqlx::Error> {
+    pub async fn create(
+        &self,
+        name: &str,
+        address: Option<&str>,
+        code: Option<&str>,
+    ) -> Result<Store, sqlx::Error> {
         let result = sqlx::query("INSERT INTO stores (name, address, code) VALUES (?, ?, ?)")
             .bind(name)
             .bind(address)
@@ -36,7 +41,13 @@ impl StoreRepository {
         })
     }
 
-    pub async fn update(&self, id: i64, name: &str, address: Option<&str>, code: Option<&str>) -> Result<(), sqlx::Error> {
+    pub async fn update(
+        &self,
+        id: i64,
+        name: &str,
+        address: Option<&str>,
+        code: Option<&str>,
+    ) -> Result<(), sqlx::Error> {
         sqlx::query("UPDATE stores SET name = ?, address = ?, code = ? WHERE id = ?")
             .bind(name)
             .bind(address)

@@ -1,4 +1,4 @@
-use crate::models::user::{User, Role};
+use crate::models::user::{Role, User};
 use sqlx::SqlitePool;
 
 pub struct UserRepository {
@@ -22,12 +22,12 @@ impl UserRepository {
     }
 
     pub async fn create_user(
-        &self, 
-        username: &str, 
-        password_hash: &str, 
+        &self,
+        username: &str,
+        password_hash: &str,
         cargo: Option<&str>,
         email: Option<&str>,
-        store_id: Option<i64>
+        store_id: Option<i64>,
     ) -> Result<User, sqlx::Error> {
         let result = sqlx::query(
             "INSERT INTO users (username, password_hash, cargo, email, store_id, is_active) VALUES (?, ?, ?, ?, ?, ?)"
@@ -63,7 +63,7 @@ impl UserRepository {
     }
 
     pub async fn find_all_users(&self) -> Result<Vec<User>, sqlx::Error> {
-         sqlx::query_as::<_, User>(
+        sqlx::query_as::<_, User>(
             "SELECT id, username, password_hash, cargo, email, store_id, is_active, created_at FROM users WHERE is_active = 1"
         )
         .fetch_all(&self.pool)
@@ -82,10 +82,13 @@ impl UserRepository {
             .bind(role_name)
             .execute(&self.pool)
             .await?;
-        
+
         let id = result.last_insert_rowid();
-        
-        Ok(Role { id, role_name: role_name.to_string() })
+
+        Ok(Role {
+            id,
+            role_name: role_name.to_string(),
+        })
     }
 
     pub async fn assign_role(&self, user_id: i64, role_id: i64) -> Result<(), sqlx::Error> {
@@ -111,7 +114,7 @@ impl UserRepository {
         id: i64,
         cargo: Option<&str>,
         email: Option<&str>,
-        store_id: Option<i64>
+        store_id: Option<i64>,
     ) -> Result<(), sqlx::Error> {
         sqlx::query("UPDATE users SET cargo = ?, email = ?, store_id = ? WHERE id = ?")
             .bind(cargo)
