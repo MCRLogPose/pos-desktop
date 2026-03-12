@@ -10,18 +10,20 @@ impl CashRepository {
         Self { pool }
     }
 
-    pub async fn get_active_session(&self) -> Result<Option<CashSession>, sqlx::Error> {
+    pub async fn get_active_session(&self, store_id: i64) -> Result<Option<CashSession>, sqlx::Error> {
         sqlx::query_as::<_, CashSession>(
-            "SELECT * FROM cash_sessions WHERE status = 'open' LIMIT 1",
+            "SELECT * FROM cash_sessions WHERE status = 'open' AND store_id = ? LIMIT 1",
         )
+        .bind(store_id)
         .fetch_optional(&self.pool)
         .await
     }
 
-    pub async fn get_last_closed_session(&self) -> Result<Option<CashSession>, sqlx::Error> {
+    pub async fn get_last_closed_session(&self, store_id: i64) -> Result<Option<CashSession>, sqlx::Error> {
         sqlx::query_as::<_, CashSession>(
-            "SELECT * FROM cash_sessions WHERE status = 'closed' ORDER BY closed_at DESC LIMIT 1",
+            "SELECT * FROM cash_sessions WHERE status = 'closed' AND store_id = ? ORDER BY closed_at DESC LIMIT 1",
         )
+        .bind(store_id)
         .fetch_optional(&self.pool)
         .await
     }
@@ -29,8 +31,8 @@ impl CashRepository {
     pub async fn open_session(&self, payload: OpenCashPayload) -> Result<i64, sqlx::Error> {
         let id = sqlx::query(
             r#"
-            INSERT INTO cash_sessions (opened_by, opening_cash, opening_virtual, expected_closing_cash, expected_closing_virtual, status)
-            VALUES (?, ?, ?, ?, ?, 'open')
+            INSERT INTO cash_sessions (opened_by, opening_cash, opening_virtual, expected_closing_cash, expected_closing_virtual, status, store_id)
+            VALUES (?, ?, ?, ?, ?, 'open', ?)
             "#
         )
         .bind(payload.opened_by)
@@ -38,6 +40,7 @@ impl CashRepository {
         .bind(payload.opening_virtual)
         .bind(payload.opening_cash) // Initially expected is the opening
         .bind(payload.opening_virtual)
+        .bind(payload.store_id)
         .execute(&self.pool)
         .await?
         .last_insert_rowid();
@@ -90,12 +93,13 @@ impl CashRepository {
         let mut tx = self.pool.begin().await?;
 
         let id = sqlx::query(
-            "INSERT INTO expenses (cash_session_id, description, amount, payment_method) VALUES (?, ?, ?, ?)"
+            "INSERT INTO expenses (cash_session_id, description, amount, payment_method, store_id) VALUES (?, ?, ?, ?, ?)"
         )
         .bind(session_id)
         .bind(description)
         .bind(amount)
         .bind(&payment_method)
+        .bind(sqlx::query_scalar::<_, i64>("SELECT store_id FROM cash_sessions WHERE id = ?").bind(session_id).fetch_one(&mut *tx).await?)
         .execute(&mut *tx)
         .await?
         .last_insert_rowid();
@@ -118,8 +122,9 @@ impl CashRepository {
         Ok(id)
     }
 
-    pub async fn get_all_expenses(&self) -> Result<Vec<crate::models::cash::Expense>, sqlx::Error> {
-        sqlx::query_as::<_, crate::models::cash::Expense>("SELECT * FROM expenses ORDER BY created_at DESC")
+    pub async fn get_all_expenses(&self, store_id: i64) -> Result<Vec<crate::models::cash::Expense>, sqlx::Error> {
+        sqlx::query_as::<_, crate::models::cash::Expense>("SELECT * FROM expenses WHERE store_id = ? ORDER BY created_at DESC")
+            .bind(store_id)
             .fetch_all(&self.pool)
             .await
     }
@@ -134,12 +139,13 @@ impl CashRepository {
         let mut tx = self.pool.begin().await?;
 
         let id = sqlx::query(
-            "INSERT INTO other_income (cash_session_id, description, amount, payment_method) VALUES (?, ?, ?, ?)"
+            "INSERT INTO other_income (cash_session_id, description, amount, payment_method, store_id) VALUES (?, ?, ?, ?, ?)"
         )
         .bind(session_id)
         .bind(description)
         .bind(amount)
         .bind(&payment_method)
+        .bind(sqlx::query_scalar::<_, i64>("SELECT store_id FROM cash_sessions WHERE id = ?").bind(session_id).fetch_one(&mut *tx).await?)
         .execute(&mut *tx)
         .await?
         .last_insert_rowid();
@@ -162,8 +168,9 @@ impl CashRepository {
         Ok(id)
     }
 
-    pub async fn get_all_other_income(&self) -> Result<Vec<crate::models::cash::OtherIncome>, sqlx::Error> {
-        sqlx::query_as::<_, crate::models::cash::OtherIncome>("SELECT * FROM other_income ORDER BY created_at DESC")
+    pub async fn get_all_other_income(&self, store_id: i64) -> Result<Vec<crate::models::cash::OtherIncome>, sqlx::Error> {
+        sqlx::query_as::<_, crate::models::cash::OtherIncome>("SELECT * FROM other_income WHERE store_id = ? ORDER BY created_at DESC")
+            .bind(store_id)
             .fetch_all(&self.pool)
             .await
     }

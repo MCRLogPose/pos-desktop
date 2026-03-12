@@ -24,6 +24,7 @@ pub struct CreateOrderPayload {
     pub igv: f64,
     pub total: f64,
     pub cash_session_id: i64,
+    pub store_id: i64,
 }
 
 /// Represents a created order returned to the frontend.
@@ -45,6 +46,7 @@ pub struct Sale {
     pub subtotal: f64,
     pub igv: f64,
     pub total: f64,
+    pub store_id: i64,
     pub created_at: String,
 }
 
@@ -79,4 +81,5 @@ pub struct OrderItemExport {
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,
+    pub store_id: Option<i64>,
 }

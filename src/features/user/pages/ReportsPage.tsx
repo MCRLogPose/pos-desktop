@@ -4,6 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { clsx } from "clsx";
 import { invoke } from "@tauri-apps/api/core";
 import { useNotification } from "@/context/NotificationContext";
+import { useAuth } from "@/context/AuthContext";
 
 // ─── Types ────────────────────────────────────────────────────
 interface Sale {
@@ -34,6 +35,7 @@ type Period = "this_month" | "last_month" | "last_3_months" | "this_year";
 
 const ReportsPage = () => {
   const { showNotification } = useNotification();
+  const { activeStoreId } = useAuth();
   const [activeTab, setActiveTab] = useState<"sales" | "profit" | "products">("sales");
   const [period, setPeriod] = useState<Period>("this_month");
   
@@ -44,17 +46,20 @@ const ReportsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (activeStoreId) {
+      loadData();
+    }
+  }, [activeStoreId]);
 
   const loadData = async () => {
+    if (!activeStoreId) return;
     setIsLoading(true);
     try {
       const [s, p, e, i] = await Promise.all([
-        invoke<Sale[]>("get_sales"),
-        invoke<Product[]>("get_products"),
-        invoke<Expense[]>("get_all_expenses"),
-        invoke<OtherIncome[]>("get_all_other_income"),
+        invoke<Sale[]>("get_sales", { storeId: activeStoreId }),
+        invoke<Product[]>("get_products", { storeId: activeStoreId }),
+        invoke<Expense[]>("get_all_expenses", { storeId: activeStoreId }),
+        invoke<OtherIncome[]>("get_all_other_income", { storeId: activeStoreId }),
       ]);
       setSales(s);
       setProducts(p);

@@ -6,6 +6,7 @@ import { invoke } from '@tauri-apps/api/core';
 import OpenCashModal from '../components/modals/OpenCashModal';
 import CloseCashModal from '../components/modals/CloseCashModal';
 import TransactionModal from '../components/modals/TransactionModal';
+import { useAuth } from '@/context/AuthContext';
 
 interface Transaction {
     id: string;
@@ -18,6 +19,7 @@ interface Transaction {
 }
 
 const FinancePage = () => {
+    const { activeStoreId } = useAuth();
     const { activeSession } = useCash();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     
@@ -286,6 +288,7 @@ const FinancePage = () => {
                 isOpen={transactionModal.isOpen}
                 type={transactionModal.type}
                 onClose={() => setTransactionModal({ ...transactionModal, isOpen: false })}
+                storeId={activeStoreId}
             />
         </div>
     );

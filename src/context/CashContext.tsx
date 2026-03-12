@@ -36,16 +36,17 @@ export const CashProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [lastClosedSession, setLastClosedSession] = useState<CashSession | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { showNotification } = useNotification();
-    const { user } = useAuth();
+    const { user, activeStoreId } = useAuth();
 
     const refreshSession = async () => {
+        if (!activeStoreId) return;
         setIsLoading(true);
         try {
-            const session = await invoke<CashSession | null>('get_active_cash_session');
+            const session = await invoke<CashSession | null>('get_active_cash_session', { storeId: activeStoreId });
             setActiveSession(session);
             
             if (!session) {
-                const last = await invoke<CashSession | null>('get_last_closed_cash_session');
+                const last = await invoke<CashSession | null>('get_last_closed_cash_session', { storeId: activeStoreId });
                 setLastClosedSession(last);
             }
         } catch (error) {
@@ -56,22 +57,23 @@ export const CashProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     useEffect(() => {
-        if (user) {
+        if (user && activeStoreId) {
             refreshSession();
         } else {
             setActiveSession(null);
             setIsLoading(false);
         }
-    }, [user]);
+    }, [user, activeStoreId]);
 
     const openSession = async (opening_cash: number, opening_virtual: number) => {
-        if (!user) return;
+        if (!user || !activeStoreId) return;
         try {
             await invoke('open_cash_session', {
                 payload: {
                     opened_by: user.id,
                     opening_cash,
                     opening_virtual,
+                    store_id: activeStoreId,
                 }
             });
             showNotification('success', 'Caja abierta', 'La sesión de caja ha sido iniciada correctamente');

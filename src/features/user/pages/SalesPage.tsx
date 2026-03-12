@@ -8,6 +8,7 @@ import { useNotification } from '@/context/NotificationContext';
 import { clsx } from 'clsx';
 import ExportModal, { type ExportFormat } from '../components/modals/ExportModal';
 import SaleDetailModal, { type Sale } from '../components/modals/SaleDetailModal';
+import { useAuth } from '@/context/AuthContext';
 import SalesTable from '../components/tables/SalesTable';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ const formatDateTime = (dateStr: string) => {
 // ─── Main Component ───────────────────────────────────────────
 const SalesPage = () => {
   const { showNotification } = useNotification();
+  const { activeStoreId } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,13 +73,16 @@ const SalesPage = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
 
   useEffect(() => {
-    loadSales();
-  }, []);
+    if (activeStoreId) {
+      loadSales();
+    }
+  }, [activeStoreId]);
 
   const loadSales = async () => {
+    if (!activeStoreId) return;
     setIsLoading(true);
     try {
-      const data = await invoke<Sale[]>('get_sales');
+      const data = await invoke<Sale[]>('get_sales', { storeId: activeStoreId });
       setSales(data);
     } catch (error) {
       console.error(error);
@@ -119,8 +124,9 @@ const SalesPage = () => {
   };
 
   const exportItemsCSV = async () => {
+    if (!activeStoreId) return;
     try {
-      const items = await invoke<OrderItemExport[]>('get_all_order_items');
+      const items = await invoke<OrderItemExport[]>('get_all_order_items', { storeId: activeStoreId });
       // Apply the same date filters as the current view
       const filtered = items.filter(item => {
         const d = new Date(item.created_at);

@@ -25,8 +25,8 @@ impl SalesService {
             })
     }
 
-    pub async fn get_sales(&self) -> Result<Vec<Sale>, String> {
-        self.sales_repo.get_sales().await.map_err(|e| e.to_string())
+    pub async fn get_sales(&self, store_id: i64) -> Result<Vec<Sale>, String> {
+        self.sales_repo.get_sales(store_id).await.map_err(|e| e.to_string())
     }
 
     pub async fn get_sale_detail(&self, sale_id: i64) -> Result<Option<SaleDetail>, String> {
@@ -36,9 +36,9 @@ impl SalesService {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn get_all_order_items(&self) -> Result<Vec<OrderItemExport>, String> {
+    pub async fn get_all_order_items(&self, store_id: i64) -> Result<Vec<OrderItemExport>, String> {
         self.sales_repo
-            .get_all_order_items()
+            .get_all_order_items(store_id)
             .await
             .map_err(|e| e.to_string())
     }

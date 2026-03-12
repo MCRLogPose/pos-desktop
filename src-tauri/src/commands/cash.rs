@@ -5,15 +5,17 @@ use tauri::State;
 #[tauri::command]
 pub async fn get_active_cash_session(
     state: State<'_, AppState>,
+    store_id: i64,
 ) -> Result<Option<CashSession>, String> {
-    state.cash_service.get_active_session().await
+    state.cash_service.get_active_session(store_id).await
 }
 
 #[tauri::command]
 pub async fn get_last_closed_cash_session(
     state: State<'_, AppState>,
+    store_id: i64,
 ) -> Result<Option<CashSession>, String> {
-    state.cash_service.get_last_closed_session().await
+    state.cash_service.get_last_closed_session(store_id).await
 }
 
 #[tauri::command]
@@ -75,13 +77,15 @@ pub async fn get_cash_session_transactions(
 #[tauri::command]
 pub async fn get_all_expenses(
     state: State<'_, AppState>,
+    store_id: i64,
 ) -> Result<Vec<crate::models::cash::Expense>, String> {
-    state.cash_service.get_all_expenses().await
+    state.cash_service.get_all_expenses(store_id).await
 }
 
 #[tauri::command]
 pub async fn get_all_other_income(
     state: State<'_, AppState>,
+    store_id: i64,
 ) -> Result<Vec<crate::models::cash::OtherIncome>, String> {
-    state.cash_service.get_all_other_income().await
+    state.cash_service.get_all_other_income(store_id).await
 }

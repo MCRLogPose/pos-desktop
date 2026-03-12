@@ -27,9 +27,10 @@ interface ProductModalProps {
     onSubmit: () => void; // Trigger reload
     initialData?: Product | null;
     categories: Category[];
+    storeId: number | null;
 }
 
-export default function ProductModal({ isOpen, onClose, onSubmit, initialData, categories }: ProductModalProps) {
+export default function ProductModal({ isOpen, onClose, onSubmit, initialData, categories, storeId }: ProductModalProps) {
     const { showNotification } = useNotification();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -146,7 +147,8 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                     cost: costVal,
                     stock: stockVal,
                     unit: unit || null,
-                    imageUrl: imageUrl || null
+                    imageUrl: imageUrl || null,
+                    storeId
                 });
                 showNotification('success', 'Éxito', 'Producto actualizado');
             } else {
@@ -158,7 +160,8 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                     cost: costVal,
                     stock: stockVal,
                     unit: unit || null,
-                    imageUrl: imageUrl || null
+                    imageUrl: imageUrl || null,
+                    storeId
                 });
                 showNotification('success', 'Éxito', 'Producto creado');
             }

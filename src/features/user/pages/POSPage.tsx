@@ -41,7 +41,7 @@ type PaymentMethod = 'cash' | 'card' | 'yape';
 // ─── Component ───────────────────────────────────────────────
 const POSPage = () => {
     const { showNotification } = useNotification();
-    const { user } = useAuth();
+    const { user, activeStoreId } = useAuth();
     const { activeSession, refreshSession } = useCash();
 
     // Data from DB
@@ -64,8 +64,9 @@ const POSPage = () => {
 
     // ─── Load data ──────────────────────────────────────────
     const loadProducts = useCallback(async () => {
+        if (!activeStoreId) return;
         try {
-            const data = await invoke<Product[]>('get_products');
+            const data = await invoke<Product[]>('get_products', { storeId: activeStoreId });
             setProducts(data);
         } catch (error) {
             console.error(error);
@@ -85,12 +86,13 @@ const POSPage = () => {
 
     useEffect(() => {
         const init = async () => {
+            if (!activeStoreId) return;
             setIsLoadingProducts(true);
             await Promise.all([loadProducts(), loadCategories()]);
             setIsLoadingProducts(false);
         };
         init();
-    }, [loadProducts, loadCategories]);
+    }, [loadProducts, loadCategories, activeStoreId]);
 
     // ─── Cart helpers ────────────────────────────────────────
     const addToCart = (product: Product) => {
@@ -190,6 +192,7 @@ const POSPage = () => {
                 subtotal: base,
                 igv,
                 total,
+                storeId: activeStoreId,
             });
 
             showNotification('success', '¡Venta Exitosa!', `Venta registrada correctamente. Total: S/ ${total.toFixed(2)}`);

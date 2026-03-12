@@ -21,6 +21,7 @@ pub struct Product {
     pub unit: Option<String>,
     pub image_url: Option<String>,
     pub is_active: bool,
+    pub store_id: Option<i64>,
     pub created_at: Option<NaiveDateTime>,
 }
 
@@ -38,5 +39,6 @@ pub struct ProductWithCategory {
     pub unit: Option<String>,
     pub image_url: Option<String>,
     pub is_active: bool,
+    pub store_id: Option<i64>,
     pub created_at: Option<NaiveDateTime>,
 }

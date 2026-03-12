@@ -18,8 +18,8 @@ impl SalesRepository {
         // 1. Insert the order header
         let order_id = sqlx::query(
             r#"
-            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(payload.user_id)
@@ -31,6 +31,7 @@ impl SalesRepository {
         .bind(payload.igv)
         .bind(payload.total)
         .bind(payload.cash_session_id)
+        .bind(payload.store_id)
         .execute(&mut *tx)
         .await?
         .last_insert_rowid();
@@ -92,7 +93,7 @@ impl SalesRepository {
     }
 
     /// Returns all sales ordered by date descending, joining with users for the seller name.
-    pub async fn get_sales(&self) -> Result<Vec<Sale>, sqlx::Error> {
+    pub async fn get_sales(&self, store_id: i64) -> Result<Vec<Sale>, sqlx::Error> {
         sqlx::query_as::<_, Sale>(
             r#"
             SELECT
@@ -106,12 +107,15 @@ impl SalesRepository {
                 CAST(o.subtotal AS REAL) AS subtotal,
                 CAST(o.igv AS REAL) AS igv,
                 CAST(o.total AS REAL) AS total,
+                o.store_id,
                 o.created_at
             FROM orders o
             LEFT JOIN users u ON u.id = o.user_id
+            WHERE o.store_id = ?
             ORDER BY o.created_at DESC
             "#,
         )
+        .bind(store_id)
         .fetch_all(&self.pool)
         .await
     }
@@ -168,7 +172,7 @@ impl SalesRepository {
     }
 
     /// Returns all order items joined with order info for the detailed items CSV export.
-    pub async fn get_all_order_items(&self) -> Result<Vec<OrderItemExport>, sqlx::Error> {
+    pub async fn get_all_order_items(&self, store_id: i64) -> Result<Vec<OrderItemExport>, sqlx::Error> {
         sqlx::query_as::<_, OrderItemExport>(
             r#"
             SELECT
@@ -180,12 +184,15 @@ impl SalesRepository {
                 oi.product_name,
                 CAST(oi.unit_price AS REAL) AS unit_price,
                 oi.quantity,
-                CAST(oi.subtotal AS REAL) AS subtotal
+                CAST(oi.subtotal AS REAL) AS subtotal,
+                o.store_id
             FROM order_items oi
             INNER JOIN orders o ON o.id = oi.order_id
+            WHERE o.store_id = ?
             ORDER BY o.created_at DESC, oi.id ASC
             "#,
         )
+        .bind(store_id)
         .fetch_all(&self.pool)
         .await
     }

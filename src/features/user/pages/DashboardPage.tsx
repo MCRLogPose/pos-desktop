@@ -3,6 +3,7 @@ import { DollarSign, ShoppingBag, Box, CreditCard, Calendar, Package } from 'luc
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 
 // ─── Types ────────────────────────────────────────────────────
 interface Product {
@@ -42,6 +43,7 @@ const StatCard = ({ title, value, icon: Icon, color }: any) => (
 
 const DashboardPage = () => {
   const { showNotification } = useNotification();
+  const { activeStoreId } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
@@ -49,16 +51,19 @@ const DashboardPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (activeStoreId) {
+      loadDashboardData();
+    }
+  }, [activeStoreId]);
 
   const loadDashboardData = async () => {
+    if (!activeStoreId) return;
     setIsLoading(true);
     try {
       const [salesData, productsData, itemsData] = await Promise.all([
-        invoke<Sale[]>('get_sales'),
-        invoke<Product[]>('get_products'),
-        invoke<OrderItem[]>('get_all_order_items'),
+        invoke<Sale[]>('get_sales', { storeId: activeStoreId }),
+        invoke<Product[]>('get_products', { storeId: activeStoreId }),
+        invoke<OrderItem[]>('get_all_order_items', { storeId: activeStoreId }),
       ]);
 
       setSales(salesData);
@@ -66,7 +71,7 @@ const DashboardPage = () => {
       setOrderItems(itemsData);
 
       // Fetch active session expenses if any
-      const activeSession = await invoke<any>('get_active_cash_session');
+      const activeSession = await invoke<any>('get_active_cash_session', { storeId: activeStoreId });
       if (activeSession) {
         const transactions = await invoke<any[]>('get_cash_session_transactions', { sessionId: activeSession.id });
         const totalExpenses = transactions

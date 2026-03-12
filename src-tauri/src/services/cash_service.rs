@@ -13,24 +13,24 @@ impl CashService {
         }
     }
 
-    pub async fn get_active_session(&self) -> Result<Option<CashSession>, String> {
+    pub async fn get_active_session(&self, store_id: i64) -> Result<Option<CashSession>, String> {
         self.cash_repo
-            .get_active_session()
+            .get_active_session(store_id)
             .await
             .map_err(|e| e.to_string())
     }
 
-    pub async fn get_last_closed_session(&self) -> Result<Option<CashSession>, String> {
+    pub async fn get_last_closed_session(&self, store_id: i64) -> Result<Option<CashSession>, String> {
         self.cash_repo
-            .get_last_closed_session()
+            .get_last_closed_session(store_id)
             .await
             .map_err(|e| e.to_string())
     }
 
     pub async fn open_session(&self, payload: OpenCashPayload) -> Result<i64, String> {
-        // Check if there is already an active session
-        if let Some(_) = self.get_active_session().await? {
-            return Err("Ya existe una caja abierta".to_string());
+        // Check if there is already an active session for this store
+        if let Some(_) = self.get_active_session(payload.store_id).await? {
+            return Err("Ya existe una caja abierta para esta tienda".to_string());
         }
         self.cash_repo
             .open_session(payload)
@@ -62,9 +62,9 @@ impl CashService {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn get_all_expenses(&self) -> Result<Vec<crate::models::cash::Expense>, String> {
+    pub async fn get_all_expenses(&self, store_id: i64) -> Result<Vec<crate::models::cash::Expense>, String> {
         self.cash_repo
-            .get_all_expenses()
+            .get_all_expenses(store_id)
             .await
             .map_err(|e| e.to_string())
     }
@@ -82,9 +82,9 @@ impl CashService {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn get_all_other_income(&self) -> Result<Vec<crate::models::cash::OtherIncome>, String> {
+    pub async fn get_all_other_income(&self, store_id: i64) -> Result<Vec<crate::models::cash::OtherIncome>, String> {
         self.cash_repo
-            .get_all_other_income()
+            .get_all_other_income(store_id)
             .await
             .map_err(|e| e.to_string())
     }

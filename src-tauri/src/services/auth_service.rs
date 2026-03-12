@@ -59,12 +59,21 @@ impl AuthService {
             if bcrypt::verify(password, &user.password_hash)
                 .map_err(|e| format!("Hash error: {}", e))?
             {
+                // Solo validar tienda si NO es admin? 
+                // El usuario dice: "para poder ingresar al sistema debe si o si estar asignado a una tienda"
+                // Pero también dice: "el super admin puede acceder a cualquier tienda"
+                // Si es admin, puede no tener tienda asignada en la DB pero seleccionar una al entrar.
+                
+                if user.cargo.as_deref() != Some("ADMIN") && user.store_id.is_none() {
+                    return Err("Usuario no tiene una tienda asignada. Contacte al administrador.".to_string());
+                }
+
                 Ok(user)
             } else {
-                Err("Invalid credentials".to_string())
+                Err("Credenciales inválidas".to_string())
             }
         } else {
-            Err("User not found".to_string())
+            Err("Usuario no encontrado".to_string())
         }
     }
 

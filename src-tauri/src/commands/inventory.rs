@@ -31,8 +31,8 @@ pub async fn delete_category(state: State<'_, AppState>, id: i64) -> Result<(), 
 // Products CRUD
 
 #[tauri::command]
-pub async fn get_products(state: State<'_, AppState>) -> Result<Vec<ProductWithCategory>, String> {
-    state.inventory_service.get_products().await
+pub async fn get_products(state: State<'_, AppState>, store_id: i64) -> Result<Vec<ProductWithCategory>, String> {
+    state.inventory_service.get_products(store_id).await
 }
 
 #[tauri::command]
@@ -46,6 +46,7 @@ pub async fn create_product(
     stock: i64,
     unit: Option<String>,
     image_url: Option<String>,
+    store_id: i64,
 ) -> Result<i64, String> {
     state
         .inventory_service
@@ -58,6 +59,7 @@ pub async fn create_product(
             stock,
             unit.as_deref(),
             image_url.as_deref(),
+            store_id,
         )
         .await
 }
@@ -74,6 +76,7 @@ pub async fn update_product(
     stock: i64,
     unit: Option<String>,
     image_url: Option<String>,
+    store_id: i64,
 ) -> Result<(), String> {
     state
         .inventory_service
@@ -87,6 +90,7 @@ pub async fn update_product(
             stock,
             unit.as_deref(),
             image_url.as_deref(),
+            store_id,
         )
         .await
 }

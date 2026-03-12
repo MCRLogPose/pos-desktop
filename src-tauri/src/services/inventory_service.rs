@@ -41,9 +41,9 @@ impl InventoryService {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn get_products(&self) -> Result<Vec<ProductWithCategory>, String> {
+    pub async fn get_products(&self, store_id: i64) -> Result<Vec<ProductWithCategory>, String> {
         self.inventory_repo
-            .get_products()
+            .get_products(store_id)
             .await
             .map_err(|e| e.to_string())
     }
@@ -58,9 +58,10 @@ impl InventoryService {
         stock: i64,
         unit: Option<&str>,
         image_url: Option<&str>,
+        store_id: i64,
     ) -> Result<i64, String> {
         self.inventory_repo
-            .create_product(code, name, category_id, price, cost, stock, unit, image_url)
+            .create_product(code, name, category_id, price, cost, stock, unit, image_url, store_id)
             .await
             .map_err(|e| e.to_string())
     }
@@ -76,6 +77,7 @@ impl InventoryService {
         stock: i64,
         unit: Option<&str>,
         image_url: Option<&str>,
+        store_id: i64,
     ) -> Result<(), String> {
         self.inventory_repo
             .update_product(
@@ -88,6 +90,7 @@ impl InventoryService {
                 stock,
                 unit,
                 image_url,
+                store_id,
             )
             .await
             .map_err(|e| e.to_string())

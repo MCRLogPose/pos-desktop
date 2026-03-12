@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import ProductModal from '../components/modals/ProductModal';
 import CategoryModal from '../components/modals/CategoryModal';
+import { useAuth } from '@/context/AuthContext';
 import InventoryTable, { type Product } from '../components/tables/InventoryTable';
 
 interface Category {
@@ -13,6 +14,7 @@ interface Category {
 
 const InventoryPage = () => {
   const { showNotification } = useNotification();
+  const { activeStoreId } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
@@ -27,16 +29,19 @@ const InventoryPage = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (activeStoreId) {
+      loadData();
+    }
+  }, [activeStoreId]);
 
   const loadData = async () => {
     await Promise.all([loadProducts(), loadCategories()]);
   };
 
   const loadProducts = async () => {
+    if (!activeStoreId) return;
     try {
-      const data = await invoke<Product[]>('get_products');
+      const data = await invoke<Product[]>('get_products', { storeId: activeStoreId });
       // Compute status based on stock
       const computedData = data.map(p => ({
         ...p,
@@ -50,8 +55,9 @@ const InventoryPage = () => {
   };
 
   const loadCategories = async () => {
+    if (!activeStoreId) return;
     try {
-      const data = await invoke<Category[]>('get_categories');
+      const data = await invoke<Category[]>('get_categories', { storeId: activeStoreId });
       setCategories(data);
     } catch (error) {
       console.error(error);
@@ -61,6 +67,7 @@ const InventoryPage = () => {
 
   const handleDelete = async (id: number) => {
     if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+    if (!activeStoreId) return;
     try {
       await invoke('delete_product', { id });
       showNotification('success', 'Éxito', 'Producto eliminado correctamente');
@@ -191,6 +198,7 @@ const InventoryPage = () => {
         onSubmit={loadProducts}
         initialData={editingProduct}
         categories={categories}
+        storeId={activeStoreId}
       />
 
       <CategoryModal
@@ -200,6 +208,7 @@ const InventoryPage = () => {
           loadCategories();
           loadProducts(); // Reload products to reflect category changes (names)
         }}
+        storeId={activeStoreId}
       />
     </div>
   );

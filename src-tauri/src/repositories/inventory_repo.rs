@@ -47,17 +47,18 @@ impl InventoryRepository {
     }
 
     // Products
-    pub async fn get_products(&self) -> Result<Vec<ProductWithCategory>, sqlx::Error> {
+    pub async fn get_products(&self, store_id: i64) -> Result<Vec<ProductWithCategory>, sqlx::Error> {
         let sql = r#"
             SELECT 
                 p.id, p.code, p.name, p.category_id, c.name as category_name,
-                p.price, p.cost, p.stock, p.min_stock, p.unit, p.image_url, p.is_active, p.created_at
+                p.price, p.cost, p.stock, p.min_stock, p.unit, p.image_url, p.is_active, p.store_id, p.created_at
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.id
-            WHERE p.is_active = 1
+            WHERE p.is_active = 1 AND p.store_id = ?
             ORDER BY p.name ASC
         "#;
         sqlx::query_as::<_, ProductWithCategory>(sql)
+            .bind(store_id)
             .fetch_all(&self.pool)
             .await
     }
@@ -72,9 +73,10 @@ impl InventoryRepository {
         stock: i64,
         unit: Option<&str>,
         image_url: Option<&str>,
+        store_id: i64,
     ) -> Result<i64, sqlx::Error> {
         let result = sqlx::query(
-            "INSERT INTO products (code, name, category_id, price, cost, stock, unit, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO products (code, name, category_id, price, cost, stock, unit, image_url, store_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(code)
         .bind(name)
@@ -84,6 +86,7 @@ impl InventoryRepository {
         .bind(stock)
         .bind(unit)
         .bind(image_url)
+        .bind(store_id)
         .execute(&self.pool)
         .await?;
 
@@ -101,9 +104,10 @@ impl InventoryRepository {
         stock: i64,
         unit: Option<&str>,
         image_url: Option<&str>,
+        store_id: i64,
     ) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "UPDATE products SET code=?, name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=? WHERE id=?"
+            "UPDATE products SET code=?, name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=? WHERE id=?"
         )
         .bind(code)
         .bind(name)
@@ -113,6 +117,7 @@ impl InventoryRepository {
         .bind(stock)
         .bind(unit)
         .bind(image_url)
+        .bind(store_id)
         .bind(id)
         .execute(&self.pool)
         .await?;

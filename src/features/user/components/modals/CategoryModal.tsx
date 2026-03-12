@@ -13,9 +13,10 @@ interface CategoryModalProps {
     isOpen: boolean;
     onClose: () => void;
     onCategoryChange: () => void;
+    storeId: number | null;
 }
 
-export default function CategoryModal({ isOpen, onClose, onCategoryChange }: CategoryModalProps) {
+export default function CategoryModal({ isOpen, onClose, onCategoryChange, storeId }: CategoryModalProps) {
     const { showNotification } = useNotification();
     const [categories, setCategories] = useState<Category[]>([]);
     const [newCategoryName, setNewCategoryName] = useState('');
@@ -30,8 +31,9 @@ export default function CategoryModal({ isOpen, onClose, onCategoryChange }: Cat
     }, [isOpen]);
 
     const loadCategories = async () => {
+        if (!storeId) return;
         try {
-            const data = await invoke<Category[]>('get_categories');
+            const data = await invoke<Category[]>('get_categories', { storeId });
             setCategories(data);
         } catch (error) {
             console.error(error);
@@ -45,7 +47,7 @@ export default function CategoryModal({ isOpen, onClose, onCategoryChange }: Cat
 
         setIsLoading(true);
         try {
-            await invoke('create_category', { name: newCategoryName });
+            await invoke('create_category', { name: newCategoryName, storeId });
             showNotification('success', 'Éxito', 'Categoría creada');
             setNewCategoryName('');
             loadCategories();

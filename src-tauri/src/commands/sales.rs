@@ -17,6 +17,7 @@ pub async fn create_sale(
     igv: f64,
     total: f64,
     cash_session_id: i64,
+    store_id: i64,
 ) -> Result<i64, String> {
     let payload = CreateOrderPayload {
         user_id,
@@ -29,13 +30,14 @@ pub async fn create_sale(
         igv,
         total,
         cash_session_id,
+        store_id,
     };
     state.sales_service.create_order(payload).await
 }
 
 #[tauri::command]
-pub async fn get_sales(state: State<'_, AppState>) -> Result<Vec<Sale>, String> {
-    state.sales_service.get_sales().await
+pub async fn get_sales(state: State<'_, AppState>, store_id: i64) -> Result<Vec<Sale>, String> {
+    state.sales_service.get_sales(store_id).await
 }
 
 #[tauri::command]
@@ -49,6 +51,7 @@ pub async fn get_sale_detail(
 #[tauri::command]
 pub async fn get_all_order_items(
     state: State<'_, AppState>,
+    store_id: i64,
 ) -> Result<Vec<OrderItemExport>, String> {
-    state.sales_service.get_all_order_items().await
+    state.sales_service.get_all_order_items(store_id).await
 }

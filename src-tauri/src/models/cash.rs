@@ -17,6 +17,7 @@ pub struct CashSession {
     pub difference: Option<f64>,
     pub justification: Option<String>,
     pub status: String,
+    pub store_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
@@ -33,6 +34,7 @@ pub struct OpenCashPayload {
     pub opened_by: i64,
     pub opening_cash: f64,
     pub opening_virtual: f64,
+    pub store_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,6 +52,7 @@ pub struct Expense {
     pub description: String,
     pub amount: f64,
     pub payment_method: String,
+    pub store_id: i64,
     pub created_at: String,
 }
 
@@ -60,5 +63,6 @@ pub struct OtherIncome {
     pub description: String,
     pub amount: f64,
     pub payment_method: String,
+    pub store_id: i64,
     pub created_at: String,
 }
