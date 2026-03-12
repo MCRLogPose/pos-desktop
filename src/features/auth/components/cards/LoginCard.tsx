@@ -8,7 +8,7 @@ import { invoke } from '@tauri-apps/api/core';
 
 import Lottie from "lottie-react";
 import shoppingBagAnim from "@/assets/lotties/Shopping-Bag.json";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { exit } from "@tauri-apps/plugin-process";
 
 interface Store {

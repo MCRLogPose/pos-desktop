@@ -1,4 +1,4 @@
-import { getDB } from "./index";
+//import { getDB } from "./index";
 import { isTauri } from "./tauri";
 
 export async function seedDatabase(): Promise<void> {
@@ -9,7 +9,7 @@ export async function seedDatabase(): Promise<void> {
         return;
     }
 
-    const db = await getDB();
+    // const db = await getDB();
 
     console.log("🌱 Iniciando seed de datos...");
 
