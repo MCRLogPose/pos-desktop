@@ -118,6 +118,12 @@ impl CashRepository {
         Ok(id)
     }
 
+    pub async fn get_all_expenses(&self) -> Result<Vec<crate::models::cash::Expense>, sqlx::Error> {
+        sqlx::query_as::<_, crate::models::cash::Expense>("SELECT * FROM expenses ORDER BY created_at DESC")
+            .fetch_all(&self.pool)
+            .await
+    }
+
     pub async fn add_other_income(
         &self,
         session_id: i64,
@@ -154,6 +160,12 @@ impl CashRepository {
 
         tx.commit().await?;
         Ok(id)
+    }
+
+    pub async fn get_all_other_income(&self) -> Result<Vec<crate::models::cash::OtherIncome>, sqlx::Error> {
+        sqlx::query_as::<_, crate::models::cash::OtherIncome>("SELECT * FROM other_income ORDER BY created_at DESC")
+            .fetch_all(&self.pool)
+            .await
     }
 
     pub async fn update_expected_balances(

@@ -86,6 +86,8 @@ pub fn run() {
             commands::cash::add_cash_expense,
             commands::cash::add_cash_other_income,
             commands::cash::get_cash_session_transactions,
+            commands::cash::get_all_expenses,
+            commands::cash::get_all_other_income,
         ])
         .plugin(tauri_plugin_process::init())
         .run(tauri::generate_context!())

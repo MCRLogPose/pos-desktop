@@ -62,6 +62,13 @@ impl CashService {
             .map_err(|e| e.to_string())
     }
 
+    pub async fn get_all_expenses(&self) -> Result<Vec<crate::models::cash::Expense>, String> {
+        self.cash_repo
+            .get_all_expenses()
+            .await
+            .map_err(|e| e.to_string())
+    }
+
     pub async fn add_other_income(
         &self,
         session_id: i64,
@@ -71,6 +78,13 @@ impl CashService {
     ) -> Result<i64, String> {
         self.cash_repo
             .add_other_income(session_id, description, amount, payment_method)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn get_all_other_income(&self) -> Result<Vec<crate::models::cash::OtherIncome>, String> {
+        self.cash_repo
+            .get_all_other_income()
             .await
             .map_err(|e| e.to_string())
     }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { DollarSign, ShoppingBag, Box, TrendingUp, CreditCard, Calendar, Package } from 'lucide-react';
+import { DollarSign, ShoppingBag, Box, CreditCard, Calendar, Package } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
@@ -25,11 +25,6 @@ interface OrderItem {
   product_id?: i64;
 }
 
-interface Transaction {
-  type: 'income' | 'expense';
-  amount: number;
-  created_at: string;
-}
 
 type i64 = number;
 
@@ -169,6 +164,7 @@ const DashboardPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    showNotification('success', 'Éxito', 'Reporte descargado correctamente');
   };
 
   if (isLoading) {

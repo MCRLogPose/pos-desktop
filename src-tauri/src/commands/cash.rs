@@ -71,3 +71,17 @@ pub async fn get_cash_session_transactions(
         .get_session_transactions(session_id)
         .await
 }
+
+#[tauri::command]
+pub async fn get_all_expenses(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::models::cash::Expense>, String> {
+    state.cash_service.get_all_expenses().await
+}
+
+#[tauri::command]
+pub async fn get_all_other_income(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::models::cash::OtherIncome>, String> {
+    state.cash_service.get_all_other_income().await
+}
