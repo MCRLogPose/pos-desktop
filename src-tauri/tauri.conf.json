@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "pos-desktop",
+        "title": "VESTIKPOS",
         "width": 800,
         "height": 600,
         "resizable": true,
