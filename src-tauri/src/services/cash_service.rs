@@ -1,4 +1,4 @@
-use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload};
+use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload, UpdateExpensePayload};
 use crate::repositories::cash_repo::CashRepository;
 use sqlx::SqlitePool;
 
@@ -65,6 +65,36 @@ impl CashService {
     pub async fn get_all_expenses(&self, store_id: i64) -> Result<Vec<crate::models::cash::Expense>, String> {
         self.cash_repo
             .get_all_expenses(store_id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn update_expense(&self, payload: UpdateExpensePayload) -> Result<(), String> {
+        self.cash_repo
+            .update_expense(payload)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn delete_expense(&self, id: i64) -> Result<(), String> {
+        self.cash_repo
+            .delete_expense(id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn add_expense_standalone(
+        &self,
+        description: String,
+        amount: f64,
+        payment_method: String,
+        category: Option<String>,
+        supplier: Option<String>,
+        store_id: i64,
+        uuid: &str,
+    ) -> Result<i64, String> {
+        self.cash_repo
+            .add_expense_standalone(description, amount, payment_method, category, supplier, store_id, uuid)
             .await
             .map_err(|e| e.to_string())
     }

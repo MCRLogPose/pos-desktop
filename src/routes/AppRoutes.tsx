@@ -10,6 +10,7 @@ import ReportsPage from "@/features/user/pages/ReportsPage.tsx";
 import SettingsPage from "@/features/user/pages/SettingsPage.tsx";
 import StoresPage from "@/features/stores/pages/StoresPage.tsx";
 import SalesPage from "@/features/user/pages/SalesPage.tsx";
+import GastosPage from "@/features/user/pages/GastosPage.tsx";
 
 import { ProtectedRoute } from "@/context/AuthContext";
 
@@ -23,6 +24,7 @@ const AppRoutes = () => {
                 <Route path="/pos" element={<POSPage />} />
                 <Route path="/sales" element={<SalesPage />} />
                 <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/expenses" element={<GastosPage />} />
                 <Route path="/finance" element={<FinancePage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/stores" element={<StoresPage />} />

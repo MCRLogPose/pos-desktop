@@ -1,4 +1,5 @@
 use crate::models::inventory::{Category, ProductWithCategory};
+use crate::models::inventory::Product;
 use sqlx::SqlitePool;
 
 pub struct InventoryRepository {
@@ -130,5 +131,19 @@ impl InventoryRepository {
             .execute(&self.pool)
             .await?;
         Ok(())
+    }
+
+    pub async fn find_by_code(
+        &self,
+        code: &str,
+        store_id: i64,
+    ) -> Result<Option<Product>, sqlx::Error> {
+        sqlx::query_as::<_, Product>(
+            "SELECT * FROM products WHERE code = ? AND store_id = ? AND is_active = 1",
+        )
+        .bind(code)
+        .bind(store_id)
+        .fetch_optional(&self.pool)
+        .await
     }
 }

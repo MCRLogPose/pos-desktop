@@ -1,4 +1,4 @@
-use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload};
+use crate::models::cash::{CashSession, CloseCashPayload, OpenCashPayload, UpdateExpensePayload};
 use sqlx::{Row, SqlitePool};
 
 pub struct CashRepository {
@@ -91,10 +91,12 @@ impl CashRepository {
         payment_method: String,
     ) -> Result<i64, sqlx::Error> {
         let mut tx = self.pool.begin().await?;
+        let expense_uuid = uuid::Uuid::new_v4().to_string();
 
         let id = sqlx::query(
-            "INSERT INTO expenses (cash_session_id, description, amount, payment_method, store_id) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, store_id, source) VALUES (?, ?, ?, ?, ?, ?, 'cash_session')"
         )
+        .bind(&expense_uuid)
         .bind(session_id)
         .bind(description)
         .bind(amount)
@@ -123,10 +125,136 @@ impl CashRepository {
     }
 
     pub async fn get_all_expenses(&self, store_id: i64) -> Result<Vec<crate::models::cash::Expense>, sqlx::Error> {
-        sqlx::query_as::<_, crate::models::cash::Expense>("SELECT * FROM expenses WHERE store_id = ? ORDER BY created_at DESC")
+        sqlx::query_as::<_, crate::models::cash::Expense>("SELECT * FROM expenses WHERE store_id = ? AND source = 'standalone' ORDER BY created_at DESC")
             .bind(store_id)
             .fetch_all(&self.pool)
             .await
+    }
+
+    pub async fn update_expense(&self, payload: UpdateExpensePayload) -> Result<(), sqlx::Error> {
+        // Get current expense to reverse old balance
+        let old = sqlx::query_as::<_, crate::models::cash::Expense>(
+            "SELECT * FROM expenses WHERE id = ?"
+        )
+        .bind(payload.id)
+        .fetch_one(&self.pool)
+        .await?;
+
+        let mut tx = self.pool.begin().await?;
+
+        // Reverse old balance if linked to a session
+        if let Some(session_id) = old.cash_session_id {
+            if old.payment_method == "cash" {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ? WHERE id = ?")
+                    .bind(old.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            } else {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_virtual = expected_closing_virtual + ? WHERE id = ?")
+                    .bind(old.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            }
+        }
+
+        // Update expense
+        sqlx::query(
+            "UPDATE expenses SET description = ?, amount = ?, payment_method = ?, category = ?, supplier = ? WHERE id = ?"
+        )
+        .bind(&payload.description)
+        .bind(payload.amount)
+        .bind(&payload.payment_method)
+        .bind(&payload.category)
+        .bind(&payload.supplier)
+        .bind(payload.id)
+        .execute(&mut *tx)
+        .await?;
+
+        // Apply new balance if linked to a session
+        if let Some(session_id) = old.cash_session_id {
+            if payload.payment_method == "cash" {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash - ? WHERE id = ?")
+                    .bind(payload.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            } else {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_virtual = expected_closing_virtual - ? WHERE id = ?")
+                    .bind(payload.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            }
+        }
+
+        tx.commit().await?;
+        Ok(())
+    }
+
+    pub async fn delete_expense(&self, id: i64) -> Result<(), sqlx::Error> {
+        let expense = sqlx::query_as::<_, crate::models::cash::Expense>(
+            "SELECT * FROM expenses WHERE id = ?"
+        )
+        .bind(id)
+        .fetch_one(&self.pool)
+        .await?;
+
+        let mut tx = self.pool.begin().await?;
+
+        // Reverse balance if linked to a session
+        if let Some(session_id) = expense.cash_session_id {
+            if expense.payment_method == "cash" {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ? WHERE id = ?")
+                    .bind(expense.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            } else {
+                sqlx::query("UPDATE cash_sessions SET expected_closing_virtual = expected_closing_virtual + ? WHERE id = ?")
+                    .bind(expense.amount)
+                    .bind(session_id)
+                    .execute(&mut *tx)
+                    .await?;
+            }
+        }
+
+        // Delete expense
+        sqlx::query("DELETE FROM expenses WHERE id = ?")
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
+
+        tx.commit().await?;
+        Ok(())
+    }
+
+    pub async fn add_expense_standalone(
+        &self,
+        description: String,
+        amount: f64,
+        payment_method: String,
+        category: Option<String>,
+        supplier: Option<String>,
+        store_id: i64,
+        uuid: &str,
+    ) -> Result<i64, sqlx::Error> {
+        let id = sqlx::query(
+            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, category, supplier, store_id) VALUES (?, NULL, ?, ?, ?, ?, ?, ?)"
+        )
+        .bind(uuid)
+        .bind(description)
+        .bind(amount)
+        .bind(&payment_method)
+        .bind(&category)
+        .bind(&supplier)
+        .bind(store_id)
+        .execute(&self.pool)
+        .await?
+        .last_insert_rowid();
+
+        Ok(id)
     }
 
     pub async fn add_other_income(

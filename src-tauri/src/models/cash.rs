@@ -48,12 +48,27 @@ pub struct CloseCashPayload {
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct Expense {
     pub id: i64,
-    pub cash_session_id: i64,
+    pub uuid: String,
+    pub cash_session_id: Option<i64>,
     pub description: String,
     pub amount: f64,
     pub payment_method: String,
-    pub store_id: i64,
+    pub category: Option<String>,
+    pub supplier: Option<String>,
+    pub store_id: Option<i64>,
+    pub source: Option<String>,
     pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateExpensePayload {
+    pub id: i64,
+    pub description: String,
+    pub amount: f64,
+    pub payment_method: String,
+    pub category: Option<String>,
+    pub supplier: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]

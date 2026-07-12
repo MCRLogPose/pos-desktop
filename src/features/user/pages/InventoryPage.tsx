@@ -124,7 +124,7 @@ const InventoryPage = () => {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 active:scale-95"
           >
             <Plus className="w-5 h-5" />
-            Nuevo Producto
+            Nuevo Lote
           </button>
         </div>
       </div>

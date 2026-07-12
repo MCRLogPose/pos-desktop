@@ -1,16 +1,16 @@
-# Graph Report - pos-desktop  (2026-07-11)
+# Graph Report - pos-desktop  (2026-07-09)
 
 ## Corpus Check
-- 125 files · ~124,975 words
+- 118 files · ~117,942 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1130 nodes · 1612 edges · 135 communities (79 shown, 56 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 71 edges (avg confidence: 0.7)
+- 1002 nodes · 1424 edges · 125 communities (69 shown, 56 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 71 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4ae21d18`
+- Built from commit: `c12210c0`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -125,28 +125,18 @@
 - Stores Domain
 - Sync Queue
 - Users Domain
-- VESTIKPOS — Diseño de Arquitectura: Modos de Configuración
-- 13. Decisiones Tomadas (Preguntas Resueltas)
-- 12. Plan de Implementación (Fases)
-- 6. Cambios en el Backend (Rust)
-- 7. Cambios en el Frontend
-- 2. Contexto y Problema
-- 3. Definición de Modos
-- 5. Cambios en la Base de Datos
-- 9. Seguridad
-- 8. Flujo de Instalación
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 49 edges
+1. `AppState` - 44 edges
 2. `compilerOptions` - 25 edges
 3. `compilerOptions` - 18 edges
 4. `e()` - 17 edges
 5. `m()` - 17 edges
-6. `InventoryRepository` - 16 edges
-7. `UserRepository` - 16 edges
-8. `CashRepository` - 15 edges
-9. `VESTIKPOS — Diseño de Arquitectura: Modos de Configuración` - 15 edges
-10. `VESTIKPOS — Documentación Técnica v0.1.0` - 14 edges
+6. `UserRepository` - 16 edges
+7. `CashRepository` - 15 edges
+8. `VESTIKPOS — Documentación Técnica v0.1.0` - 14 edges
+9. `wA()` - 13 edges
+10. `InventoryRepository` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `CashSession` --semantically_similar_to--> `Cash Sessions`  [INFERRED] [semantically similar]
@@ -166,7 +156,7 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (135 total, 56 thin omitted)
+## Communities (125 total, 56 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.04
@@ -177,20 +167,20 @@ Cohesion: 0.07
 Nodes (39): create_sale(), get_all_order_items(), get_sale_detail(), get_sales(), Option, OrderItemExport, Result, Sale (+31 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.11
-Nodes (46): _(), B(), gr(), I(), SUPPORT_WORD_BREAKING(), wA(), a(), b() (+38 more)
+Cohesion: 0.13
+Nodes (41): _(), B(), gr(), I(), SUPPORT_WORD_BREAKING(), wA(), a(), b() (+33 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.10
-Nodes (53): AppState, create_user(), get_users(), login(), Option, Result, State, String (+45 more)
+Cohesion: 0.13
+Nodes (43): AppState, create_user(), get_users(), login(), Option, Result, State, String (+35 more)
 
 ### Community 5 - "Inventory Models"
-Cohesion: 0.09
-Nodes (23): Product, Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryRepository (+15 more)
+Cohesion: 0.10
+Nodes (22): Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryRepository, Category (+14 more)
 
 ### Community 6 - "Package Dependencies"
 Cohesion: 0.05
@@ -201,8 +191,8 @@ Cohesion: 0.11
 Nodes (18): Error, Option, Result, Self, SqlitePool, Store, Vec, StoreRepository (+10 more)
 
 ### Community 8 - "Cash Session Models"
-Cohesion: 0.08
-Nodes (31): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UserSession (+23 more)
+Cohesion: 0.13
+Nodes (19): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UserSession (+11 more)
 
 ### Community 9 - "Dev Dependencies"
 Cohesion: 0.07
@@ -229,16 +219,16 @@ Cohesion: 0.12
 Nodes (20): ExportFormat, ExportModalProps, formatDateTime(), paymentMethodColor(), paymentMethodLabel(), Sale, SaleDetailModal(), SaleDetailModalProps (+12 more)
 
 ### Community 15 - "Cash Repository"
-Cohesion: 0.10
-Nodes (31): create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String, Vec (+23 more)
+Cohesion: 0.18
+Nodes (12): CashRepository, CashSession, Error, Expense, Option, OtherIncome, Result, Self (+4 more)
 
 ### Community 16 - "TypeScript Node Config"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+11 more)
 
 ### Community 17 - "Category and Product Modals"
-Cohesion: 0.12
-Nodes (12): Category, CategoryModalProps, BatchItem, Category, Product, ProductModalProps, getStatusColor(), getStatusText() (+4 more)
+Cohesion: 0.13
+Nodes (11): Category, CategoryModalProps, Category, Product, ProductModalProps, getStatusColor(), getStatusText(), InventoryTable() (+3 more)
 
 ### Community 18 - "Tauri Configuration"
 Cohesion: 0.11
@@ -365,16 +355,16 @@ Cohesion: 0.17
 Nodes (11): 001_stores_users.sql, 002_products.sql, 003_inventory.sql, 004_sales.sql, 005_cash.sql, 006_sync.sql, Database Structure, Datos Iniciales (Seed) (+3 more)
 
 ### Community 103 - "store.rs"
-Cohesion: 0.10
-Nodes (20): 1.1 Migración SQL, 1.2 Backend Rust, 1.3 Frontend — Modal "Nuevo Lote", 1.4 Verificación, 2.1 Migración SQL, 2.2 Backend, 2.3 Frontend, 2.4 Verificación (+12 more)
+Cohesion: 0.42
+Nodes (10): create_store(), delete_store(), get_stores(), Option, Result, State, Store, String (+2 more)
 
 ### Community 104 - "VESTIKPOS"
 Cohesion: 0.33
 Nodes (6): index.html - VESTIKPOS Entry Point, VESTIKPOS, Multi-Store Support, Offline First Design Pattern, SQLite Database, SUNAT Ready Invoicing
 
 ### Community 105 - "ReportsPage.tsx"
-Cohesion: 0.22
-Nodes (9): 4.1 Stack Tecnológico, 4.2 Topología de Red, 4.3.1 Flujo Replica → Primary, 4.3.2 Endpoints API (Primary), 4.3.3 Estructura del Sync Batch, 4.3 Protocolo de Sincronización, 4.4 Manejo de Conflictos, 4.5 Tolerancia a Fallos de Red (+1 more)
+Cohesion: 0.33
+Nodes (5): Expense, OtherIncome, Period, Product, Sale
 
 ### Community 106 - "tsc_final_output.txt - TypeScript Errors"
 Cohesion: 0.33
@@ -384,64 +374,24 @@ Nodes (6): AppRoutes.tsx Unused useAuth Error, tsc_final_output.txt - TypeScript
 Cohesion: 0.50
 Nodes (3): Expanding the ESLint configuration, React Compiler, React + TypeScript + Vite
 
-### Community 125 - "VESTIKPOS — Diseño de Arquitectura: Modos de Configuración"
-Cohesion: 0.25
-Nodes (7): 10.1 Límites, 10.2 Optimizaciones, 10. Rendimiento y Escalabilidad, 11. Diagrama de Arquitectura Completo, 14. Glossario, 1. Resumen Ejecutivo, VESTIKPOS — Diseño de Arquitectura: Modos de Configuración
-
-### Community 126 - "13. Decisiones Tomadas (Preguntas Resueltas)"
-Cohesion: 0.29
-Nodes (7): 13.1 ¿La Primary debe poder crear productos y enviarlos a las Réplicas?, 13.2 ¿Las Réplicas deben poder ver inventario de otras tiendas?, 13.3 ¿Qué pasa si una Réplica no sincroniza por varios días?, 13.4 ¿Se necesita HTTPS entre nodos?, 13.5 ¿La Primary debe poder gestionar usuarios de las Réplicas?, 13.6 Baja de Réplicas (nuevo), 13. Decisiones Tomadas (Preguntas Resueltas)
-
-### Community 127 - "12. Plan de Implementación (Fases)"
-Cohesion: 0.33
-Nodes (6): 12. Plan de Implementación (Fases), Fase 1: Infraestructura Base (1-2 semanas), Fase 2: Sync Queue - Replica (1-2 semanas), Fase 3: Sync Server - Primary (1-2 semanas), Fase 4: UI y Pulido (1 semana), Fase 5: VPN y Deploy (opcional)
-
-### Community 128 - "6. Cambios en el Backend (Rust)"
-Cohesion: 0.40
-Nodes (5): 6.1 Nuevas dependencias en `Cargo.toml`, 6.2 Nueva estructura de módulos, 6.3 Configuración del modo en `lib.rs`, 6.4 Comandos Tauri nuevos, 6. Cambios en el Backend (Rust)
-
-### Community 129 - "7. Cambios en el Frontend"
-Cohesion: 0.40
-Nodes (5): 7.1 Nuevo contexto: `ConfigContext`, 7.2 Navegación condicional por modo, 7.3 Componente de estado de sincronización, 7.4 Página de configuración de sincronización (Primary), 7. Cambios en el Frontend
-
-### Community 130 - "2. Contexto y Problema"
-Cohesion: 0.50
-Nodes (4): 2. Contexto y Problema, Objetivo, Problema a resolver, Situación actual
-
-### Community 131 - "3. Definición de Modos"
-Cohesion: 0.50
-Nodes (4): 3.1 Primary (Computadora Central), 3.2 Replica (Nodo de Venta), 3.3 Hybrid (Independiente), 3. Definición de Modos
-
-### Community 132 - "5. Cambios en la Base de Datos"
-Cohesion: 0.50
-Nodes (4): 5.1 Nueva migración: `009_config_modes.sql`, 5.2 Migraciones existentes que se mantienen, 5.3 Migración adicional: `007_purchase_orders.sql`, 5. Cambios en la Base de Datos
-
-### Community 133 - "9. Seguridad"
-Cohesion: 0.50
-Nodes (4): 9.1 Autenticación entre nodos, 9.2 Autorización, 9.3 Integridad de datos, 9. Seguridad
-
-### Community 134 - "8. Flujo de Instalación"
-Cohesion: 0.67
-Nodes (3): 8.1 Primera ejecución, 8.2 Cambio de modo, 8. Flujo de Instalación
-
 ## Knowledge Gaps
-- **412 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+407 more)
+- **351 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+346 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **56 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `User Commands`?**
-  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `store.rs`, `Cash Session Models`, `Main App Core`, `User Commands`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `UserRepository` connect `User Models` to `Main App Core`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `CashService` connect `Cash Session Models` to `Auth and Cash Commands`, `Cash Repository`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `e()` (e.g. with `A()` and `mr()`) actually correct?**
   _`e()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _415 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _354 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.03636363636363636 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**

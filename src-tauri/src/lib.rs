@@ -24,7 +24,9 @@ pub fn run() {
                 let inventory_service =
                     services::inventory_service::InventoryService::new(pool.clone());
                 let sales_service = services::sales_service::SalesService::new(pool.clone());
-                let cash_service = services::cash_service::CashService::new(pool);
+                let cash_service = services::cash_service::CashService::new(pool.clone());
+                let purchase_order_service =
+                    services::purchase_order_service::PurchaseOrderService::new(pool);
 
                 // Initialize Admin if needed
                 auth_service
@@ -38,6 +40,7 @@ pub fn run() {
                     inventory_service,
                     sales_service,
                     cash_service,
+                    purchase_order_service,
                 });
             });
 
@@ -88,6 +91,13 @@ pub fn run() {
             commands::cash::get_cash_session_transactions,
             commands::cash::get_all_expenses,
             commands::cash::get_all_other_income,
+            commands::cash::update_expense,
+            commands::cash::delete_expense,
+            commands::cash::add_expense_standalone,
+            // Purchase Orders
+            commands::purchase_order::create_purchase_order,
+            commands::purchase_order::get_purchase_orders,
+            commands::purchase_order::get_purchase_order_detail,
         ])
         .plugin(tauri_plugin_process::init())
         .run(tauri::generate_context!())

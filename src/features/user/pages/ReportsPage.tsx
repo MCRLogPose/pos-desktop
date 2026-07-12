@@ -45,6 +45,16 @@ const ReportsPage = () => {
   const [otherIncome, setOtherIncome] = useState<OtherIncome[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const parseDate = (raw: string) => {
+    if (raw.includes("T")) return new Date(raw);
+    return new Date(raw.replace(" ", "T"));
+  };
+
+  const toDayKey = (raw: string) => {
+    if (raw.includes("T")) return raw.split("T")[0];
+    return raw.split(" ")[0];
+  };
+
   useEffect(() => {
     if (activeStoreId) {
       loadData();
@@ -91,7 +101,7 @@ const ReportsPage = () => {
     }
 
     const filterFn = (item: { created_at: string }) => {
-      const d = new Date(item.created_at);
+      const d = parseDate(item.created_at);
       return d >= start && d <= end;
     };
 
@@ -106,7 +116,7 @@ const ReportsPage = () => {
   const salesChartData = useMemo(() => {
     const map: Record<string, number> = {};
     filteredData.sales.forEach(s => {
-      const date = s.created_at.split("T")[0];
+      const date = toDayKey(s.created_at);
       map[date] = (map[date] || 0) + s.total;
     });
     return Object.entries(map)
@@ -118,20 +128,19 @@ const ReportsPage = () => {
     const map: Record<string, { income: number; expense: number }> = {};
     
     filteredData.sales.forEach(s => {
-      const date = s.created_at.split(" ")[0]; // Check date format
-      const d = date.includes("T") ? date.split("T")[0] : date;
+      const d = toDayKey(s.created_at);
       if (!map[d]) map[d] = { income: 0, expense: 0 };
       map[d].income += s.total;
     });
 
     filteredData.otherIncome.forEach(i => {
-      const d = i.created_at.split(" ")[0];
+      const d = toDayKey(i.created_at);
       if (!map[d]) map[d] = { income: 0, expense: 0 };
       map[d].income += i.amount;
     });
 
     filteredData.expenses.forEach(e => {
-      const d = e.created_at.split(" ")[0];
+      const d = toDayKey(e.created_at);
       if (!map[d]) map[d] = { income: 0, expense: 0 };
       map[d].expense += e.amount;
     });
@@ -290,7 +299,7 @@ const ReportsPage = () => {
           </h3>
 
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               {activeTab === "sales" ? (
                 <AreaChart data={salesChartData}>
                   <defs>
@@ -389,7 +398,7 @@ const ReportsPage = () => {
               <BarChart3 className="w-4 h-4 text-blue-600" />
               Evolución de Ventas
             </h4>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={salesChartData}>
                 <XAxis dataKey="name" tick={{fontSize: 10}} />
                 <YAxis tick={{fontSize: 10}} />
@@ -409,7 +418,7 @@ const ReportsPage = () => {
               <TrendingUp className="w-4 h-4 text-green-600" />
               Flujo de Utilidad
             </h4>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={profitChartData}>
                 <XAxis dataKey="name" tick={{fontSize: 10}} />
                 <YAxis tick={{fontSize: 10}} />
@@ -427,7 +436,7 @@ const ReportsPage = () => {
               <PieChart className="w-4 h-4 text-purple-600" />
               Distribución de Inventario por Categoría
             </h4>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={categoryData} layout="vertical">
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" tick={{fontSize: 10}} width={100} />

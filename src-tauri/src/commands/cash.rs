@@ -83,6 +83,39 @@ pub async fn get_all_expenses(
 }
 
 #[tauri::command]
+pub async fn update_expense(
+    state: State<'_, AppState>,
+    payload: crate::models::cash::UpdateExpensePayload,
+) -> Result<(), String> {
+    state.cash_service.update_expense(payload).await
+}
+
+#[tauri::command]
+pub async fn delete_expense(
+    state: State<'_, AppState>,
+    id: i64,
+) -> Result<(), String> {
+    state.cash_service.delete_expense(id).await
+}
+
+#[tauri::command]
+pub async fn add_expense_standalone(
+    state: State<'_, AppState>,
+    description: String,
+    amount: f64,
+    payment_method: String,
+    category: Option<String>,
+    supplier: Option<String>,
+    store_id: i64,
+) -> Result<i64, String> {
+    let expense_uuid = uuid::Uuid::new_v4().to_string();
+    state
+        .cash_service
+        .add_expense_standalone(description, amount, payment_method, category, supplier, store_id, &expense_uuid)
+        .await
+}
+
+#[tauri::command]
 pub async fn get_all_other_income(
     state: State<'_, AppState>,
     store_id: i64,

@@ -101,7 +101,7 @@ const CloseCashModal: React.FC<CloseCashModalProps> = ({ isOpen, onClose }) => {
                                     type="number"
                                     step="0.01"
                                     required
-                                    value={realCash || ''}
+                                    value={realCash}
                                     placeholder="0.00"
                                     onChange={(e) => setRealCash(parseFloat(e.target.value) || 0)}
                                     className="w-full pl-10 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 outline-none transition-all text-2xl font-black text-slate-900"
@@ -117,7 +117,7 @@ const CloseCashModal: React.FC<CloseCashModalProps> = ({ isOpen, onClose }) => {
                                     type="number"
                                     step="0.01"
                                     required
-                                    value={realVirtual || ''}
+                                    value={realVirtual}
                                     placeholder="0.00"
                                     onChange={(e) => setRealVirtual(parseFloat(e.target.value) || 0)}
                                     className="w-full pl-10 pr-4 py-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-slate-900 focus:ring-4 focus:ring-slate-900/10 outline-none transition-all text-2xl font-black text-slate-900"

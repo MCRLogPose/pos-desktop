@@ -123,15 +123,5 @@
   "121": "Sales Domain",
   "122": "Stores Domain",
   "123": "Sync Queue",
-  "124": "Users Domain",
-  "125": "VESTIKPOS — Diseño de Arquitectura: Modos de Configuración",
-  "126": "13. Decisiones Tomadas (Preguntas Resueltas)",
-  "127": "12. Plan de Implementación (Fases)",
-  "128": "6. Cambios en el Backend (Rust)",
-  "129": "7. Cambios en el Frontend",
-  "130": "2. Contexto y Problema",
-  "131": "3. Definición de Modos",
-  "132": "5. Cambios en la Base de Datos",
-  "133": "9. Seguridad",
-  "134": "8. Flujo de Instalación"
+  "124": "Users Domain"
 }
