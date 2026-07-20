@@ -6,6 +6,7 @@ pub mod services;
 
 use commands::auth::AppState;
 use services::auth_service::AuthService;
+use services::config_service::ConfigService;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -20,13 +21,14 @@ pub fn run() {
             tauri::async_runtime::block_on(async move {
                 let pool = db::init_db(&app_handle).await.expect("Failed to init DB");
 
-                let auth_service = AuthService::new(pool.clone());
-                let inventory_service =
-                    services::inventory_service::InventoryService::new(pool.clone());
-                let sales_service = services::sales_service::SalesService::new(pool.clone());
-                let cash_service = services::cash_service::CashService::new(pool.clone());
-                let purchase_order_service =
-                    services::purchase_order_service::PurchaseOrderService::new(pool);
+            let auth_service = AuthService::new(pool.clone());
+            let inventory_service =
+                services::inventory_service::InventoryService::new(pool.clone());
+            let sales_service = services::sales_service::SalesService::new(pool.clone());
+            let cash_service = services::cash_service::CashService::new(pool.clone());
+            let purchase_order_service =
+                services::purchase_order_service::PurchaseOrderService::new(pool.clone());
+            let config_service = ConfigService::new(pool);
 
                 // Initialize Admin if needed
                 auth_service
@@ -41,6 +43,7 @@ pub fn run() {
                     sales_service,
                     cash_service,
                     purchase_order_service,
+                    config_service,
                 });
             });
 
@@ -99,6 +102,11 @@ pub fn run() {
             commands::purchase_order::create_purchase_order,
             commands::purchase_order::get_purchase_orders,
             commands::purchase_order::get_purchase_order_detail,
+            // Config
+            commands::config::get_operating_mode,
+            commands::config::set_operating_mode,
+            commands::config::get_app_config,
+            commands::config::set_app_config,
         ])
         .plugin(tauri_plugin_process::init())
         .run(tauri::generate_context!())

@@ -125,14 +125,14 @@
     "semantic_hash": "fee0633f4ae4e46e6a40d9dd246eac6d"
   },
   "src-tauri/src/commands/auth.rs": {
-    "mtime": 1784506578.9132814,
-    "ast_hash": "e3cddfa8bff04199805eef820aac4b38",
+    "mtime": 1783750508.0325801,
+    "ast_hash": "59a680cd0b1b61ad555489427081fc8f",
     "semantic_hash": ""
   },
   "src-tauri/src/commands/cash.rs": {
-    "mtime": 1783888817.6450717,
-    "ast_hash": "6a301d4f5ceef7c03bc5ce6dd9908110",
-    "semantic_hash": ""
+    "mtime": 1783571937.7943678,
+    "ast_hash": "d616bcb8b58a76f1c96048fcd845ed7f",
+    "semantic_hash": "d616bcb8b58a76f1c96048fcd845ed7f"
   },
   "src-tauri/src/commands/inventory.rs": {
     "mtime": 1783571937.7954426,
@@ -165,8 +165,8 @@
     "semantic_hash": "ef8eaeb9b060517f7f6331eea392eb87"
   },
   "src-tauri/src/lib.rs": {
-    "mtime": 1784506594.0778697,
-    "ast_hash": "cb9e2b7c73550d8c271d2d8e7c65beeb",
+    "mtime": 1783750523.596267,
+    "ast_hash": "99f55329214a0232de1a883e29f57aeb",
     "semantic_hash": ""
   },
   "src-tauri/src/main.rs": {
@@ -175,9 +175,9 @@
     "semantic_hash": "c606fa15ae831a39cb2310dde4d4fa4c"
   },
   "src-tauri/src/models/cash.rs": {
-    "mtime": 1783890808.7821555,
-    "ast_hash": "23f1c3daaf048bf732f1c7d46be26685",
-    "semantic_hash": ""
+    "mtime": 1783571937.7994685,
+    "ast_hash": "c02e46c5af1cc3d06fa68e1ffdd030f1",
+    "semantic_hash": "c02e46c5af1cc3d06fa68e1ffdd030f1"
   },
   "src-tauri/src/models/inventory.rs": {
     "mtime": 1783571937.7994685,
@@ -205,9 +205,9 @@
     "semantic_hash": "d25ad64a81e48d6c3ccd04ff2c099466"
   },
   "src-tauri/src/repositories/cash_repo.rs": {
-    "mtime": 1783890797.9494383,
-    "ast_hash": "a498b1f01afaf0e15808e3c5598bcfdc",
-    "semantic_hash": ""
+    "mtime": 1783571937.80565,
+    "ast_hash": "7139987d3029ccd7c6e9c13ff9204933",
+    "semantic_hash": "7139987d3029ccd7c6e9c13ff9204933"
   },
   "src-tauri/src/repositories/inventory_repo.rs": {
     "mtime": 1783750540.9422138,
@@ -230,19 +230,19 @@
     "semantic_hash": "e2215925f29e31c50ca2e60e739b315f"
   },
   "src-tauri/src/repositories/user_repo.rs": {
-    "mtime": 1784506549.182237,
-    "ast_hash": "0257253118e9f0723d44f24368b21bdc",
-    "semantic_hash": ""
+    "mtime": 1783571937.80565,
+    "ast_hash": "317d2e51354f504d8d456be1ae2c6a54",
+    "semantic_hash": "317d2e51354f504d8d456be1ae2c6a54"
   },
   "src-tauri/src/services/auth_service.rs": {
-    "mtime": 1784506571.6034358,
-    "ast_hash": "1815f08346a094c2c86b64b64787accd",
-    "semantic_hash": ""
+    "mtime": 1783571937.80565,
+    "ast_hash": "92c005c6dc5886a081a8df2c6cd91c5a",
+    "semantic_hash": "92c005c6dc5886a081a8df2c6cd91c5a"
   },
   "src-tauri/src/services/cash_service.rs": {
-    "mtime": 1783882894.273954,
-    "ast_hash": "6267cd07eb50a78d8333b28cccf1a1d8",
-    "semantic_hash": ""
+    "mtime": 1783571937.80565,
+    "ast_hash": "0c73a2c2a8e85b934727e52b25307bc3",
+    "semantic_hash": "0c73a2c2a8e85b934727e52b25307bc3"
   },
   "src-tauri/src/services/inventory_service.rs": {
     "mtime": 1783571937.80565,
@@ -375,9 +375,9 @@
     "semantic_hash": "2d4c39f55a2686f26d2a14b812a43f87"
   },
   "src/features/user/components/modals/CloseCashModal.tsx": {
-    "mtime": 1783887928.723021,
-    "ast_hash": "8b7ca916bb12c4bbcb6e8153a8090ff1",
-    "semantic_hash": ""
+    "mtime": 1773029134.1195443,
+    "ast_hash": "0131011d063ca8cf0c5302edbb2f154e",
+    "semantic_hash": "0131011d063ca8cf0c5302edbb2f154e"
   },
   "src/features/user/components/modals/ExportModal.tsx": {
     "mtime": 1773285825.2119246,
@@ -390,8 +390,8 @@
     "semantic_hash": "e1e73b287b4ea73acbcd8f059a097dbc"
   },
   "src/features/user/components/modals/ProductModal.tsx": {
-    "mtime": 1784505383.5153706,
-    "ast_hash": "9d59e5865ceda6123e05675856570ceb",
+    "mtime": 1783752570.8565884,
+    "ast_hash": "bb156e7237a01c4320dfd44363d0b8a1",
     "semantic_hash": ""
   },
   "src/features/user/components/modals/SaleDetailModal.tsx": {
@@ -420,9 +420,9 @@
     "semantic_hash": "ec719ca460787993ec41c04e20d182cb"
   },
   "src/features/user/constants/navigation.ts": {
-    "mtime": 1783882963.5710163,
-    "ast_hash": "f21eefe25a9f41b5ecadcb95e210a616",
-    "semantic_hash": ""
+    "mtime": 1773291536.0406868,
+    "ast_hash": "50333c8fdb31a784cb1267048582e223",
+    "semantic_hash": "50333c8fdb31a784cb1267048582e223"
   },
   "src/features/user/layouts/MainLayout.tsx": {
     "mtime": 1773029166.4215412,
@@ -430,9 +430,9 @@
     "semantic_hash": "e82736b45575ca3028aef040cde70fb0"
   },
   "src/features/user/pages/DashboardPage.tsx": {
-    "mtime": 1783889375.0467963,
-    "ast_hash": "1559f2a28e04fd6feb83e17ef0b01e6b",
-    "semantic_hash": ""
+    "mtime": 1773293570.8107908,
+    "ast_hash": "e7c6ec86814760b9ede8718c5ed3867d",
+    "semantic_hash": "e7c6ec86814760b9ede8718c5ed3867d"
   },
   "src/features/user/pages/FinancePage.tsx": {
     "mtime": 1773293515.0945115,
@@ -445,8 +445,8 @@
     "semantic_hash": "e5e943ed194c582ed6bf7b0b36511008"
   },
   "src/features/user/pages/InventoryPage.tsx": {
-    "mtime": 1784505457.581931,
-    "ast_hash": "ebf808bb5f49669d4fde4f75ae961704",
+    "mtime": 1783750621.1974416,
+    "ast_hash": "14a7320928577fc63436300cc1ca8a1f",
     "semantic_hash": ""
   },
   "src/features/user/pages/POSPage.tsx": {
@@ -455,9 +455,9 @@
     "semantic_hash": "ea45842240e41ef0afd098da5dbeac79"
   },
   "src/features/user/pages/ReportsPage.tsx": {
-    "mtime": 1783891054.0798497,
-    "ast_hash": "a09adc9dcddada62e9b836e5a6e18e3d",
-    "semantic_hash": ""
+    "mtime": 1773293526.670777,
+    "ast_hash": "46bb373f3ceee46caf82c4e93cbde0c3",
+    "semantic_hash": "46bb373f3ceee46caf82c4e93cbde0c3"
   },
   "src/features/user/pages/SalesPage.tsx": {
     "mtime": 1773293469.6149342,
@@ -465,9 +465,9 @@
     "semantic_hash": "2b9d8cbea33504b5f067a7c467c53c24"
   },
   "src/features/user/pages/SettingsPage.tsx": {
-    "mtime": 1784506651.9660861,
-    "ast_hash": "cd3e53be848550cf1d90119005932e20",
-    "semantic_hash": ""
+    "mtime": 1769925553.213085,
+    "ast_hash": "41c3a5c49c180db941450b6114ac4744",
+    "semantic_hash": "41c3a5c49c180db941450b6114ac4744"
   },
   "src/features/user/pages/StoresPage.tsx": {
     "mtime": 1770701420.0125482,
@@ -480,9 +480,9 @@
     "semantic_hash": "611c32d0dacb323bde10dfbeaf084ad3"
   },
   "src/routes/AppRoutes.tsx": {
-    "mtime": 1783882965.713104,
-    "ast_hash": "3f635c7340e7c7ef87a49e6c4e6a107b",
-    "semantic_hash": ""
+    "mtime": 1773285102.1281693,
+    "ast_hash": "aad9211ab3872aa2310d2fe5fc786e42",
+    "semantic_hash": "aad9211ab3872aa2310d2fe5fc786e42"
   },
   "src/routes/PrivateRoutes.tsx": {
     "mtime": 1769479646.805445,
@@ -545,9 +545,9 @@
     "semantic_hash": "cb575f572c6cf4a12d3560a4c302644e"
   },
   "src/services/userService.ts": {
-    "mtime": 1784506602.4924088,
-    "ast_hash": "fdf35e4ebccbd46e8bb848978c41ca18",
-    "semantic_hash": ""
+    "mtime": 1783571937.8187008,
+    "ast_hash": "a5fb89830c75c70b78d09de12ab2bac5",
+    "semantic_hash": "a5fb89830c75c70b78d09de12ab2bac5"
   },
   "tsconfig.app.json": {
     "mtime": 1769492347.2368305,
@@ -930,8 +930,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/models/purchase_order.rs": {
-    "mtime": 1783886694.2956138,
-    "ast_hash": "2d81e91da4cb93c48f5ef6998978bad5",
+    "mtime": 1783750465.6117854,
+    "ast_hash": "463dc14b9c1e45d8f825c9dcac01e9fc",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/purchase_order_repo.rs": {
@@ -940,8 +940,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/services/purchase_order_service.rs": {
-    "mtime": 1783882929.1758878,
-    "ast_hash": "bbc170b29677ddc9ee598b63eab86232",
+    "mtime": 1783750666.3907876,
+    "ast_hash": "2526040ef2f9cbf43c5534278efb18f4",
     "semantic_hash": ""
   },
   "docs/ARCHITECTURE_DESIGN.md": {
@@ -952,36 +952,6 @@
   "docs/IMPLEMENTACION_V2.md": {
     "mtime": 1783750429.9996724,
     "ast_hash": "183eedff5582e37f2cadbe7483b42c0b",
-    "semantic_hash": ""
-  },
-  "src-tauri/migrations/007_expenses_sync.sql": {
-    "mtime": 1783882826.050411,
-    "ast_hash": "4ebb8797f0d19fd09f8859f9faeded69",
-    "semantic_hash": ""
-  },
-  "src-tauri/migrations/008_expenses_source.sql": {
-    "mtime": 1783890722.30284,
-    "ast_hash": "d2fe4742479b6c0486b1f5e7d7505a93",
-    "semantic_hash": ""
-  },
-  "src/features/user/components/modals/AddStockModal.tsx": {
-    "mtime": 1784505695.6164973,
-    "ast_hash": "335435a7490c711836bf7a7b470e34db",
-    "semantic_hash": ""
-  },
-  "src/features/user/components/modals/GastoModal.tsx": {
-    "mtime": 1783888922.917769,
-    "ast_hash": "3fb417e0c71a52b9f61f5346bd00026a",
-    "semantic_hash": ""
-  },
-  "src/features/user/components/tables/GastosTable.tsx": {
-    "mtime": 1783882990.6012735,
-    "ast_hash": "41411bbbd96cf2cd47631348e07d87c0",
-    "semantic_hash": ""
-  },
-  "src/features/user/pages/GastosPage.tsx": {
-    "mtime": 1783883186.7838466,
-    "ast_hash": "2bed4dbf40ec0538710becf5807ccdc7",
     "semantic_hash": ""
   }
 }

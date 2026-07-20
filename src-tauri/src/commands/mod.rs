@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod cash;
+pub mod config;
 pub mod inventory;
 pub mod purchase_order;
 pub mod sales;

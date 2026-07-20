@@ -1,16 +1,16 @@
-# Graph Report - pos-desktop  (2026-07-19)
+# Graph Report - pos-desktop  (2026-07-11)
 
 ## Corpus Check
-- 131 files · ~130,323 words
+- 125 files · ~124,975 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1165 nodes · 1697 edges · 137 communities (82 shown, 55 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 72 edges (avg confidence: 0.71)
+- 1130 nodes · 1612 edges · 135 communities (79 shown, 56 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 71 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e3a8e368`
+- Built from commit: `4ae21d18`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -135,24 +135,20 @@
 - 5. Cambios en la Base de Datos
 - 9. Seguridad
 - 8. Flujo de Instalación
-- GastosTable.tsx
-- store.rs
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 53 edges
+1. `AppState` - 49 edges
 2. `compilerOptions` - 25 edges
-3. `CashRepository` - 20 edges
-4. `compilerOptions` - 18 edges
-5. `e()` - 17 edges
-6. `m()` - 17 edges
-7. `UserRepository` - 17 edges
-8. `InventoryRepository` - 16 edges
-9. `CashService` - 16 edges
-10. `VESTIKPOS — Diseño de Arquitectura: Modos de Configuración` - 15 edges
+3. `compilerOptions` - 18 edges
+4. `e()` - 17 edges
+5. `m()` - 17 edges
+6. `InventoryRepository` - 16 edges
+7. `UserRepository` - 16 edges
+8. `CashRepository` - 15 edges
+9. `VESTIKPOS — Diseño de Arquitectura: Modos de Configuración` - 15 edges
+10. `VESTIKPOS — Documentación Técnica v0.1.0` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `GastosPage()` --indirect_call--> `v()`  [INFERRED]
-  src/features/user/pages/GastosPage.tsx → public/vendor/jspdf.min.js
 - `CashSession` --semantically_similar_to--> `Cash Sessions`  [INFERRED] [semantically similar]
   cargo_output.txt → src/services/db/README.md
 - `tsc_final_output.txt - TypeScript Errors` --semantically_similar_to--> `tsc_final_v3.txt - TypeScript Errors`  [INFERRED] [semantically similar]
@@ -161,6 +157,8 @@
   tsc_final_output.txt → tsc_output.txt
 - `tsc_output.txt - TypeScript Errors` --semantically_similar_to--> `tsc_output_v2.txt - TypeScript Errors`  [INFERRED] [semantically similar]
   tsc_output.txt → tsc_output_v2.txt
+- `SalesPage()` --indirect_call--> `v()`  [INFERRED]
+  src/features/user/pages/SalesPage.tsx → public/vendor/jspdf.min.js
 
 ## Import Cycles
 - None detected.
@@ -168,7 +166,7 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (137 total, 55 thin omitted)
+## Communities (135 total, 56 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.04
@@ -179,16 +177,16 @@ Cohesion: 0.07
 Nodes (39): create_sale(), get_all_order_items(), get_sale_detail(), get_sales(), Option, OrderItemExport, Result, Sale (+31 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.10
-Nodes (48): _(), an(), B(), gr(), I(), Pt(), SUPPORT_WORD_BREAKING(), wA() (+40 more)
+Cohesion: 0.11
+Nodes (46): _(), B(), gr(), I(), SUPPORT_WORD_BREAKING(), wA(), a(), b() (+38 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.13
-Nodes (47): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+39 more)
+Cohesion: 0.10
+Nodes (53): AppState, create_user(), get_users(), login(), Option, Result, State, String (+45 more)
 
 ### Community 5 - "Inventory Models"
 Cohesion: 0.09
@@ -203,8 +201,8 @@ Cohesion: 0.11
 Nodes (18): Error, Option, Result, Self, SqlitePool, Store, Vec, StoreRepository (+10 more)
 
 ### Community 8 - "Cash Session Models"
-Cohesion: 0.12
-Nodes (20): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UpdateExpensePayload (+12 more)
+Cohesion: 0.08
+Nodes (31): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UserSession (+23 more)
 
 ### Community 9 - "Dev Dependencies"
 Cohesion: 0.07
@@ -239,8 +237,8 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+11 more)
 
 ### Community 17 - "Category and Product Modals"
-Cohesion: 0.10
-Nodes (14): AddStockModalProps, Product, Category, CategoryModalProps, BatchItem, Category, Product, ProductModalProps (+6 more)
+Cohesion: 0.12
+Nodes (12): Category, CategoryModalProps, BatchItem, Category, Product, ProductModalProps, getStatusColor(), getStatusText() (+4 more)
 
 ### Community 18 - "Tauri Configuration"
 Cohesion: 0.11
@@ -386,10 +384,6 @@ Nodes (6): AppRoutes.tsx Unused useAuth Error, tsc_final_output.txt - TypeScript
 Cohesion: 0.50
 Nodes (3): Expanding the ESLint configuration, React Compiler, React + TypeScript + Vite
 
-### Community 108 - "Pt"
-Cohesion: 0.17
-Nodes (12): CashRepository, CashSession, Error, Expense, Option, OtherIncome, Result, Self (+4 more)
-
 ### Community 125 - "VESTIKPOS — Diseño de Arquitectura: Modos de Configuración"
 Cohesion: 0.25
 Nodes (7): 10.1 Límites, 10.2 Optimizaciones, 10. Rendimiento y Escalabilidad, 11. Diagrama de Arquitectura Completo, 14. Glossario, 1. Resumen Ejecutivo, VESTIKPOS — Diseño de Arquitectura: Modos de Configuración
@@ -430,33 +424,25 @@ Nodes (4): 9.1 Autenticación entre nodos, 9.2 Autorización, 9.3 Integridad de 
 Cohesion: 0.67
 Nodes (3): 8.1 Primera ejecución, 8.2 Cambio de modo, 8. Flujo de Instalación
 
-### Community 135 - "GastosTable.tsx"
-Cohesion: 0.15
-Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
-
-### Community 136 - "store.rs"
-Cohesion: 0.42
-Nodes (10): create_store(), delete_store(), get_stores(), Option, Result, State, Store, String (+2 more)
-
 ## Knowledge Gaps
-- **420 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+415 more)
+- **412 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+407 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **55 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **56 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `Main App Core`, `Cash Session Models`, `store.rs`, `Cash Repository`, `User Commands`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `User Commands`?**
+  _High betweenness centrality (0.081) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
-- **Why does `SalesService` connect `Sales Commands` to `Auth and Cash Commands`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
+- **Why does `UserRepository` connect `User Models` to `Main App Core`?**
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
+- **Are the 12 inferred relationships involving `e()` (e.g. with `A()` and `mr()`) actually correct?**
+  _`e()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _423 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _415 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.03636363636363636 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
   _Cohesion score 0.07039187227866474 - nodes in this community are weakly interconnected._
-- **Should `jsPDF Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.1011764705882353 - nodes in this community are weakly interconnected._

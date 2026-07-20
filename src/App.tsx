@@ -3,16 +3,19 @@ import AppRoutes from './routes/AppRoutes';
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider } from './context/AuthContext';
 import { CashProvider } from './context/CashContext';
+import { ConfigProvider } from './context/ConfigContext';
 
 const App = () => {
   return (
     <BrowserRouter>
       <NotificationProvider>
-        <AuthProvider>
-          <CashProvider>
-            <AppRoutes />
-          </CashProvider>
-        </AuthProvider>
+        <ConfigProvider>
+          <AuthProvider>
+            <CashProvider>
+              <AppRoutes />
+            </CashProvider>
+          </AuthProvider>
+        </ConfigProvider>
       </NotificationProvider>
     </BrowserRouter>
   );
