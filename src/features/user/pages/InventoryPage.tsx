@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Filter, ArrowUpDown, Layers } from 'lucide-react';
+import { Search, Plus, Filter, ArrowUpDown, Layers, PackagePlus } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import ProductModal from '../components/modals/ProductModal';
 import CategoryModal from '../components/modals/CategoryModal';
+import AddStockModal from '../components/modals/AddStockModal';
 import { useAuth } from '@/context/AuthContext';
 import InventoryTable, { type Product } from '../components/tables/InventoryTable';
 
@@ -22,6 +23,7 @@ const InventoryPage = () => {
   // Modal States
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Pagination (Client-side for now)
@@ -120,6 +122,13 @@ const InventoryPage = () => {
             Categorías
           </button>
           <button
+            onClick={() => setIsAddStockModalOpen(true)}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg shadow-green-600/20 transition-all hover:-translate-y-0.5 active:scale-95"
+          >
+            <PackagePlus className="w-5 h-5" />
+            Agregar
+          </button>
+          <button
             onClick={openNewProduct}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg shadow-blue-600/20 transition-all hover:-translate-y-0.5 active:scale-95"
           >
@@ -208,6 +217,14 @@ const InventoryPage = () => {
           loadCategories();
           loadProducts(); // Reload products to reflect category changes (names)
         }}
+        storeId={activeStoreId}
+      />
+
+      <AddStockModal
+        isOpen={isAddStockModalOpen}
+        onClose={() => setIsAddStockModalOpen(false)}
+        onSubmit={loadProducts}
+        products={products}
         storeId={activeStoreId}
       />
     </div>

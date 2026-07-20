@@ -48,3 +48,16 @@ pub async fn get_users(state: State<'_, AppState>) -> Result<Vec<User>, String> 
 pub async fn verify_password(state: State<'_, AppState>, password: String) -> Result<bool, String> {
     state.auth_service.verify_admin_password(&password).await
 }
+
+#[tauri::command]
+pub async fn change_password(
+    state: State<'_, AppState>,
+    user_id: i64,
+    current_password: String,
+    new_password: String,
+) -> Result<(), String> {
+    state
+        .auth_service
+        .change_password(user_id, &current_password, &new_password)
+        .await
+}

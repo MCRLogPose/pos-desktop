@@ -134,6 +134,15 @@ impl UserRepository {
         Ok(())
     }
 
+    pub async fn update_password(&self, id: i64, password_hash: &str) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE users SET password_hash = ? WHERE id = ?")
+            .bind(password_hash)
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
+    }
+
     pub async fn get_users_by_store(&self, store_id: i64) -> Result<Vec<User>, sqlx::Error> {
         sqlx::query_as::<_, User>(
             "SELECT id, username, password_hash, cargo, email, store_id, is_active, created_at FROM users WHERE store_id = ? AND is_active = 1"

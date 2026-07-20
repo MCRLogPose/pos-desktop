@@ -104,15 +104,6 @@ impl AuthService {
     }
 
     pub async fn verify_admin_password(&self, password: &str) -> Result<bool, String> {
-        // For simplicity, we check against the 'admin' user.
-        // In a real app, we should check against the currently logged-in user's password.
-        // But since we don't have session management in backend fully yet (just JWT or simple login),
-        // we will assume the sensitive action requires the 'admin' password or we identify the user.
-        // For this requirement: "si deseo eliminar y hay usuario entonces que me pida que vuelva a ingresar la contraseña"
-        // We will assume checking against the 'admin' user for now as it is the "super user".
-        // Or better, logic: find user by username 'admin' and verify.
-        // Ideally we pass username too.
-
         let admin = self
             .user_repo
             .find_by_username("admin")
@@ -123,5 +114,34 @@ impl AuthService {
         } else {
             Err("Admin user not found".to_string())
         }
+    }
+
+    pub async fn change_password(
+        &self,
+        user_id: i64,
+        current_password: &str,
+        new_password: &str,
+    ) -> Result<(), String> {
+        let user = self
+            .user_repo
+            .find_user_by_id(user_id)
+            .await
+            .map_err(|e| e.to_string())?
+            .ok_or_else(|| "Usuario no encontrado".to_string())?;
+
+        let is_valid = verify(current_password, &user.password_hash)
+            .map_err(|e| format!("Error verificando contraseña: {}", e))?;
+
+        if !is_valid {
+            return Err("La contraseña actual es incorrecta".to_string());
+        }
+
+        let new_hash = bcrypt::hash(new_password, bcrypt::DEFAULT_COST)
+            .map_err(|e| format!("Error hasheando contraseña: {}", e))?;
+
+        self.user_repo
+            .update_password(user_id, &new_hash)
+            .await
+            .map_err(|e| e.to_string())
     }
 }

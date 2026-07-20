@@ -53,5 +53,13 @@ export const userService = {
 
     async getUsersByStore(store_id: number): Promise<User[]> {
         return await invoke('get_users_by_store', { storeId: store_id });
+    },
+
+    async changePassword(userId: number, currentPassword: string, newPassword: string): Promise<void> {
+        return await invoke('change_password', {
+            userId,
+            currentPassword,
+            newPassword
+        });
     }
 };

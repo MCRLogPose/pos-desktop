@@ -58,6 +58,7 @@ pub fn run() {
             commands::auth::create_user,
             commands::auth::get_users,
             commands::auth::verify_password,
+            commands::auth::change_password,
             commands::store::get_stores,
             commands::store::create_store,
             commands::store::update_store,
