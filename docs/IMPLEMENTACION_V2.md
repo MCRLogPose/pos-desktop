@@ -14,7 +14,7 @@
 
 ---
 
-## Fase 1: Lote de Compra (ESTA FASE — Implementada)
+## Fase 1: Lote de Compra (COMPLETADA ✅)
 
 ### 1.1 Migración SQL
 
@@ -39,117 +39,145 @@ Crea dos tablas nuevas:
 - `src-tauri/src/commands/mod.rs` — Agregar módulo
 - `src-tauri/src/lib.rs` — Registrar servicio y comandos
 
-**Flujo del comando `create_purchase_order`:**
-1. Recibe payload con items, proveedor, fecha, alias
-2. Genera UUID para el lote
-3. Inserta en `purchase_orders`
-4. Para cada item: inserta en `purchase_order_items`
-5. Para cada item: crea o actualiza el producto en `products` (suma stock)
-6. Retorna el ID del lote creado
-
 ### 1.3 Frontend — Modal "Nuevo Lote"
 
 **Archivo:** `src/features/user/components/modals/ProductModal.tsx` (reescrito)
 
-**UX del modal:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Nuevo Lote                                        [X]     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─ Campos del producto ──────────────────────────────────┐ │
-│  │ Nombre | SKU | Categoría | Imagen                      │ │
-│  │ Stock  | Precio Venta | Precio Costo                   │ │
-│  │ [Simulador de Ganancia]                                │ │
-│  │                                    [ + Agregar Item ]   │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                             │
-│  ┌─ Datos del Lote ───────────────────────────────────────┐ │
-│  │ Fecha Lote | Proveedor | Alias                         │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                             │
-│  ┌─ Items Agregados ──────────────────────────────────────┐ │
-│  │ # │ Nombre │ SKU │ Stock │ Costo │ Precio │ Acciones   │ │
-│  │ 1 │ Café   │ 001 │   10  │  5.00 │  8.00  │ [🗑️]     │ │
-│  │ 2 │ Té     │ 002 │   20  │  3.00 │  6.00  │ [🗑️]     │ │
-│  │                                                           │ │
-│  │ Doble-click en fila → rellena campos arriba              │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                             │
-│  Total Costo del Lote: S/ 110.00                            │
-│                                                             │
-│                         [ Cancelar ]  [ Agregar Lote ]      │
-└─────────────────────────────────────────────────────────────┘
-```
-
-**Comportamiento:**
-1. Usuario llena campos y presiona "Agregar Item" → item se agrega a la tabla inferior
-2. Doble-click en una fila → rellena los campos arriba con esos datos (para editar)
-3. Botón 🗑️ elimina el item de la tabla
-4. "Agregar Lote" envía todo al backend de una vez
-5. Cada item se convierte en un producto (create_product o update_product si ya existe por SKU)
-6. Los datos del lote (proveedor, fecha, alias, total) se guardan en `purchase_orders`
-
 ### 1.4 Verificación
 
-- [ ] Migración crea tablas correctamente
-- [ ] `cargo check` compila sin errores
-- [ ] Modal muestra campos y tabla de items
-- [ ] Doble-click rellena campos
-- [ ] Eliminar item funciona
-- [ ] "Agregar Lote" crea productos y registro de compra
-- [ ] Productos aparecen en inventario con stock actualizado
+- [x] Migración crea tablas correctamente
+- [x] `cargo check` compila sin errores
+- [x] Modal muestra campos y tabla de items
+- [x] Doble-click rellena campos
+- [x] Eliminar item funciona
+- [x] "Agregar Lote" crea productos y registro de compra
+- [x] Productos aparecen en inventario con stock actualizado
 
 ---
 
-## Fase 2: Infraestructura Primary/Replica (Documentada)
+## Fase 0: Infraestructura Primary/Replica — Base (COMPLETADA ✅)
 
-### 2.1 Migración SQL
-- Crear `007_node_config.sql` con tablas: `app_config`, `replica_nodes`, `sync_log`, `sync_queue`, `sync_status`
+### 0.1 Migración SQL
+- [x] Crear `009_app_config.sql` con tabla `app_config`
 
-### 2.2 Backend
-- Crear módulo `src-tauri/src/sync/` con: config, models, queue, server, client, scheduler, retention
-- Axum server en Primary (puerto 8080)
-- Reqwest client en Replica
-- Job scheduler para sync a las 8pm
+### 0.2 Backend
+- [x] `config_service.rs` — Servicio de configuración (has_config, get_operating_mode, set_operating_mode, get_app_config, set_app_config)
+- [x] `commands/config.rs` — Comandos Tauri IPC: `has_app_config`, `get_operating_mode`, `set_operating_mode`, `get_app_config`, `set_app_config`
+- [x] Registrar en `lib.rs` y `mod.rs`
 
-### 2.3 Frontend
-- `ConfigContext` para detectar modo
-- `NodeSetupPage` para primera ejecución
-- `SyncStatusBar` en navbar (Replica)
-- Navegación condicional por modo
+### 0.3 Frontend
+- [x] `ConfigContext.tsx` — Context con `operatingMode`, `isPrimary`, `isReplica`, `isHybrid`, `isConfigured`, `setMode()`
+- [x] `ConfigGuard` en `App.tsx` — Detecta si hay configuración, muestra SetupPage o AppRoutes
+- [x] `SetupPage.tsx` — Wizard de 2 pasos (selección de modo + confirmación)
+- [x] `ModeSelector.tsx` — 3 cards con iconos/colores por modo
 
-### 2.4 Verificación
-- [ ] Primary inicia servidor HTTP
-- [ ] Replica puede conectarse a Primary
-- [ ] Sync batch se envía y recibe correctamente
-- [ ] UI muestra estado de sincronización
+### 0.4 Verificación
+- [x] Primera ejecución muestra pantalla de selección de modo
+- [x] Seleccionar modo guarda en `app_config`
+- [x] Modo se carga al reiniciar la app
+- [x] `isConfigured` se detecta correctamente
 
 ---
 
-## Fase 3: Permisos por Modo (Documentada)
+## Fase 1.2: Navegación por Modo (COMPLETADA ✅)
+
+### 1.2.1 Frontend
+- [x] `navigation.ts` — Función `getNavItems(mode)` que filtra items según modo
+- [x] Sidebar usa `useConfig()` y muestra items filtrados
+- [x] Navbar usa `useConfig()` y muestra items filtrados
+
+### 1.2.2 Navegación por modo
+| Módulo | Primary | Replica | Hybrid |
+|--------|---------|---------|--------|
+| Dashboard | ✅ | ❌ | ✅ |
+| Punto de Venta | ❌ | ✅ | ✅ |
+| Ventas | ✅ | ✅ | ✅ |
+| Inventario | ✅ | ✅ | ✅ |
+| Gastos | ✅ | ❌ | ✅ |
+| Finanzas | ❌ | ✅ | ✅ |
+| Reportes | ✅ | ❌ | ✅ |
+| Tiendas | ✅ (solo lectura) | ✅ | ✅ |
+| Configuración | ✅ | ✅ | ✅ |
+
+### 1.2.3 Verificación
+- [x] Primary oculta Punto de Venta
+- [x] Replica oculta Dashboard, Gastos, Reportes
+- [x] Hybrid muestra todo
+
+---
+
+## Fase 1.3: Indicadores Visuales (COMPLETADA ✅)
+
+### 1.3.1 Frontend
+- [x] Badge de modo en `SettingsPage.tsx` con color/icono/descripción
+- [x] Primary = azul, Replica = verde, Hybrid = púrpura
+
+### 1.3.2 Verificación
+- [x] Badge muestra el modo correcto
+- [x] Colores diferenciados por modo
+
+---
+
+## Fase 2: Sync Queue - Replica (Documentada)
+
+### 2.1 Backend
+- Implementar `sync/queue.rs` — CRUD de `sync_queue`
+- Integrar con `sales_service` y `cash_service` para registrar en `sync_queue` al crear venta/cerrar caja
+- Implementar `sync/retention.rs` — limpieza de datos antiguos (31 días)
+- Implementar job scheduler para sync a las 8pm
+- Implementar `sync/client.rs` — enviar batch vía Reqwest
+
+### 2.2 Tablas a sincronizar
+| Tabla | Entidad | Descripción |
+|-------|---------|-------------|
+| `orders` | order | Ventas realizadas |
+| `order_items` | order_item | Items de ventas |
+| `cash_sessions` | cash_session | Sesiones de caja |
+| `expenses` | expense | Gastos registrados |
+| `other_income` | other_income | Otros ingresos |
+| `products` | product | Cambios de inventario |
+| `stores` | store | Edición de tienda asignada |
+| `purchase_orders` | purchase_order | Lotes de compra |
+| `purchase_order_items` | purchase_order_item | Items de lotes |
+
+### 2.3 Verificación
+- [ ] sync_queue registra ventas al crear
+- [ ] sync_queue registra caja al cerrar
+- [ ] Retención elimina datos > 31 días
+- [ ] Scheduler ejecuta sync a las 8pm
+- [ ] Client envía batch correctamente
+
+---
+
+## Fase 3: Sync Server - Primary (Documentada)
 
 ### 3.1 Backend
-- Restringir `create_store` en modo Replica
-- Restringir `create_product` para usuarios no-ADMIN en Replica
-- Bloquear funcionalidad POS/Caja en modo Primary
+- Implementar `sync/server.rs` — Axum server
+- Implementar `POST /api/sync` — recibir y aplicar batch
+- Implementar `sync_log` y `replica_nodes`
+- Implementar endpoints de monitoreo
 
-### 3.2 Frontend
-- Navegación condicional
-- Ocultar/mostrar botones según modo y rol
+### 3.2 Verificación
+- [ ] Primary inicia servidor HTTP en puerto 8080
+- [ ] POST /api/sync recibe y aplica batch
+- [ ] sync_log registra sincronizaciones
+- [ ] replica_nodes registra nodos conectados
 
 ---
 
-## Fase 4: Baja de Réplicas (Documentada)
+## Fase 4: UI y Pulido (Documentada)
 
-### 4.1 Backend
-- Endpoint `POST /api/replicas/disable` en Primary
-- Primary deja de aceptar syncs de la Réplica deshabilitada
-- Réplica queda en estado `is_active = 0`
+### 4.1 Frontend
+- Componente `SyncStatusBar` para Replica
+- Dashboard global para Primary
+- Reportes consolidados en Primary
+- Restringir crear/editar/eliminar tiendas en modo Primary
 
-### 4.2 Frontend
-- Primary: botón para deshabilitar Réplica
-- Réplica: mensaje de que fue deshabilitada
+### 4.2 Verificación
+- [ ] SyncStatusBar muestra estado de sincronización
+- [ ] Dashboard muestra métricas globales en Primary
+- [ ] Reportes consolidan datos de todas las tiendas
+- [ ] Primary no permite crear/editar/eliminar tiendas
 
 ---
 
@@ -166,15 +194,27 @@ Crea dos tablas nuevas:
 | Archivo | Acción | Descripción |
 |---------|--------|-------------|
 | `src-tauri/migrations/006_purchase_orders.sql` | NUEVO | Tablas purchase_orders y purchase_order_items |
+| `src-tauri/migrations/009_app_config.sql` | NUEVO | Tabla app_config para configuración de modo |
 | `src-tauri/src/models/purchase_order.rs` | NUEVO | Structs del modelo |
 | `src-tauri/src/models/mod.rs` | MOD | Agregar módulo purchase_order |
 | `src-tauri/src/repositories/purchase_order_repo.rs` | NUEVO | Repositorio CRUD |
 | `src-tauri/src/repositories/mod.rs` | MOD | Agregar módulo |
 | `src-tauri/src/services/purchase_order_service.rs` | NUEVO | Servicio de lotes |
+| `src-tauri/src/services/config_service.rs` | NUEVO | Servicio de configuración |
 | `src-tauri/src/services/mod.rs` | MOD | Agregar módulo |
 | `src-tauri/src/commands/purchase_order.rs` | NUEVO | Comandos Tauri |
+| `src-tauri/src/commands/config.rs` | NUEVO | Comandos de configuración |
 | `src-tauri/src/commands/mod.rs` | MOD | Agregar módulo |
-| `src-tauri/src/lib.rs` | MOD | Registrar servicio y comandos |
+| `src-tauri/src/lib.rs` | MOD | Registrar servicios y comandos |
 | `src/features/user/components/modals/ProductModal.tsx` | REESCRITO | Modal "Nuevo Lote" |
 | `src/features/user/pages/InventoryPage.tsx` | MOD | Botón "Nuevo Lote" |
-| `docs/ARCHITECTURE_DESIGN.md` | MOD | Decisiones tomadas |
+| `src/features/user/constants/navigation.ts` | MOD | Navegación filtrada por modo |
+| `src/features/user/components/layouts/Sidebar.tsx` | MOD | Usa getNavItems con modo |
+| `src/features/user/components/layouts/Navbar.tsx` | MOD | Usa getNavItems con modo |
+| `src/features/user/pages/SettingsPage.tsx` | MOD | Badge de modo |
+| `src/features/setup/pages/SetupPage.tsx` | NUEVO | Wizard de selección de modo |
+| `src/features/setup/components/ModeSelector.tsx` | NUEVO | Selector de modo |
+| `src/context/ConfigContext.tsx` | NUEVO | Context de configuración |
+| `src/App.tsx` | MOD | ConfigGuard y providers |
+| `src/routes/AppRoutes.tsx` | MOD | Ruta /setup |
+| `docs/ARCHITECTURE_DESIGN.md` | MOD | Documentación actualizada |

@@ -2,9 +2,10 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LogOut, ChevronLeft, ChevronRight, Store } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 import { clsx } from 'clsx';
 import { motion } from 'motion/react';
-import { NAV_ITEMS } from '../../constants/navigation';
+import { getNavItems } from '../../constants/navigation';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -13,6 +14,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
     const { logout } = useAuth();
+    const { operatingMode } = useConfig();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -20,7 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleCollapse }) => {
         navigate('/');
     };
 
-    const navItems = NAV_ITEMS;
+    const navItems = getNavItems(operatingMode);
 
     return (
         <motion.aside

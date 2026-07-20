@@ -46,9 +46,6 @@
   "44": "OpenCode Plugin Config",
   "45": "OpenCode Package Config",
   "46": "Graphify Plugin",
-  "47": "html2canvas Internal C",
-  "48": "html2canvas Internal D",
-  "49": "html2canvas Internal E",
   "50": "Login Card UI",
   "51": "User Service",
   "52": "Desktop Identifier Schema",
@@ -56,10 +53,6 @@
   "54": "TypeScript Root Config",
   "55": "Graphify Agent Config",
   "56": "html2canvas Minified A",
-  "57": "html2canvas Minified B",
-  "58": "html2canvas Minified C",
-  "59": "html2canvas Minified D",
-  "60": "html2canvas Rendering",
   "61": "html2canvas Range Bounds",
   "62": "Tailwind Test Component",
   "63": "Login Form UI",
@@ -134,6 +127,5 @@
   "132": "5. Cambios en la Base de Datos",
   "133": "9. Seguridad",
   "134": "8. Flujo de Instalación",
-  "135": "GastosTable.tsx",
-  "136": "store.rs"
+  "135": "GastosTable.tsx"
 }

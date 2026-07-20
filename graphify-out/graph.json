@@ -618,7 +618,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_b",
-      "community": 2,
+      "community": 56,
       "norm_label": "b()"
     },
     {
@@ -628,7 +628,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_w",
-      "community": 0,
+      "community": 2,
       "norm_label": "w()"
     },
     {
@@ -638,7 +638,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_l",
-      "community": 0,
+      "community": 56,
       "norm_label": "l()"
     },
     {
@@ -648,7 +648,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_p",
-      "community": 0,
+      "community": 61,
       "norm_label": "p()"
     },
     {
@@ -658,7 +658,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_e",
-      "community": 0,
+      "community": 61,
       "norm_label": "e()"
     },
     {
@@ -668,7 +668,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_i",
-      "community": 2,
+      "community": 61,
       "norm_label": "i()"
     },
     {
@@ -688,7 +688,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_wa",
-      "community": 2,
+      "community": 61,
       "norm_label": "wa()"
     },
     {
@@ -698,7 +698,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ua",
-      "community": 48,
+      "community": 0,
       "norm_label": "ua()"
     },
     {
@@ -708,7 +708,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_la",
-      "community": 48,
+      "community": 0,
       "norm_label": "la()"
     },
     {
@@ -728,7 +728,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_fa",
-      "community": 48,
+      "community": 0,
       "norm_label": "fa()"
     },
     {
@@ -738,7 +738,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ha",
-      "community": 58,
+      "community": 0,
       "norm_label": "ha()"
     },
     {
@@ -748,7 +748,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_da",
-      "community": 58,
+      "community": 0,
       "norm_label": "da()"
     },
     {
@@ -818,7 +818,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ee",
-      "community": 38,
+      "community": 0,
       "norm_label": "ee()"
     },
     {
@@ -828,7 +828,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_te",
-      "community": 38,
+      "community": 0,
       "norm_label": "te()"
     },
     {
@@ -848,7 +848,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_be",
-      "community": 57,
+      "community": 0,
       "norm_label": "be()"
     },
     {
@@ -878,7 +878,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_oe",
-      "community": 49,
+      "community": 0,
       "norm_label": "oe()"
     },
     {
@@ -918,7 +918,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_fe",
-      "community": 49,
+      "community": 0,
       "norm_label": "fe()"
     },
     {
@@ -928,7 +928,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_he",
-      "community": 38,
+      "community": 0,
       "norm_label": "he()"
     },
     {
@@ -948,7 +948,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ye",
-      "community": 38,
+      "community": 0,
       "norm_label": "ye()"
     },
     {
@@ -958,7 +958,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_pt",
-      "community": 2,
+      "community": 0,
       "norm_label": "pt()"
     },
     {
@@ -1008,7 +1008,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_kr",
-      "community": 59,
+      "community": 56,
       "norm_label": "kr()"
     },
     {
@@ -1018,7 +1018,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_mr",
-      "community": 59,
+      "community": 56,
       "norm_label": "mr()"
     },
     {
@@ -1028,7 +1028,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_lr",
-      "community": 60,
+      "community": 56,
       "norm_label": "lr()"
     },
     {
@@ -1048,7 +1048,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_support_word_breaking",
-      "community": 2,
+      "community": 56,
       "norm_label": "support_word_breaking()"
     },
     {
@@ -1058,7 +1058,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_support_svg_drawing",
-      "community": 0,
+      "community": 56,
       "norm_label": "support_svg_drawing()"
     },
     {
@@ -1068,7 +1068,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_support_foreignobject_drawing",
-      "community": 60,
+      "community": 56,
       "norm_label": "support_foreignobject_drawing()"
     },
     {
@@ -1128,7 +1128,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_sb",
-      "community": 0,
+      "community": 56,
       "norm_label": "sb()"
     },
     {
@@ -1198,7 +1198,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_xb",
-      "community": 49,
+      "community": 0,
       "norm_label": "xb()"
     },
     {
@@ -1248,7 +1248,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_on",
-      "community": 47,
+      "community": 0,
       "norm_label": "on()"
     },
     {
@@ -1258,7 +1258,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_qn",
-      "community": 47,
+      "community": 0,
       "norm_label": "qn()"
     },
     {
@@ -1268,7 +1268,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_cn",
-      "community": 47,
+      "community": 0,
       "norm_label": "cn()"
     },
     {
@@ -1278,7 +1278,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_an",
-      "community": 2,
+      "community": 0,
       "norm_label": "an()"
     },
     {
@@ -1348,7 +1348,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ts",
-      "community": 39,
+      "community": 0,
       "norm_label": "ts()"
     },
     {
@@ -1358,7 +1358,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_rs",
-      "community": 39,
+      "community": 0,
       "norm_label": "rs()"
     },
     {
@@ -1378,7 +1378,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_ns",
-      "community": 39,
+      "community": 0,
       "norm_label": "ns()"
     },
     {
@@ -1388,7 +1388,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_gs",
-      "community": 39,
+      "community": 0,
       "norm_label": "gs()"
     },
     {
@@ -1428,7 +1428,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_cs",
-      "community": 57,
+      "community": 0,
       "norm_label": "cs()"
     },
     {
@@ -1498,7 +1498,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_e",
-      "community": 2,
+      "community": 56,
       "norm_label": "e()"
     },
     {
@@ -1538,7 +1538,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_s",
-      "community": 2,
+      "community": 61,
       "norm_label": "s()"
     },
     {
@@ -1598,7 +1598,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_m",
-      "community": 2,
+      "community": 56,
       "norm_label": "m()"
     },
     {
@@ -1648,7 +1648,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "c_users_cruzr_documents_projectsdesktop_pos_desktop_public_vendor_jspdf_min",
-      "community": 2,
+      "community": 61,
       "norm_label": "_()"
     },
     {
@@ -1658,7 +1658,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_k",
-      "community": 2,
+      "community": 61,
       "norm_label": "k()"
     },
     {
@@ -1668,7 +1668,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_i",
-      "community": 2,
+      "community": 56,
       "norm_label": "i()"
     },
     {
@@ -1688,7 +1688,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_j",
-      "community": 2,
+      "community": 56,
       "norm_label": "j()"
     },
     {
@@ -1818,7 +1818,7 @@
       "source_location": "L261",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_ee",
-      "community": 2,
+      "community": 56,
       "norm_label": "ee()"
     },
     {
@@ -1828,7 +1828,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_qe",
-      "community": 2,
+      "community": 56,
       "norm_label": "qe()"
     },
     {
@@ -1848,7 +1848,7 @@
       "source_location": "L397",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_t",
-      "community": 2,
+      "community": 56,
       "norm_label": "t()"
     },
     {
@@ -3218,7 +3218,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth",
-      "community": 4,
+      "community": 7,
       "norm_label": "auth.rs"
     },
     {
@@ -3235,10 +3235,10 @@
       "label": "login()",
       "file_type": "code",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_login",
-      "community": 4,
+      "community": 7,
       "norm_label": "login()"
     },
     {
@@ -3248,7 +3248,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_state",
-      "community": 4,
+      "community": 7,
       "norm_label": "state"
     },
     {
@@ -3258,7 +3258,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_string",
-      "community": 4,
+      "community": 7,
       "norm_label": "string"
     },
     {
@@ -3268,7 +3268,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_result",
-      "community": 4,
+      "community": 7,
       "norm_label": "result"
     },
     {
@@ -3278,17 +3278,17 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_user",
-      "community": 4,
+      "community": 7,
       "norm_label": "user"
     },
     {
       "label": "create_user()",
       "file_type": "code",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_create_user",
-      "community": 4,
+      "community": 7,
       "norm_label": "create_user()"
     },
     {
@@ -3298,17 +3298,17 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_option",
-      "community": 4,
+      "community": 7,
       "norm_label": "option"
     },
     {
       "label": "get_users()",
       "file_type": "code",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_get_users",
-      "community": 4,
+      "community": 7,
       "norm_label": "get_users()"
     },
     {
@@ -3318,27 +3318,27 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_vec",
-      "community": 4,
+      "community": 7,
       "norm_label": "vec"
     },
     {
       "label": "verify_password()",
       "file_type": "code",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_verify_password",
-      "community": 4,
+      "community": 7,
       "norm_label": "verify_password()"
     },
     {
       "label": "change_password()",
       "file_type": "code",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_change_password",
-      "community": 4,
+      "community": 7,
       "norm_label": "change_password()"
     },
     {
@@ -3560,6 +3560,106 @@
       "id": "src_tauri_src_commands_cash_rs_otherincome",
       "community": 4,
       "norm_label": "otherincome"
+    },
+    {
+      "label": "config.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config",
+      "community": 4,
+      "norm_label": "config.rs"
+    },
+    {
+      "label": "get_operating_mode()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_get_operating_mode",
+      "community": 4,
+      "norm_label": "get_operating_mode()"
+    },
+    {
+      "label": "State",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_rs_state",
+      "community": 4,
+      "norm_label": "state"
+    },
+    {
+      "label": "Result",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_rs_result",
+      "community": 4,
+      "norm_label": "result"
+    },
+    {
+      "label": "String",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_rs_string",
+      "community": 4,
+      "norm_label": "string"
+    },
+    {
+      "label": "has_app_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_has_app_config",
+      "community": 4,
+      "norm_label": "has_app_config()"
+    },
+    {
+      "label": "set_operating_mode()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_set_operating_mode",
+      "community": 4,
+      "norm_label": "set_operating_mode()"
+    },
+    {
+      "label": "get_app_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_get_app_config",
+      "community": 4,
+      "norm_label": "get_app_config()"
+    },
+    {
+      "label": "Option",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_rs_option",
+      "community": 4,
+      "norm_label": "option"
+    },
+    {
+      "label": "set_app_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_tauri_src_commands_config_set_app_config",
+      "community": 4,
+      "norm_label": "set_app_config()"
     },
     {
       "label": "inventory.rs",
@@ -3938,7 +4038,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store",
-      "community": 136,
+      "community": 4,
       "norm_label": "store.rs"
     },
     {
@@ -3948,7 +4048,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_get_stores",
-      "community": 136,
+      "community": 4,
       "norm_label": "get_stores()"
     },
     {
@@ -3958,7 +4058,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_state",
-      "community": 136,
+      "community": 4,
       "norm_label": "state"
     },
     {
@@ -3968,7 +4068,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_result",
-      "community": 136,
+      "community": 4,
       "norm_label": "result"
     },
     {
@@ -3978,7 +4078,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_vec",
-      "community": 136,
+      "community": 4,
       "norm_label": "vec"
     },
     {
@@ -3988,7 +4088,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_store",
-      "community": 136,
+      "community": 4,
       "norm_label": "store"
     },
     {
@@ -3998,7 +4098,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_string",
-      "community": 136,
+      "community": 4,
       "norm_label": "string"
     },
     {
@@ -4008,7 +4108,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_create_store",
-      "community": 136,
+      "community": 4,
       "norm_label": "create_store()"
     },
     {
@@ -4018,7 +4118,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_option",
-      "community": 136,
+      "community": 4,
       "norm_label": "option"
     },
     {
@@ -4028,7 +4128,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_update_store",
-      "community": 136,
+      "community": 4,
       "norm_label": "update_store()"
     },
     {
@@ -4038,7 +4138,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_delete_store",
-      "community": 136,
+      "community": 4,
       "norm_label": "delete_store()"
     },
     {
@@ -4238,17 +4338,17 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_lib",
-      "community": 7,
+      "community": 38,
       "norm_label": "lib.rs"
     },
     {
       "label": "run()",
       "file_type": "code",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L12",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "src_tauri_src_lib_run",
-      "community": 7,
+      "community": 38,
       "norm_label": "run()"
     },
     {
@@ -6352,6 +6452,136 @@
       "norm_label": "value"
     },
     {
+      "label": "config_service.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service",
+      "community": 38,
+      "norm_label": "config_service.rs"
+    },
+    {
+      "label": "ConfigService",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice",
+      "community": 38,
+      "norm_label": "configservice"
+    },
+    {
+      "label": "SqlitePool",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_rs_sqlitepool",
+      "community": 38,
+      "norm_label": "sqlitepool"
+    },
+    {
+      "label": ".new()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_new",
+      "community": 38,
+      "norm_label": ".new()"
+    },
+    {
+      "label": "Self",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_rs_self",
+      "community": 38,
+      "norm_label": "self"
+    },
+    {
+      "label": ".get_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_get_config",
+      "community": 38,
+      "norm_label": ".get_config()"
+    },
+    {
+      "label": "Result",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_rs_result",
+      "community": 38,
+      "norm_label": "result"
+    },
+    {
+      "label": "Option",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_rs_option",
+      "community": 38,
+      "norm_label": "option"
+    },
+    {
+      "label": "String",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_rs_string",
+      "community": 38,
+      "norm_label": "string"
+    },
+    {
+      "label": ".set_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_set_config",
+      "community": 38,
+      "norm_label": ".set_config()"
+    },
+    {
+      "label": ".get_operating_mode()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_get_operating_mode",
+      "community": 38,
+      "norm_label": ".get_operating_mode()"
+    },
+    {
+      "label": ".has_config()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_has_config",
+      "community": 38,
+      "norm_label": ".has_config()"
+    },
+    {
+      "label": ".set_operating_mode()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L52",
+      "_origin": "ast",
+      "id": "src_tauri_src_services_config_service_configservice_set_operating_mode",
+      "community": 38,
+      "norm_label": ".set_operating_mode()"
+    },
+    {
       "label": "inventory_service.rs",
       "file_type": "code",
       "source_file": "src-tauri/src/services/inventory_service.rs",
@@ -7002,10 +7232,20 @@
       "norm_label": "app.tsx"
     },
     {
+      "label": "ConfigGuard()",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_app_configguard",
+      "community": 12,
+      "norm_label": "configguard()"
+    },
+    {
       "label": "App()",
       "file_type": "code",
       "source_file": "src/App.tsx",
-      "source_location": "L7",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "src_app_app",
       "community": 12,
@@ -7160,6 +7400,66 @@
       "id": "src_context_cashcontext_usecash",
       "community": 12,
       "norm_label": "usecash()"
+    },
+    {
+      "label": "ConfigContext.tsx",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_context_configcontext",
+      "community": 12,
+      "norm_label": "configcontext.tsx"
+    },
+    {
+      "label": "OperatingMode",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_context_configcontext_operatingmode",
+      "community": 12,
+      "norm_label": "operatingmode"
+    },
+    {
+      "label": "ConfigContextType",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_context_configcontext_configcontexttype",
+      "community": 12,
+      "norm_label": "configcontexttype"
+    },
+    {
+      "label": "ConfigContext",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "src_context_configcontext_configcontext",
+      "community": 12,
+      "norm_label": "configcontext"
+    },
+    {
+      "label": "ConfigProvider()",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "src_context_configcontext_configprovider",
+      "community": 12,
+      "norm_label": "configprovider()"
+    },
+    {
+      "label": "useConfig()",
+      "file_type": "code",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L77",
+      "_origin": "ast",
+      "id": "src_context_configcontext_useconfig",
+      "community": 12,
+      "norm_label": "useconfig()"
     },
     {
       "label": "NotificationContext.tsx",
@@ -7360,6 +7660,96 @@
       "id": "src_features_auth_pages_loginpage_login",
       "community": 64,
       "norm_label": "login()"
+    },
+    {
+      "label": "ModeSelector.tsx",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector",
+      "community": 12,
+      "norm_label": "modeselector.tsx"
+    },
+    {
+      "label": "ModeColor",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_modecolor",
+      "community": 12,
+      "norm_label": "modecolor"
+    },
+    {
+      "label": "ModeId",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_modeid",
+      "community": 12,
+      "norm_label": "modeid"
+    },
+    {
+      "label": "ModeSelectorProps",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_modeselectorprops",
+      "community": 12,
+      "norm_label": "modeselectorprops"
+    },
+    {
+      "label": "modes",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_modes",
+      "community": 12,
+      "norm_label": "modes"
+    },
+    {
+      "label": "colorClasses",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L41",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_colorclasses",
+      "community": 12,
+      "norm_label": "colorclasses"
+    },
+    {
+      "label": "ModeSelector()",
+      "file_type": "code",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "src_features_setup_components_modeselector_modeselector",
+      "community": 12,
+      "norm_label": "modeselector()"
+    },
+    {
+      "label": "SetupPage.tsx",
+      "file_type": "code",
+      "source_file": "src/features/setup/pages/SetupPage.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_setup_pages_setuppage",
+      "community": 12,
+      "norm_label": "setuppage.tsx"
+    },
+    {
+      "label": "SetupPage()",
+      "file_type": "code",
+      "source_file": "src/features/setup/pages/SetupPage.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_features_setup_pages_setuppage_setuppage",
+      "community": 12,
+      "norm_label": "setuppage()"
     },
     {
       "label": "StoreCard.tsx",
@@ -7595,7 +7985,7 @@
       "label": "NavbarProps",
       "file_type": "code",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "src_features_user_components_layouts_navbar_navbarprops",
       "community": 6,
@@ -7605,7 +7995,7 @@
       "label": "Navbar()",
       "file_type": "code",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "src_features_user_components_layouts_navbar_navbar",
       "community": 6,
@@ -7625,7 +8015,7 @@
       "label": "SidebarProps",
       "file_type": "code",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_user_components_layouts_sidebar_sidebarprops",
       "community": 6,
@@ -7635,7 +8025,7 @@
       "label": "Sidebar()",
       "file_type": "code",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "src_features_user_components_layouts_sidebar_sidebar",
       "community": 6,
@@ -8332,14 +8722,54 @@
       "norm_label": "navigation.ts"
     },
     {
-      "label": "NAV_ITEMS",
+      "label": "OperatingMode",
       "file_type": "code",
       "source_file": "src/features/user/constants/navigation.ts",
       "source_location": "L13",
       "_origin": "ast",
-      "id": "src_features_user_constants_navigation_nav_items",
+      "id": "src_features_user_constants_navigation_operatingmode",
       "community": 6,
-      "norm_label": "nav_items"
+      "norm_label": "operatingmode"
+    },
+    {
+      "label": "NavItem",
+      "file_type": "code",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_features_user_constants_navigation_navitem",
+      "community": 6,
+      "norm_label": "navitem"
+    },
+    {
+      "label": "ALL_NAV_ITEMS",
+      "file_type": "code",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "src_features_user_constants_navigation_all_nav_items",
+      "community": 6,
+      "norm_label": "all_nav_items"
+    },
+    {
+      "label": "MODE_VISIBILITY",
+      "file_type": "code",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L36",
+      "_origin": "ast",
+      "id": "src_features_user_constants_navigation_mode_visibility",
+      "community": 6,
+      "norm_label": "mode_visibility"
+    },
+    {
+      "label": "getNavItems()",
+      "file_type": "code",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_features_user_constants_navigation_getnavitems",
+      "community": 6,
+      "norm_label": "getnavitems()"
     },
     {
       "label": "MainLayout.tsx",
@@ -8618,7 +9048,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage",
-      "community": 2,
+      "community": 39,
       "norm_label": "reportspage.tsx"
     },
     {
@@ -8628,7 +9058,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_sale",
-      "community": 2,
+      "community": 39,
       "norm_label": "sale"
     },
     {
@@ -8638,7 +9068,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_product",
-      "community": 2,
+      "community": 39,
       "norm_label": "product"
     },
     {
@@ -8648,7 +9078,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_expense",
-      "community": 2,
+      "community": 39,
       "norm_label": "expense"
     },
     {
@@ -8658,7 +9088,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_otherincome",
-      "community": 2,
+      "community": 39,
       "norm_label": "otherincome"
     },
     {
@@ -8668,7 +9098,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_period",
-      "community": 2,
+      "community": 39,
       "norm_label": "period"
     },
     {
@@ -8678,7 +9108,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_reportspage",
-      "community": 2,
+      "community": 61,
       "norm_label": "reportspage()"
     },
     {
@@ -8762,10 +9192,20 @@
       "norm_label": "settingspage.tsx"
     },
     {
+      "label": "MODE_CONFIG",
+      "file_type": "code",
+      "source_file": "src/features/user/pages/SettingsPage.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_features_user_pages_settingspage_mode_config",
+      "community": 66,
+      "norm_label": "mode_config"
+    },
+    {
       "label": "SettingsPage()",
       "file_type": "code",
       "source_file": "src/features/user/pages/SettingsPage.tsx",
-      "source_location": "L7",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "src_features_user_pages_settingspage_settingspage",
       "community": 66,
@@ -10312,10 +10752,20 @@
       "norm_label": "7.2 navegacion condicional por modo"
     },
     {
+      "label": "7.3 Tablas sincronizadas (Replica \u2192 Primary)",
+      "file_type": "document",
+      "source_file": "docs/ARCHITECTURE_DESIGN.md",
+      "source_location": "L563",
+      "_origin": "ast",
+      "id": "docs_architecture_design_7_3_tablas_sincronizadas_replica_primary",
+      "community": 129,
+      "norm_label": "7.3 tablas sincronizadas (replica \u2192 primary)"
+    },
+    {
       "label": "7.3 Componente de estado de sincronizaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L570",
+      "source_location": "L585",
       "_origin": "ast",
       "id": "docs_architecture_design_7_3_componente_de_estado_de_sincronizaci\u00f3n",
       "community": 129,
@@ -10325,7 +10775,7 @@
       "label": "7.4 P\u00e1gina de configuraci\u00f3n de sincronizaci\u00f3n (Primary)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L583",
+      "source_location": "L598",
       "_origin": "ast",
       "id": "docs_architecture_design_7_4_p\u00e1gina_de_configuraci\u00f3n_de_sincronizaci\u00f3n_primary",
       "community": 129,
@@ -10335,7 +10785,7 @@
       "label": "8. Flujo de Instalaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L598",
+      "source_location": "L613",
       "_origin": "ast",
       "id": "docs_architecture_design_8_flujo_de_instalaci\u00f3n",
       "community": 134,
@@ -10345,7 +10795,7 @@
       "label": "8.1 Primera ejecuci\u00f3n",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L600",
+      "source_location": "L615",
       "_origin": "ast",
       "id": "docs_architecture_design_8_1_primera_ejecuci\u00f3n",
       "community": 134,
@@ -10355,7 +10805,7 @@
       "label": "8.2 Cambio de modo",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L641",
+      "source_location": "L656",
       "_origin": "ast",
       "id": "docs_architecture_design_8_2_cambio_de_modo",
       "community": 134,
@@ -10365,7 +10815,7 @@
       "label": "9. Seguridad",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L652",
+      "source_location": "L667",
       "_origin": "ast",
       "id": "docs_architecture_design_9_seguridad",
       "community": 133,
@@ -10375,7 +10825,7 @@
       "label": "9.1 Autenticaci\u00f3n entre nodos",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L654",
+      "source_location": "L669",
       "_origin": "ast",
       "id": "docs_architecture_design_9_1_autenticaci\u00f3n_entre_nodos",
       "community": 133,
@@ -10385,7 +10835,7 @@
       "label": "9.2 Autorizaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L660",
+      "source_location": "L675",
       "_origin": "ast",
       "id": "docs_architecture_design_9_2_autorizaci\u00f3n",
       "community": 133,
@@ -10395,7 +10845,7 @@
       "label": "9.3 Integridad de datos",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L666",
+      "source_location": "L681",
       "_origin": "ast",
       "id": "docs_architecture_design_9_3_integridad_de_datos",
       "community": 133,
@@ -10405,7 +10855,7 @@
       "label": "10. Rendimiento y Escalabilidad",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L674",
+      "source_location": "L689",
       "_origin": "ast",
       "id": "docs_architecture_design_10_rendimiento_y_escalabilidad",
       "community": 125,
@@ -10415,7 +10865,7 @@
       "label": "10.1 L\u00edmites",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L676",
+      "source_location": "L691",
       "_origin": "ast",
       "id": "docs_architecture_design_10_1_l\u00edmites",
       "community": 125,
@@ -10425,7 +10875,7 @@
       "label": "10.2 Optimizaciones",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L685",
+      "source_location": "L700",
       "_origin": "ast",
       "id": "docs_architecture_design_10_2_optimizaciones",
       "community": 125,
@@ -10435,7 +10885,7 @@
       "label": "11. Diagrama de Arquitectura Completo",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L694",
+      "source_location": "L709",
       "_origin": "ast",
       "id": "docs_architecture_design_11_diagrama_de_arquitectura_completo",
       "community": 125,
@@ -10445,7 +10895,7 @@
       "label": "12. Plan de Implementaci\u00f3n (Fases)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L742",
+      "source_location": "L757",
       "_origin": "ast",
       "id": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "community": 127,
@@ -10455,7 +10905,7 @@
       "label": "Fase 1: Infraestructura Base (1-2 semanas)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L744",
+      "source_location": "L759",
       "_origin": "ast",
       "id": "docs_architecture_design_fase_1_infraestructura_base_1_2_semanas",
       "community": 127,
@@ -10465,7 +10915,7 @@
       "label": "Fase 2: Sync Queue - Replica (1-2 semanas)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L751",
+      "source_location": "L766",
       "_origin": "ast",
       "id": "docs_architecture_design_fase_2_sync_queue_replica_1_2_semanas",
       "community": 127,
@@ -10475,7 +10925,7 @@
       "label": "Fase 3: Sync Server - Primary (1-2 semanas)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L758",
+      "source_location": "L773",
       "_origin": "ast",
       "id": "docs_architecture_design_fase_3_sync_server_primary_1_2_semanas",
       "community": 127,
@@ -10485,7 +10935,7 @@
       "label": "Fase 4: UI y Pulido (1 semana)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L765",
+      "source_location": "L780",
       "_origin": "ast",
       "id": "docs_architecture_design_fase_4_ui_y_pulido_1_semana",
       "community": 127,
@@ -10495,7 +10945,7 @@
       "label": "Fase 5: VPN y Deploy (opcional)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L772",
+      "source_location": "L787",
       "_origin": "ast",
       "id": "docs_architecture_design_fase_5_vpn_y_deploy_opcional",
       "community": 127,
@@ -10505,7 +10955,7 @@
       "label": "13. Decisiones Tomadas (Preguntas Resueltas)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L779",
+      "source_location": "L794",
       "_origin": "ast",
       "id": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "community": 126,
@@ -10515,7 +10965,7 @@
       "label": "13.1 \u00bfLa Primary debe poder crear productos y enviarlos a las R\u00e9plicas?",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L781",
+      "source_location": "L796",
       "_origin": "ast",
       "id": "docs_architecture_design_13_1_la_primary_debe_poder_crear_productos_y_enviarlos_a_las_r\u00e9plicas",
       "community": 126,
@@ -10525,7 +10975,7 @@
       "label": "13.2 \u00bfLas R\u00e9plicas deben poder ver inventario de otras tiendas?",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L784",
+      "source_location": "L799",
       "_origin": "ast",
       "id": "docs_architecture_design_13_2_las_r\u00e9plicas_deben_poder_ver_inventario_de_otras_tiendas",
       "community": 126,
@@ -10535,7 +10985,7 @@
       "label": "13.3 \u00bfQu\u00e9 pasa si una R\u00e9plica no sincroniza por varios d\u00edas?",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L787",
+      "source_location": "L802",
       "_origin": "ast",
       "id": "docs_architecture_design_13_3_qu\u00e9_pasa_si_una_r\u00e9plica_no_sincroniza_por_varios_d\u00edas",
       "community": 126,
@@ -10545,7 +10995,7 @@
       "label": "13.4 \u00bfSe necesita HTTPS entre nodos?",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L798",
+      "source_location": "L813",
       "_origin": "ast",
       "id": "docs_architecture_design_13_4_se_necesita_https_entre_nodos",
       "community": 126,
@@ -10555,7 +11005,7 @@
       "label": "13.5 \u00bfLa Primary debe poder gestionar usuarios de las R\u00e9plicas?",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L801",
+      "source_location": "L816",
       "_origin": "ast",
       "id": "docs_architecture_design_13_5_la_primary_debe_poder_gestionar_usuarios_de_las_r\u00e9plicas",
       "community": 126,
@@ -10565,7 +11015,7 @@
       "label": "13.6 Baja de R\u00e9plicas (nuevo)",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L804",
+      "source_location": "L819",
       "_origin": "ast",
       "id": "docs_architecture_design_13_6_baja_de_r\u00e9plicas_nuevo",
       "community": 126,
@@ -10575,7 +11025,7 @@
       "label": "14. Glossario",
       "file_type": "document",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L809",
+      "source_location": "L824",
       "_origin": "ast",
       "id": "docs_architecture_design_14_glossario",
       "community": 125,
@@ -10612,14 +11062,14 @@
       "norm_label": "resumen de cambios en esta version"
     },
     {
-      "label": "Fase 1: Lote de Compra (ESTA FASE \u2014 Implementada)",
+      "label": "Fase 1: Lote de Compra (COMPLETADA \u2705)",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
       "source_location": "L17",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "id": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "community": 103,
-      "norm_label": "fase 1: lote de compra (esta fase \u2014 implementada)"
+      "norm_label": "fase 1: lote de compra (completada \u2705)"
     },
     {
       "label": "1.1 Migraci\u00f3n SQL",
@@ -10645,7 +11095,7 @@
       "label": "1.3 Frontend \u2014 Modal \"Nuevo Lote\"",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L50",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "docs_implementacion_v2_1_3_frontend_modal_nuevo_lote",
       "community": 103,
@@ -10655,127 +11105,237 @@
       "label": "1.4 Verificaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L93",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "docs_implementacion_v2_1_4_verificaci\u00f3n",
       "community": 103,
       "norm_label": "1.4 verificacion"
     },
     {
-      "label": "Fase 2: Infraestructura Primary/Replica (Documentada)",
+      "label": "Fase 0: Infraestructura Primary/Replica \u2014 Base (COMPLETADA \u2705)",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L105",
+      "source_location": "L58",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
+      "id": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
       "community": 103,
-      "norm_label": "fase 2: infraestructura primary/replica (documentada)"
+      "norm_label": "fase 0: infraestructura primary/replica \u2014 base (completada \u2705)"
     },
     {
-      "label": "2.1 Migraci\u00f3n SQL",
+      "label": "0.1 Migraci\u00f3n SQL",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L107",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_2_1_migraci\u00f3n_sql",
+      "id": "docs_implementacion_v2_0_1_migraci\u00f3n_sql",
       "community": 103,
-      "norm_label": "2.1 migracion sql"
+      "norm_label": "0.1 migracion sql"
     },
     {
-      "label": "2.2 Backend",
+      "label": "0.2 Backend",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L110",
+      "source_location": "L63",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_2_2_backend",
+      "id": "docs_implementacion_v2_0_2_backend",
       "community": 103,
-      "norm_label": "2.2 backend"
+      "norm_label": "0.2 backend"
     },
     {
-      "label": "2.3 Frontend",
+      "label": "0.3 Frontend",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L116",
+      "source_location": "L68",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_2_3_frontend",
+      "id": "docs_implementacion_v2_0_3_frontend",
       "community": 103,
-      "norm_label": "2.3 frontend"
+      "norm_label": "0.3 frontend"
     },
     {
-      "label": "2.4 Verificaci\u00f3n",
+      "label": "0.4 Verificaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L122",
+      "source_location": "L74",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_2_4_verificaci\u00f3n",
+      "id": "docs_implementacion_v2_0_4_verificaci\u00f3n",
       "community": 103,
-      "norm_label": "2.4 verificacion"
+      "norm_label": "0.4 verificacion"
     },
     {
-      "label": "Fase 3: Permisos por Modo (Documentada)",
+      "label": "Fase 1.2: Navegaci\u00f3n por Modo (COMPLETADA \u2705)",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_fase_1_2_navegaci\u00f3n_por_modo_completada",
+      "community": 103,
+      "norm_label": "fase 1.2: navegacion por modo (completada \u2705)"
+    },
+    {
+      "label": "1.2.1 Frontend",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_1_2_1_frontend",
+      "community": 103,
+      "norm_label": "1.2.1 frontend"
+    },
+    {
+      "label": "1.2.2 Navegaci\u00f3n por modo",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_1_2_2_navegaci\u00f3n_por_modo",
+      "community": 103,
+      "norm_label": "1.2.2 navegacion por modo"
+    },
+    {
+      "label": "1.2.3 Verificaci\u00f3n",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L102",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_1_2_3_verificaci\u00f3n",
+      "community": 103,
+      "norm_label": "1.2.3 verificacion"
+    },
+    {
+      "label": "Fase 1.3: Indicadores Visuales (COMPLETADA \u2705)",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_fase_1_3_indicadores_visuales_completada",
+      "community": 103,
+      "norm_label": "fase 1.3: indicadores visuales (completada \u2705)"
+    },
+    {
+      "label": "1.3.1 Frontend",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L111",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_1_3_1_frontend",
+      "community": 103,
+      "norm_label": "1.3.1 frontend"
+    },
+    {
+      "label": "1.3.2 Verificaci\u00f3n",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L115",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_1_3_2_verificaci\u00f3n",
+      "community": 103,
+      "norm_label": "1.3.2 verificacion"
+    },
+    {
+      "label": "Fase 2: Sync Queue - Replica (Documentada)",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L121",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_fase_2_sync_queue_replica_documentada",
+      "community": 103,
+      "norm_label": "fase 2: sync queue - replica (documentada)"
+    },
+    {
+      "label": "2.1 Backend",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L123",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_2_1_backend",
+      "community": 103,
+      "norm_label": "2.1 backend"
+    },
+    {
+      "label": "2.2 Tablas a sincronizar",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
       "source_location": "L130",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_fase_3_permisos_por_modo_documentada",
+      "id": "docs_implementacion_v2_2_2_tablas_a_sincronizar",
       "community": 103,
-      "norm_label": "fase 3: permisos por modo (documentada)"
+      "norm_label": "2.2 tablas a sincronizar"
+    },
+    {
+      "label": "2.3 Verificaci\u00f3n",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L143",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_2_3_verificaci\u00f3n",
+      "community": 103,
+      "norm_label": "2.3 verificacion"
+    },
+    {
+      "label": "Fase 3: Sync Server - Primary (Documentada)",
+      "file_type": "document",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L152",
+      "_origin": "ast",
+      "id": "docs_implementacion_v2_fase_3_sync_server_primary_documentada",
+      "community": 103,
+      "norm_label": "fase 3: sync server - primary (documentada)"
     },
     {
       "label": "3.1 Backend",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L132",
+      "source_location": "L154",
       "_origin": "ast",
       "id": "docs_implementacion_v2_3_1_backend",
       "community": 103,
       "norm_label": "3.1 backend"
     },
     {
-      "label": "3.2 Frontend",
+      "label": "3.2 Verificaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L137",
+      "source_location": "L160",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_3_2_frontend",
+      "id": "docs_implementacion_v2_3_2_verificaci\u00f3n",
       "community": 103,
-      "norm_label": "3.2 frontend"
+      "norm_label": "3.2 verificacion"
     },
     {
-      "label": "Fase 4: Baja de R\u00e9plicas (Documentada)",
+      "label": "Fase 4: UI y Pulido (Documentada)",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L143",
+      "source_location": "L168",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_fase_4_baja_de_r\u00e9plicas_documentada",
+      "id": "docs_implementacion_v2_fase_4_ui_y_pulido_documentada",
       "community": 103,
-      "norm_label": "fase 4: baja de replicas (documentada)"
+      "norm_label": "fase 4: ui y pulido (documentada)"
     },
     {
-      "label": "4.1 Backend",
+      "label": "4.1 Frontend",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L145",
+      "source_location": "L170",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_4_1_backend",
+      "id": "docs_implementacion_v2_4_1_frontend",
       "community": 103,
-      "norm_label": "4.1 backend"
+      "norm_label": "4.1 frontend"
     },
     {
-      "label": "4.2 Frontend",
+      "label": "4.2 Verificaci\u00f3n",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L150",
+      "source_location": "L176",
       "_origin": "ast",
-      "id": "docs_implementacion_v2_4_2_frontend",
+      "id": "docs_implementacion_v2_4_2_verificaci\u00f3n",
       "community": 103,
-      "norm_label": "4.2 frontend"
+      "norm_label": "4.2 verificacion"
     },
     {
       "label": "Fase 5: VPN y Deploy (Documentada)",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L156",
+      "source_location": "L184",
       "_origin": "ast",
       "id": "docs_implementacion_v2_fase_5_vpn_y_deploy_documentada",
       "community": 103,
@@ -10785,7 +11345,7 @@
       "label": "Archivos Modificados en esta Versi\u00f3n",
       "file_type": "document",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L164",
+      "source_location": "L192",
       "_origin": "ast",
       "id": "docs_implementacion_v2_archivos_modificados_en_esta_versi\u00f3n",
       "community": 103,
@@ -16331,7 +16891,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "source": "src_tauri_src_commands_auth",
       "target": "src_tauri_src_commands_auth_change_password",
@@ -16341,7 +16901,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "source": "src_tauri_src_commands_auth",
       "target": "src_tauri_src_commands_auth_create_user",
@@ -16351,7 +16911,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "source": "src_tauri_src_commands_auth",
       "target": "src_tauri_src_commands_auth_get_users",
@@ -16361,7 +16921,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "source": "src_tauri_src_commands_auth",
       "target": "src_tauri_src_commands_auth_login",
@@ -16393,7 +16953,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "src_tauri_src_commands_auth",
       "target": "src_tauri_src_commands_auth_verify_password",
@@ -16436,6 +16996,17 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_commands_auth_appstate",
+      "target": "src_tauri_src_services_config_service_configservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/auth.rs",
       "source_location": "L13",
       "weight": 1.0,
       "context": "field",
@@ -16469,7 +17040,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_change_password",
@@ -16480,7 +17051,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -16491,7 +17062,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -16502,7 +17073,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_login",
@@ -16513,7 +17084,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_verify_password",
@@ -16660,6 +17231,72 @@
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_cash_update_expense",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_get_app_config",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_get_operating_mode",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_has_app_config",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_set_app_config",
+      "target": "src_tauri_src_commands_auth_appstate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_set_operating_mode",
       "target": "src_tauri_src_commands_auth_appstate",
       "confidence_score": 1.0
     },
@@ -16986,7 +17623,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "return_type",
       "source": "src_tauri_src_commands_auth_login",
@@ -16997,7 +17634,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_login",
@@ -17008,7 +17645,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_login",
@@ -17019,7 +17656,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L20",
+      "source_location": "L21",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_login",
@@ -17030,7 +17667,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_change_password",
@@ -17041,7 +17678,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -17052,7 +17689,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -17063,7 +17700,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_verify_password",
@@ -17074,7 +17711,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_change_password",
@@ -17085,7 +17722,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -17096,7 +17733,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -17107,7 +17744,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_verify_password",
@@ -17118,7 +17755,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L53",
+      "source_location": "L54",
       "weight": 1.0,
       "context": "return_type",
       "source": "src_tauri_src_commands_auth_change_password",
@@ -17129,7 +17766,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "return_type",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -17140,7 +17777,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "return_type",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -17151,7 +17788,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "context": "return_type",
       "source": "src_tauri_src_commands_auth_verify_password",
@@ -17162,7 +17799,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -17173,7 +17810,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -17184,7 +17821,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0,
       "context": "parameter_type",
       "source": "src_tauri_src_commands_auth_create_user",
@@ -17195,7 +17832,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/commands/auth.rs",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "context": "generic_arg",
       "source": "src_tauri_src_commands_auth_get_users",
@@ -17881,6 +18518,243 @@
       "context": "generic_arg",
       "source": "src_tauri_src_commands_cash_get_all_other_income",
       "target": "src_tauri_src_commands_cash_rs_otherincome",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_get_app_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_get_operating_mode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_has_app_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import",
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_set_app_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "src_tauri_src_commands_config",
+      "target": "src_tauri_src_commands_config_set_operating_mode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_commands_config_get_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_commands_config_get_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_get_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_commands_config_get_app_config",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_commands_config_has_app_config",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_commands_config_set_app_config",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_commands_config_set_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_commands_config_get_app_config",
+      "target": "src_tauri_src_commands_config_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_commands_config_has_app_config",
+      "target": "src_tauri_src_commands_config_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_commands_config_set_app_config",
+      "target": "src_tauri_src_commands_config_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_commands_config_set_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_get_app_config",
+      "target": "src_tauri_src_commands_config_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_has_app_config",
+      "target": "src_tauri_src_commands_config_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_set_app_config",
+      "target": "src_tauri_src_commands_config_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_set_operating_mode",
+      "target": "src_tauri_src_commands_config_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/commands/config.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_commands_config_get_app_config",
+      "target": "src_tauri_src_commands_config_rs_option",
       "confidence_score": 1.0
     },
     {
@@ -19457,7 +20331,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "src_tauri_src_lib",
       "target": "src_tauri_src_lib_run",
@@ -19472,6 +20346,17 @@
       "context": "import",
       "source": "src_tauri_src_lib",
       "target": "src_tauri_src_services_auth_service_authservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/lib.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import",
+      "source": "src_tauri_src_lib",
+      "target": "src_tauri_src_services_config_service_configservice",
       "confidence_score": 1.0
     },
     {
@@ -24231,6 +25116,263 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service",
+      "target": "src_tauri_src_services_config_service_configservice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "import",
+      "source": "src_tauri_src_services_config_service",
+      "target": "src_tauri_src_services_config_service_rs_sqlitepool",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_get_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_get_operating_mode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_has_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_new",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_set_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_configservice_set_operating_mode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_services_config_service_configservice",
+      "target": "src_tauri_src_services_config_service_rs_sqlitepool",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_services_config_service_configservice_new",
+      "target": "src_tauri_src_services_config_service_rs_sqlitepool",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_new",
+      "target": "src_tauri_src_services_config_service_rs_self",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_get_config",
+      "target": "src_tauri_src_services_config_service_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_get_config",
+      "target": "src_tauri_src_services_config_service_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_get_config",
+      "target": "src_tauri_src_services_config_service_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice_get_operating_mode",
+      "target": "src_tauri_src_services_config_service_configservice_get_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_get_operating_mode",
+      "target": "src_tauri_src_services_config_service_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_has_config",
+      "target": "src_tauri_src_services_config_service_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_set_config",
+      "target": "src_tauri_src_services_config_service_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L52",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_services_config_service_configservice_set_operating_mode",
+      "target": "src_tauri_src_services_config_service_rs_result",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L36",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_get_operating_mode",
+      "target": "src_tauri_src_services_config_service_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L43",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_has_config",
+      "target": "src_tauri_src_services_config_service_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_set_config",
+      "target": "src_tauri_src_services_config_service_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L52",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_services_config_service_configservice_set_operating_mode",
+      "target": "src_tauri_src_services_config_service_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/services/config_service.rs",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "src_tauri_src_services_config_service_configservice_set_operating_mode",
+      "target": "src_tauri_src_services_config_service_configservice_set_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/services/inventory_service.rs",
       "source_location": "L5",
       "weight": 1.0,
@@ -25195,10 +26337,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/App.tsx",
-      "source_location": "L7",
+      "source_location": "L37",
       "weight": 1.0,
       "source": "src_app",
       "target": "src_app_app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "src_app",
+      "target": "src_app_configguard",
       "confidence_score": 1.0
     },
     {
@@ -25250,6 +26402,39 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/App.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app",
+      "target": "src_context_configcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app",
+      "target": "src_context_configcontext_configprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_app",
+      "target": "src_context_configcontext_useconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
       "source_location": "L3",
       "weight": 1.0,
       "source": "src_app",
@@ -25265,6 +26450,17 @@
       "weight": 1.0,
       "source": "src_app",
       "target": "src_context_notificationcontext_notificationprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "src_app",
+      "target": "src_features_setup_pages_setuppage",
       "confidence_score": 1.0
     },
     {
@@ -25298,6 +26494,17 @@
       "weight": 1.0,
       "source": "src_main",
       "target": "src_app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "src_app_configguard",
+      "target": "src_context_configcontext_useconfig",
       "confidence_score": 1.0
     },
     {
@@ -25500,6 +26707,56 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "src_context_configcontext",
+      "target": "src_context_configcontext_configcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_context_configcontext",
+      "target": "src_context_configcontext_configcontexttype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "src_context_configcontext",
+      "target": "src_context_configcontext_configprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_context_configcontext",
+      "target": "src_context_configcontext_operatingmode",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/context/ConfigContext.tsx",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "src_context_configcontext",
+      "target": "src_context_configcontext_useconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "src/context/NotificationContext.tsx",
       "source_location": "L44",
       "weight": 1.0,
@@ -25656,6 +26913,87 @@
       "weight": 1.0,
       "source": "src_features_auth_pages_loginpage",
       "target": "src_features_auth_pages_loginpage_login",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_colorclasses",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_modecolor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_modeid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_modes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_modeselector",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/components/ModeSelector.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_features_setup_components_modeselector",
+      "target": "src_features_setup_components_modeselector_modeselectorprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/pages/SetupPage.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "src_features_setup_pages_setuppage",
+      "target": "src_features_setup_components_modeselector",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/setup/pages/SetupPage.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "src_features_setup_pages_setuppage",
+      "target": "src_features_setup_pages_setuppage_setuppage",
       "confidence_score": 1.0
     },
     {
@@ -25910,7 +27248,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_navbar",
       "target": "src_features_user_components_layouts_navbar_navbar",
@@ -25920,7 +27258,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_navbar",
       "target": "src_features_user_components_layouts_navbar_navbarprops",
@@ -25931,7 +27269,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_navbar",
       "target": "src_features_user_constants_navigation",
@@ -25942,10 +27280,10 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Navbar.tsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_navbar",
-      "target": "src_features_user_constants_navigation_nav_items",
+      "target": "src_features_user_constants_navigation_getnavitems",
       "confidence_score": 1.0
     },
     {
@@ -25960,10 +27298,21 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/user/components/layouts/Navbar.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "src_features_user_components_layouts_navbar_navbar",
+      "target": "src_features_user_constants_navigation_getnavitems"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_sidebar",
       "target": "src_features_user_components_layouts_sidebar_sidebar",
@@ -25973,7 +27322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_sidebar",
       "target": "src_features_user_components_layouts_sidebar_sidebarprops",
@@ -25984,7 +27333,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_sidebar",
       "target": "src_features_user_constants_navigation",
@@ -25995,10 +27344,10 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/components/layouts/Sidebar.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "source": "src_features_user_components_layouts_sidebar",
-      "target": "src_features_user_constants_navigation_nav_items",
+      "target": "src_features_user_constants_navigation_getnavitems",
       "confidence_score": 1.0
     },
     {
@@ -26011,6 +27360,17 @@
       "source": "src_features_user_layouts_mainlayout",
       "target": "src_features_user_components_layouts_sidebar",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/user/components/layouts/Sidebar.tsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "src_features_user_components_layouts_sidebar_sidebar",
+      "target": "src_features_user_constants_navigation_getnavitems"
     },
     {
       "relation": "contains",
@@ -26941,10 +28301,50 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "src_features_user_constants_navigation",
+      "target": "src_features_user_constants_navigation_all_nav_items",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "src_features_user_constants_navigation",
+      "target": "src_features_user_constants_navigation_getnavitems",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "src_features_user_constants_navigation",
+      "target": "src_features_user_constants_navigation_mode_visibility",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/user/constants/navigation.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "src_features_user_constants_navigation",
+      "target": "src_features_user_constants_navigation_navitem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/user/constants/navigation.ts",
       "source_location": "L13",
       "weight": 1.0,
       "source": "src_features_user_constants_navigation",
-      "target": "src_features_user_constants_navigation_nav_items",
+      "target": "src_features_user_constants_navigation_operatingmode",
       "confidence_score": 1.0
     },
     {
@@ -27293,7 +28693,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/user/pages/SettingsPage.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "src_features_user_pages_settingspage",
+      "target": "src_features_user_pages_settingspage_mode_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/user/pages/SettingsPage.tsx",
+      "source_location": "L32",
       "weight": 1.0,
       "source": "src_features_user_pages_settingspage",
       "target": "src_features_user_pages_settingspage_settingspage",
@@ -28416,7 +29826,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L674",
+      "source_location": "L689",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_10_rendimiento_y_escalabilidad",
@@ -28426,7 +29836,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L694",
+      "source_location": "L709",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_11_diagrama_de_arquitectura_completo",
@@ -28436,7 +29846,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L742",
+      "source_location": "L757",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
@@ -28446,7 +29856,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L779",
+      "source_location": "L794",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
@@ -28456,7 +29866,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L809",
+      "source_location": "L824",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_14_glossario",
@@ -28536,7 +29946,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L598",
+      "source_location": "L613",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_8_flujo_de_instalaci\u00f3n",
@@ -28546,7 +29956,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L652",
+      "source_location": "L667",
       "weight": 1.0,
       "source": "docs_architecture_design_vestikpos_dise\u00f1o_de_arquitectura_modos_de_configuraci\u00f3n",
       "target": "docs_architecture_design_9_seguridad",
@@ -28786,7 +30196,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L570",
+      "source_location": "L585",
       "weight": 1.0,
       "source": "docs_architecture_design_7_cambios_en_el_frontend",
       "target": "docs_architecture_design_7_3_componente_de_estado_de_sincronizaci\u00f3n",
@@ -28796,7 +30206,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L583",
+      "source_location": "L563",
+      "weight": 1.0,
+      "source": "docs_architecture_design_7_cambios_en_el_frontend",
+      "target": "docs_architecture_design_7_3_tablas_sincronizadas_replica_primary",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/ARCHITECTURE_DESIGN.md",
+      "source_location": "L598",
       "weight": 1.0,
       "source": "docs_architecture_design_7_cambios_en_el_frontend",
       "target": "docs_architecture_design_7_4_p\u00e1gina_de_configuraci\u00f3n_de_sincronizaci\u00f3n_primary",
@@ -28806,7 +30226,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L600",
+      "source_location": "L615",
       "weight": 1.0,
       "source": "docs_architecture_design_8_flujo_de_instalaci\u00f3n",
       "target": "docs_architecture_design_8_1_primera_ejecuci\u00f3n",
@@ -28816,7 +30236,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L641",
+      "source_location": "L656",
       "weight": 1.0,
       "source": "docs_architecture_design_8_flujo_de_instalaci\u00f3n",
       "target": "docs_architecture_design_8_2_cambio_de_modo",
@@ -28826,7 +30246,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L654",
+      "source_location": "L669",
       "weight": 1.0,
       "source": "docs_architecture_design_9_seguridad",
       "target": "docs_architecture_design_9_1_autenticaci\u00f3n_entre_nodos",
@@ -28836,7 +30256,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L660",
+      "source_location": "L675",
       "weight": 1.0,
       "source": "docs_architecture_design_9_seguridad",
       "target": "docs_architecture_design_9_2_autorizaci\u00f3n",
@@ -28846,7 +30266,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L666",
+      "source_location": "L681",
       "weight": 1.0,
       "source": "docs_architecture_design_9_seguridad",
       "target": "docs_architecture_design_9_3_integridad_de_datos",
@@ -28856,7 +30276,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L676",
+      "source_location": "L691",
       "weight": 1.0,
       "source": "docs_architecture_design_10_rendimiento_y_escalabilidad",
       "target": "docs_architecture_design_10_1_l\u00edmites",
@@ -28866,7 +30286,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L685",
+      "source_location": "L700",
       "weight": 1.0,
       "source": "docs_architecture_design_10_rendimiento_y_escalabilidad",
       "target": "docs_architecture_design_10_2_optimizaciones",
@@ -28876,7 +30296,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L744",
+      "source_location": "L759",
       "weight": 1.0,
       "source": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "target": "docs_architecture_design_fase_1_infraestructura_base_1_2_semanas",
@@ -28886,7 +30306,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L751",
+      "source_location": "L766",
       "weight": 1.0,
       "source": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "target": "docs_architecture_design_fase_2_sync_queue_replica_1_2_semanas",
@@ -28896,7 +30316,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L758",
+      "source_location": "L773",
       "weight": 1.0,
       "source": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "target": "docs_architecture_design_fase_3_sync_server_primary_1_2_semanas",
@@ -28906,7 +30326,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L765",
+      "source_location": "L780",
       "weight": 1.0,
       "source": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "target": "docs_architecture_design_fase_4_ui_y_pulido_1_semana",
@@ -28916,7 +30336,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L772",
+      "source_location": "L787",
       "weight": 1.0,
       "source": "docs_architecture_design_12_plan_de_implementaci\u00f3n_fases",
       "target": "docs_architecture_design_fase_5_vpn_y_deploy_opcional",
@@ -28926,7 +30346,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L781",
+      "source_location": "L796",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_1_la_primary_debe_poder_crear_productos_y_enviarlos_a_las_r\u00e9plicas",
@@ -28936,7 +30356,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L784",
+      "source_location": "L799",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_2_las_r\u00e9plicas_deben_poder_ver_inventario_de_otras_tiendas",
@@ -28946,7 +30366,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L787",
+      "source_location": "L802",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_3_qu\u00e9_pasa_si_una_r\u00e9plica_no_sincroniza_por_varios_d\u00edas",
@@ -28956,7 +30376,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L798",
+      "source_location": "L813",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_4_se_necesita_https_entre_nodos",
@@ -28966,7 +30386,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L801",
+      "source_location": "L816",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_5_la_primary_debe_poder_gestionar_usuarios_de_las_r\u00e9plicas",
@@ -28976,7 +30396,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/ARCHITECTURE_DESIGN.md",
-      "source_location": "L804",
+      "source_location": "L819",
       "weight": 1.0,
       "source": "docs_architecture_design_13_decisiones_tomadas_preguntas_resueltas",
       "target": "docs_architecture_design_13_6_baja_de_r\u00e9plicas_nuevo",
@@ -28996,7 +30416,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L164",
+      "source_location": "L192",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
       "target": "docs_implementacion_v2_archivos_modificados_en_esta_versi\u00f3n",
@@ -29006,47 +30426,77 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
+      "target": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L82",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
+      "target": "docs_implementacion_v2_fase_1_2_navegaci\u00f3n_por_modo_completada",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
+      "target": "docs_implementacion_v2_fase_1_3_indicadores_visuales_completada",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
       "source_location": "L17",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
-      "target": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "target": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L105",
+      "source_location": "L121",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
-      "target": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
+      "target": "docs_implementacion_v2_fase_2_sync_queue_replica_documentada",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L130",
+      "source_location": "L152",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
-      "target": "docs_implementacion_v2_fase_3_permisos_por_modo_documentada",
+      "target": "docs_implementacion_v2_fase_3_sync_server_primary_documentada",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L143",
+      "source_location": "L168",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
-      "target": "docs_implementacion_v2_fase_4_baja_de_r\u00e9plicas_documentada",
+      "target": "docs_implementacion_v2_fase_4_ui_y_pulido_documentada",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L156",
+      "source_location": "L184",
       "weight": 1.0,
       "source": "docs_implementacion_v2_vestikpos_plan_de_implementaci\u00f3n_v2_0",
       "target": "docs_implementacion_v2_fase_5_vpn_y_deploy_documentada",
@@ -29068,7 +30518,7 @@
       "source_file": "docs/IMPLEMENTACION_V2.md",
       "source_location": "L19",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "source": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "target": "docs_implementacion_v2_1_1_migraci\u00f3n_sql",
       "confidence_score": 1.0
     },
@@ -29078,7 +30528,7 @@
       "source_file": "docs/IMPLEMENTACION_V2.md",
       "source_location": "L27",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "source": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "target": "docs_implementacion_v2_1_2_backend_rust",
       "confidence_score": 1.0
     },
@@ -29086,9 +30536,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L50",
+      "source_location": "L42",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "source": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "target": "docs_implementacion_v2_1_3_frontend_modal_nuevo_lote",
       "confidence_score": 1.0
     },
@@ -29096,9 +30546,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L93",
+      "source_location": "L46",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_1_lote_de_compra_esta_fase_implementada",
+      "source": "docs_implementacion_v2_fase_1_lote_de_compra_completada",
       "target": "docs_implementacion_v2_1_4_verificaci\u00f3n",
       "confidence_score": 1.0
     },
@@ -29106,49 +30556,129 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L107",
+      "source_location": "L60",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
-      "target": "docs_implementacion_v2_2_1_migraci\u00f3n_sql",
+      "source": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
+      "target": "docs_implementacion_v2_0_1_migraci\u00f3n_sql",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L110",
+      "source_location": "L63",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
-      "target": "docs_implementacion_v2_2_2_backend",
+      "source": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
+      "target": "docs_implementacion_v2_0_2_backend",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L116",
+      "source_location": "L68",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
-      "target": "docs_implementacion_v2_2_3_frontend",
+      "source": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
+      "target": "docs_implementacion_v2_0_3_frontend",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L122",
+      "source_location": "L74",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_2_infraestructura_primary_replica_documentada",
-      "target": "docs_implementacion_v2_2_4_verificaci\u00f3n",
+      "source": "docs_implementacion_v2_fase_0_infraestructura_primary_replica_base_completada",
+      "target": "docs_implementacion_v2_0_4_verificaci\u00f3n",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L132",
+      "source_location": "L84",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_3_permisos_por_modo_documentada",
+      "source": "docs_implementacion_v2_fase_1_2_navegaci\u00f3n_por_modo_completada",
+      "target": "docs_implementacion_v2_1_2_1_frontend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_1_2_navegaci\u00f3n_por_modo_completada",
+      "target": "docs_implementacion_v2_1_2_2_navegaci\u00f3n_por_modo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_1_2_navegaci\u00f3n_por_modo_completada",
+      "target": "docs_implementacion_v2_1_2_3_verificaci\u00f3n",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_1_3_indicadores_visuales_completada",
+      "target": "docs_implementacion_v2_1_3_1_frontend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_1_3_indicadores_visuales_completada",
+      "target": "docs_implementacion_v2_1_3_2_verificaci\u00f3n",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L123",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_2_sync_queue_replica_documentada",
+      "target": "docs_implementacion_v2_2_1_backend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_2_sync_queue_replica_documentada",
+      "target": "docs_implementacion_v2_2_2_tablas_a_sincronizar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L143",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_2_sync_queue_replica_documentada",
+      "target": "docs_implementacion_v2_2_3_verificaci\u00f3n",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/IMPLEMENTACION_V2.md",
+      "source_location": "L154",
+      "weight": 1.0,
+      "source": "docs_implementacion_v2_fase_3_sync_server_primary_documentada",
       "target": "docs_implementacion_v2_3_1_backend",
       "confidence_score": 1.0
     },
@@ -29156,30 +30686,30 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L137",
+      "source_location": "L160",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_3_permisos_por_modo_documentada",
-      "target": "docs_implementacion_v2_3_2_frontend",
+      "source": "docs_implementacion_v2_fase_3_sync_server_primary_documentada",
+      "target": "docs_implementacion_v2_3_2_verificaci\u00f3n",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L145",
+      "source_location": "L170",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_4_baja_de_r\u00e9plicas_documentada",
-      "target": "docs_implementacion_v2_4_1_backend",
+      "source": "docs_implementacion_v2_fase_4_ui_y_pulido_documentada",
+      "target": "docs_implementacion_v2_4_1_frontend",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/IMPLEMENTACION_V2.md",
-      "source_location": "L150",
+      "source_location": "L176",
       "weight": 1.0,
-      "source": "docs_implementacion_v2_fase_4_baja_de_r\u00e9plicas_documentada",
-      "target": "docs_implementacion_v2_4_2_frontend",
+      "source": "docs_implementacion_v2_fase_4_ui_y_pulido_documentada",
+      "target": "docs_implementacion_v2_4_2_verificaci\u00f3n",
       "confidence_score": 1.0
     },
     {
@@ -29640,5 +31170,5 @@
       "source_file": "cargo_output.txt"
     }
   ],
-  "built_at_commit": "e3a8e368dee83f9f760985ab230e5f471cf9d7eb"
+  "built_at_commit": "d9c4cb602be9a3123ccd150c09ad7a7d59685ca3"
 }

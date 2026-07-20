@@ -1,16 +1,45 @@
 import { useState } from 'react';
-import { Save, Pencil, User, Mail, Briefcase, Lock } from 'lucide-react';
+import { Save, Pencil, User, Mail, Briefcase, Lock, Server, Monitor, Store } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 import { useNotification } from '@/context/NotificationContext';
 import { userService } from '@/services/userService';
 
+const MODE_CONFIG = {
+    primary: {
+        label: 'Primary',
+        description: 'Servidor central — recibe datos de terminales',
+        icon: Server,
+        color: 'bg-blue-100 text-blue-700 border-blue-200',
+        dot: 'bg-blue-500',
+    },
+    replica: {
+        label: 'Replica',
+        description: 'Terminal de venta — envía datos a Primary',
+        icon: Monitor,
+        color: 'bg-green-100 text-green-700 border-green-200',
+        dot: 'bg-green-500',
+    },
+    hybrid: {
+        label: 'Hybrid',
+        description: 'Independiente — todo opera de forma local',
+        icon: Store,
+        color: 'bg-purple-100 text-purple-700 border-purple-200',
+        dot: 'bg-purple-500',
+    },
+};
+
 const SettingsPage = () => {
     const { user } = useAuth();
+    const { operatingMode } = useConfig();
     const { showNotification } = useNotification();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [email, setEmail] = useState(user?.email || '');
     const [cargo, setCargo] = useState(user?.cargo || '');
+
+    const modeConfig = MODE_CONFIG[operatingMode];
+    const ModeIcon = modeConfig.icon;
 
     // Password states
     const [currentPassword, setCurrentPassword] = useState('');
@@ -69,6 +98,18 @@ const SettingsPage = () => {
     return (
         <div className="space-y-6 w-full">
             <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
+
+            {/* Modo de Operación */}
+            <div className={`flex items-center gap-4 p-4 rounded-xl border ${modeConfig.color}`}>
+                <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${modeConfig.dot}`} />
+                    <ModeIcon className="w-5 h-5" />
+                </div>
+                <div>
+                    <p className="font-semibold">Modo: {modeConfig.label}</p>
+                    <p className="text-sm opacity-75">{modeConfig.description}</p>
+                </div>
+            </div>
 
             <div className="flex flex-col xl:flex-row gap-6">
                 {/* Left Column: Business & Billing */}

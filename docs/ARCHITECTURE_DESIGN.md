@@ -541,31 +541,46 @@ interface ConfigContextType {
 ```typescript
 // src/features/user/constants/navigation.ts
 
-const baseNavigation = [
-  { path: '/home', label: 'Inicio', icon: Home },
-  { path: '/inventory', label: 'Inventario', icon: Package },
-  { path: '/reports', label: 'Reportes', icon: BarChart3 },
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/stores', label: 'Tiendas', icon: Store },
-  { path: '/settings', label: 'Configuración', icon: Settings },
-];
-
-const replicaOnly = [
-  { path: '/pos', label: 'Punto de Venta', icon: ShoppingCart },
-  { path: '/finance', label: 'Caja', icon: Wallet },
-  { path: '/sales', label: 'Ventas', icon: Receipt },
-];
-
-const hybridOnly = [
-  { path: '/pos', label: 'Punto de Venta', icon: ShoppingCart },
-  { path: '/finance', label: 'Caja', icon: Wallet },
-  { path: '/sales', label: 'Ventas', icon: Receipt },
-];
-
-// Primary: sin POS, sin Caja, sin Ventas
-// Replica: con POS, Caja, Ventas (limitados a tienda)
-// Hybrid: todo
+// Primary: Dashboard, Ventas, Inventario, Gastos, Reportes, Tiendas (read-only), Configuración
+// Replica: Punto de Venta, Ventas, Inventario, Finanzas, Tiendas, Configuración
+// Hybrid: Todo
 ```
+
+| Módulo | Primary | Replica | Hybrid |
+|--------|---------|---------|--------|
+| Dashboard | ✅ | ❌ | ✅ |
+| Punto de Venta | ❌ | ✅ | ✅ |
+| Ventas | ✅ | ✅ | ✅ |
+| Inventario | ✅ | ✅ | ✅ |
+| Gastos | ✅ | ❌ | ✅ |
+| Finanzas | ❌ | ✅ | ✅ |
+| Reportes | ✅ | ❌ | ✅ |
+| Tiendas | ✅ (solo lectura) | ✅ | ✅ |
+| Configuración | ✅ | ✅ | ✅ |
+
+**Nota sobre Tiendas en Primary:** En modo Primary, la sección de Tiendas está disponible pero con permisos de solo lectura — no se pueden crear, editar ni eliminar sedes. Esto se controla a nivel de componente (botones de acción deshabilitados).
+
+### 7.3 Tablas sincronizadas (Replica → Primary)
+
+Las siguientes tablas de la Replica se sincronizan con la Primary:
+
+| Tabla | Entidad | Dirección | Descripción |
+|-------|---------|-----------|-------------|
+| `orders` | order | Replica → Primary | Ventas realizadas en la terminal |
+| `order_items` | order_item | Replica → Primary | Items de cada venta |
+| `cash_sessions` | cash_session | Replica → Primary | Sesiones de caja (apertura/cierre) |
+| `expenses` | expense | Replica → Primary | Gastos registrados |
+| `other_income` | other_income | Replica → Primary | Otros ingresos |
+| `products` | product | Replica → Primary | Cambios de inventario (stock) |
+| `stores` | store | Replica → Primary | Edición de tienda asignada (nombre, etc.) |
+| `purchase_orders` | purchase_order | Replica → Primary | Lotes de compra recibidos |
+| `purchase_order_items` | purchase_order_item | Replica → Primary | Items de lotes de compra |
+
+**Reglas de conflicto:**
+- **Ventas/Caja:** La Replica es autoritativa — la Primary acepta tal cual
+- **Inventario:** La Primary recalcula stock basado en ventas recibidas
+- **Tiendas/Usuarios:** La Primary es autoritativa — las Replica solo leen
+- **Productos:** La Primary es autoritativa — las Replica solo leen (excepto stock por ventas)
 
 ### 7.3 Componente de estado de sincronización
 

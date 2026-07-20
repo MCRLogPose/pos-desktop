@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { Menu, User, Bell } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { NAV_ITEMS } from '../../constants/navigation';
+import { useConfig } from '@/context/ConfigContext';
+import { getNavItems } from '../../constants/navigation';
 
 interface NavbarProps {
     toggleSidebar: () => void;
@@ -11,6 +12,8 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
 
     const { user } = useAuth();
+    const { operatingMode } = useConfig();
+    const navItems = getNavItems(operatingMode);
 
     return (
         <nav className="h-16 bg-slate-200 border-b border-slate-200 flex items-center justify-between px-6 z-10 shadow-sm">
@@ -26,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, isSidebarOpen }) => {
                 {/* Dynamic Navigation Icons */}
                 {!isSidebarOpen && (
                     <div className="flex items-center gap-2 ml-4 animate-in fade-in slide-in-from-left-4 duration-300">
-                        {NAV_ITEMS.map((item) => (
+                        {navItems.map((item) => (
                             <NavLink
                                 key={item.path}
                                 to={item.path}
