@@ -23,11 +23,20 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
 
     const refreshConfig = async () => {
         try {
-            const mode = await invoke<string>('get_operating_mode');
-            setOperatingMode(mode as OperatingMode);
-            setIsConfigured(true);
+            const configured = await invoke<boolean>('has_app_config');
+            console.log('[ConfigContext] ¿Config existe en DB?:', configured);
+            setIsConfigured(configured);
+
+            if (configured) {
+                const mode = await invoke<string>('get_operating_mode');
+                console.log('[ConfigContext] Modo cargado desde DB:', mode);
+                setOperatingMode(mode as OperatingMode);
+            } else {
+                console.log('[ConfigContext] Sin configuración, redirigiendo a setup');
+                setOperatingMode('hybrid');
+            }
         } catch (error) {
-            console.error('Error loading config:', error);
+            console.error('[ConfigContext] Error cargando config:', error);
             setOperatingMode('hybrid');
             setIsConfigured(false);
         } finally {
@@ -36,10 +45,12 @@ export function ConfigProvider({ children }: { children: ReactNode }) {
     };
 
     useEffect(() => {
+        console.log('[ConfigContext] Inicializando...');
         refreshConfig();
     }, []);
 
     const setMode = async (mode: OperatingMode) => {
+        console.log('[ConfigContext] Cambiando modo a:', mode);
         await invoke('set_operating_mode', { mode });
         setOperatingMode(mode);
         setIsConfigured(true);

@@ -40,6 +40,15 @@ impl ConfigService {
         }
     }
 
+    pub async fn has_config(&self) -> Result<bool, String> {
+        let result: Option<(String,)> = sqlx::query_as("SELECT value FROM app_config WHERE key = 'operating_mode'")
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(result.is_some())
+    }
+
     pub async fn set_operating_mode(&self, mode: &str) -> Result<(), String> {
         if mode != "primary" && mode != "replica" && mode != "hybrid" {
             return Err("Modo inválido. Debe ser: primary, replica, o hybrid".to_string());

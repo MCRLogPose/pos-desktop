@@ -7,6 +7,11 @@ pub async fn get_operating_mode(state: State<'_, AppState>) -> Result<String, St
 }
 
 #[tauri::command]
+pub async fn has_app_config(state: State<'_, AppState>) -> Result<bool, String> {
+    state.config_service.has_config().await
+}
+
+#[tauri::command]
 pub async fn set_operating_mode(state: State<'_, AppState>, mode: String) -> Result<(), String> {
     state.config_service.set_operating_mode(&mode).await
 }

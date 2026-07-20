@@ -104,6 +104,7 @@ pub fn run() {
             commands::purchase_order::get_purchase_order_detail,
             // Config
             commands::config::get_operating_mode,
+            commands::config::has_app_config,
             commands::config::set_operating_mode,
             commands::config::get_app_config,
             commands::config::set_app_config,
