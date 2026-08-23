@@ -1878,7 +1878,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_desktop_schema",
-      "community": 35,
+      "community": 48,
       "norm_label": "desktop-schema.json"
     },
     {
@@ -1888,7 +1888,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_desktop_schema_schema",
-      "community": 35,
+      "community": 48,
       "norm_label": "$schema"
     },
     {
@@ -1898,7 +1898,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_desktop_schema_title",
-      "community": 35,
+      "community": 48,
       "norm_label": "title"
     },
     {
@@ -1908,7 +1908,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_desktop_schema_description",
-      "community": 35,
+      "community": 48,
       "norm_label": "description"
     },
     {
@@ -1918,7 +1918,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_desktop_schema_anyof",
-      "community": 35,
+      "community": 48,
       "norm_label": "anyof"
     },
     {
@@ -2548,7 +2548,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema",
-      "community": 36,
+      "community": 20,
       "norm_label": "windows-schema.json"
     },
     {
@@ -2558,7 +2558,7 @@
       "source_location": "L2",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_schema",
-      "community": 36,
+      "community": 20,
       "norm_label": "$schema"
     },
     {
@@ -2568,7 +2568,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_title",
-      "community": 36,
+      "community": 20,
       "norm_label": "title"
     },
     {
@@ -2578,7 +2578,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_description",
-      "community": 36,
+      "community": 20,
       "norm_label": "description"
     },
     {
@@ -2588,7 +2588,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_anyof",
-      "community": 36,
+      "community": 20,
       "norm_label": "anyof"
     },
     {
@@ -3078,7 +3078,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_definitions_permissionentry",
-      "community": 20,
+      "community": 49,
       "norm_label": "permissionentry"
     },
     {
@@ -3088,7 +3088,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_permissionentry_description",
-      "community": 20,
+      "community": 49,
       "norm_label": "description"
     },
     {
@@ -3098,7 +3098,7 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "src_tauri_gen_schemas_windows_schema_permissionentry_anyof",
-      "community": 20,
+      "community": 49,
       "norm_label": "anyof"
     },
     {
@@ -3218,7 +3218,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth",
-      "community": 21,
+      "community": 4,
       "norm_label": "auth.rs"
     },
     {
@@ -3238,7 +3238,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_login",
-      "community": 21,
+      "community": 4,
       "norm_label": "login()"
     },
     {
@@ -3248,7 +3248,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_state",
-      "community": 21,
+      "community": 4,
       "norm_label": "state"
     },
     {
@@ -3258,7 +3258,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_string",
-      "community": 21,
+      "community": 4,
       "norm_label": "string"
     },
     {
@@ -3268,7 +3268,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_result",
-      "community": 21,
+      "community": 4,
       "norm_label": "result"
     },
     {
@@ -3278,7 +3278,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_user",
-      "community": 21,
+      "community": 4,
       "norm_label": "user"
     },
     {
@@ -3288,7 +3288,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_create_user",
-      "community": 21,
+      "community": 4,
       "norm_label": "create_user()"
     },
     {
@@ -3298,7 +3298,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_option",
-      "community": 21,
+      "community": 4,
       "norm_label": "option"
     },
     {
@@ -3308,7 +3308,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_get_users",
-      "community": 21,
+      "community": 4,
       "norm_label": "get_users()"
     },
     {
@@ -3318,7 +3318,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_rs_vec",
-      "community": 21,
+      "community": 4,
       "norm_label": "vec"
     },
     {
@@ -3328,7 +3328,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_verify_password",
-      "community": 21,
+      "community": 4,
       "norm_label": "verify_password()"
     },
     {
@@ -3338,7 +3338,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_tauri_src_commands_auth_change_password",
-      "community": 21,
+      "community": 4,
       "norm_label": "change_password()"
     },
     {
@@ -3678,7 +3678,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory",
-      "community": 4,
+      "community": 36,
       "norm_label": "inventory.rs"
     },
     {
@@ -3688,7 +3688,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_get_categories",
-      "community": 4,
+      "community": 36,
       "norm_label": "get_categories()"
     },
     {
@@ -3698,7 +3698,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_state",
-      "community": 4,
+      "community": 36,
       "norm_label": "state"
     },
     {
@@ -3708,7 +3708,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_result",
-      "community": 4,
+      "community": 36,
       "norm_label": "result"
     },
     {
@@ -3718,7 +3718,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_vec",
-      "community": 4,
+      "community": 36,
       "norm_label": "vec"
     },
     {
@@ -3728,7 +3728,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_category",
-      "community": 4,
+      "community": 36,
       "norm_label": "category"
     },
     {
@@ -3738,7 +3738,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_string",
-      "community": 4,
+      "community": 36,
       "norm_label": "string"
     },
     {
@@ -3748,7 +3748,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_create_category",
-      "community": 4,
+      "community": 36,
       "norm_label": "create_category()"
     },
     {
@@ -3758,7 +3758,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_update_category",
-      "community": 4,
+      "community": 36,
       "norm_label": "update_category()"
     },
     {
@@ -3768,7 +3768,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_delete_category",
-      "community": 4,
+      "community": 36,
       "norm_label": "delete_category()"
     },
     {
@@ -3778,7 +3778,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_get_products",
-      "community": 4,
+      "community": 36,
       "norm_label": "get_products()"
     },
     {
@@ -3788,7 +3788,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_create_product",
-      "community": 4,
+      "community": 36,
       "norm_label": "create_product()"
     },
     {
@@ -3798,7 +3798,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_rs_option",
-      "community": 4,
+      "community": 36,
       "norm_label": "option"
     },
     {
@@ -3808,7 +3808,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_update_product",
-      "community": 4,
+      "community": 36,
       "norm_label": "update_product()"
     },
     {
@@ -3818,7 +3818,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "src_tauri_src_commands_inventory_delete_product",
-      "community": 4,
+      "community": 36,
       "norm_label": "delete_product()"
     },
     {
@@ -3928,7 +3928,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales",
-      "community": 1,
+      "community": 47,
       "norm_label": "sales.rs"
     },
     {
@@ -3938,7 +3938,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_create_sale",
-      "community": 1,
+      "community": 47,
       "norm_label": "create_sale()"
     },
     {
@@ -3948,7 +3948,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_state",
-      "community": 1,
+      "community": 47,
       "norm_label": "state"
     },
     {
@@ -3958,7 +3958,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_option",
-      "community": 1,
+      "community": 47,
       "norm_label": "option"
     },
     {
@@ -3968,7 +3968,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_string",
-      "community": 1,
+      "community": 47,
       "norm_label": "string"
     },
     {
@@ -3978,7 +3978,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_vec",
-      "community": 1,
+      "community": 47,
       "norm_label": "vec"
     },
     {
@@ -3988,7 +3988,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_result",
-      "community": 1,
+      "community": 47,
       "norm_label": "result"
     },
     {
@@ -3998,7 +3998,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_get_sales",
-      "community": 1,
+      "community": 47,
       "norm_label": "get_sales()"
     },
     {
@@ -4008,7 +4008,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_sale",
-      "community": 1,
+      "community": 47,
       "norm_label": "sale"
     },
     {
@@ -4018,7 +4018,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_get_sale_detail",
-      "community": 1,
+      "community": 47,
       "norm_label": "get_sale_detail()"
     },
     {
@@ -4028,7 +4028,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_get_all_order_items",
-      "community": 1,
+      "community": 47,
       "norm_label": "get_all_order_items()"
     },
     {
@@ -4038,7 +4038,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_sales_rs_orderitemexport",
-      "community": 1,
+      "community": 47,
       "norm_label": "orderitemexport"
     },
     {
@@ -4048,7 +4048,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store",
-      "community": 47,
+      "community": 4,
       "norm_label": "store.rs"
     },
     {
@@ -4058,7 +4058,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_get_stores",
-      "community": 47,
+      "community": 4,
       "norm_label": "get_stores()"
     },
     {
@@ -4068,7 +4068,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_state",
-      "community": 47,
+      "community": 4,
       "norm_label": "state"
     },
     {
@@ -4078,7 +4078,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_result",
-      "community": 47,
+      "community": 4,
       "norm_label": "result"
     },
     {
@@ -4088,7 +4088,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_vec",
-      "community": 47,
+      "community": 4,
       "norm_label": "vec"
     },
     {
@@ -4098,7 +4098,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_store",
-      "community": 47,
+      "community": 4,
       "norm_label": "store"
     },
     {
@@ -4108,7 +4108,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_string",
-      "community": 47,
+      "community": 4,
       "norm_label": "string"
     },
     {
@@ -4118,7 +4118,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_create_store",
-      "community": 47,
+      "community": 4,
       "norm_label": "create_store()"
     },
     {
@@ -4128,7 +4128,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_rs_option",
-      "community": 47,
+      "community": 4,
       "norm_label": "option"
     },
     {
@@ -4138,7 +4138,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_update_store",
-      "community": 47,
+      "community": 4,
       "norm_label": "update_store()"
     },
     {
@@ -4148,7 +4148,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_tauri_src_commands_store_delete_store",
-      "community": 47,
+      "community": 4,
       "norm_label": "delete_store()"
     },
     {
@@ -4355,7 +4355,7 @@
       "label": "run()",
       "file_type": "code",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L13",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "src_tauri_src_lib_run",
       "community": 38,
@@ -7072,6 +7072,416 @@
       "norm_label": "orderitemexport"
     },
     {
+      "label": "mod.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod",
+      "community": 35,
+      "norm_label": "mod.rs"
+    },
+    {
+      "label": "SyncTopic",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_synctopic",
+      "community": 35,
+      "norm_label": "synctopic"
+    },
+    {
+      "label": "SyncEnvelope",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncenvelope",
+      "community": 35,
+      "norm_label": "syncenvelope"
+    },
+    {
+      "label": "String",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_rs_string",
+      "community": 35,
+      "norm_label": "string"
+    },
+    {
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "t",
+      "community": 35,
+      "norm_label": "t"
+    },
+    {
+      "label": "SyncEnvelope<T>",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncenvelope_t",
+      "community": 35,
+      "norm_label": "syncenvelope<t>"
+    },
+    {
+      "label": ".new()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "community": 35,
+      "norm_label": ".new()"
+    },
+    {
+      "label": "Into",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "into",
+      "community": 35,
+      "norm_label": "into"
+    },
+    {
+      "label": "Self",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_rs_self",
+      "community": 35,
+      "norm_label": "self"
+    },
+    {
+      "label": "SyncItemStatus",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncitemstatus",
+      "community": 35,
+      "norm_label": "syncitemstatus"
+    },
+    {
+      "label": "SyncItemAck",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncitemack",
+      "community": 35,
+      "norm_label": "syncitemack"
+    },
+    {
+      "label": "Option",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_rs_option",
+      "community": 35,
+      "norm_label": "option"
+    },
+    {
+      "label": ".accepted()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "community": 35,
+      "norm_label": ".accepted()"
+    },
+    {
+      "label": ".duplicate()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncitemack_duplicate",
+      "community": 35,
+      "norm_label": ".duplicate()"
+    },
+    {
+      "label": ".rejected()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L85",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncitemack_rejected",
+      "community": 35,
+      "norm_label": ".rejected()"
+    },
+    {
+      "label": "SyncResponse",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_syncresponse",
+      "community": 35,
+      "norm_label": "syncresponse"
+    },
+    {
+      "label": "Vec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_rs_vec",
+      "community": 35,
+      "norm_label": "vec"
+    },
+    {
+      "label": "envelope_serializes_with_expected_json_shape()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L108",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_envelope_serializes_with_expected_json_shape",
+      "community": 35,
+      "norm_label": "envelope_serializes_with_expected_json_shape()"
+    },
+    {
+      "label": "ack_response_round_trips()",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L154",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_mod_ack_response_round_trips",
+      "community": 35,
+      "norm_label": "ack_response_round_trips()"
+    },
+    {
+      "label": "payloads.rs",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads",
+      "community": 21,
+      "norm_label": "payloads.rs"
+    },
+    {
+      "label": "StockReason",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_stockreason",
+      "community": 21,
+      "norm_label": "stockreason"
+    },
+    {
+      "label": "SalesBatch",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_salesbatch",
+      "community": 21,
+      "norm_label": "salesbatch"
+    },
+    {
+      "label": "Vec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_rs_vec",
+      "community": 21,
+      "norm_label": "vec"
+    },
+    {
+      "label": "SaleSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_salesync",
+      "community": 21,
+      "norm_label": "salesync"
+    },
+    {
+      "label": "String",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_rs_string",
+      "community": 21,
+      "norm_label": "string"
+    },
+    {
+      "label": "Option",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_rs_option",
+      "community": 21,
+      "norm_label": "option"
+    },
+    {
+      "label": "SaleItemSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_saleitemsync",
+      "community": 21,
+      "norm_label": "saleitemsync"
+    },
+    {
+      "label": "InventoryBatch",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_inventorybatch",
+      "community": 21,
+      "norm_label": "inventorybatch"
+    },
+    {
+      "label": "CategorySync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L55",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_categorysync",
+      "community": 21,
+      "norm_label": "categorysync"
+    },
+    {
+      "label": "ProductUpsertSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L62",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_productupsertsync",
+      "community": 21,
+      "norm_label": "productupsertsync"
+    },
+    {
+      "label": "StockMovementSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L78",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_stockmovementsync",
+      "community": 21,
+      "norm_label": "stockmovementsync"
+    },
+    {
+      "label": "PurchasesBatch",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_purchasesbatch",
+      "community": 21,
+      "norm_label": "purchasesbatch"
+    },
+    {
+      "label": "PurchaseOrderSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_purchaseordersync",
+      "community": 21,
+      "norm_label": "purchaseordersync"
+    },
+    {
+      "label": "PurchaseItemSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L111",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_purchaseitemsync",
+      "community": 21,
+      "norm_label": "purchaseitemsync"
+    },
+    {
+      "label": "CashBatch",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L124",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_cashbatch",
+      "community": 21,
+      "norm_label": "cashbatch"
+    },
+    {
+      "label": "CashSessionSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L131",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_cashsessionsync",
+      "community": 21,
+      "norm_label": "cashsessionsync"
+    },
+    {
+      "label": "ExpenseSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L150",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_expensesync",
+      "community": 21,
+      "norm_label": "expensesync"
+    },
+    {
+      "label": "OtherIncomeSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L163",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_otherincomesync",
+      "community": 21,
+      "norm_label": "otherincomesync"
+    },
+    {
+      "label": "CatalogBatch",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L175",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_catalogbatch",
+      "community": 21,
+      "norm_label": "catalogbatch"
+    },
+    {
+      "label": "StoreSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L181",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_storesync",
+      "community": 21,
+      "norm_label": "storesync"
+    },
+    {
+      "label": "UserSync",
+      "file_type": "code",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L192",
+      "_origin": "ast",
+      "id": "src_tauri_src_sync_payloads_usersync",
+      "community": 21,
+      "norm_label": "usersync"
+    },
+    {
       "label": "tauri.conf.json",
       "file_type": "code",
       "source_file": "src-tauri/tauri.conf.json",
@@ -7815,7 +8225,7 @@
       "label": "StoreCard()",
       "file_type": "code",
       "source_file": "src/features/stores/components/StoreCard.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_stores_components_storecard_storecard",
       "community": 10,
@@ -7855,7 +8265,7 @@
       "label": "StoreDetailModal()",
       "file_type": "code",
       "source_file": "src/features/stores/components/StoreDetailModal.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_stores_components_storedetailmodal_storedetailmodal",
       "community": 10,
@@ -7925,7 +8335,7 @@
       "label": "UserCard()",
       "file_type": "code",
       "source_file": "src/features/stores/components/UserCard.tsx",
-      "source_location": "L19",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "src_features_stores_components_usercard_usercard",
       "community": 10,
@@ -20488,7 +20898,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L13",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "src_tauri_src_lib",
       "target": "src_tauri_src_lib_run",
@@ -20498,7 +20908,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L8",
+      "source_location": "L9",
       "weight": 1.0,
       "context": "import",
       "source": "src_tauri_src_lib",
@@ -20509,7 +20919,7 @@
       "relation": "imports_from",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/src/lib.rs",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0,
       "context": "import",
       "source": "src_tauri_src_lib",
@@ -26429,6 +26839,1077 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L105",
+      "weight": 1.0,
+      "context": "import",
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_payloads",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L154",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_ack_response_round_trips",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_envelope_serializes_with_expected_json_shape",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_syncenvelope",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_syncitemack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_syncitemstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_syncresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod",
+      "target": "src_tauri_src_sync_mod_synctopic",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncenvelope",
+      "target": "src_tauri_src_sync_mod_synctopic",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "target": "src_tauri_src_sync_mod_synctopic",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L98",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncresponse",
+      "target": "src_tauri_src_sync_mod_synctopic",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncenvelope",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncenvelope",
+      "target": "t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L61",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L76",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_mod_syncitemack_duplicate",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_mod_syncitemack_rejected",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L97",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncresponse",
+      "target": "src_tauri_src_sync_mod_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "target": "t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod_syncenvelope_t",
+      "target": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod_envelope_serializes_with_expected_json_shape",
+      "target": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "target": "into",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_sync_mod_syncenvelope_t_new",
+      "target": "src_tauri_src_sync_mod_rs_self",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "target": "into",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L76",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_duplicate",
+      "target": "into",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_rejected",
+      "target": "into",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "target": "src_tauri_src_sync_mod_rs_self",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L76",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_duplicate",
+      "target": "src_tauri_src_sync_mod_rs_self",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "return_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_rejected",
+      "target": "src_tauri_src_sync_mod_rs_self",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L59",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_syncitemstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L63",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_syncitemack_duplicate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_mod_syncitemack",
+      "target": "src_tauri_src_sync_mod_syncitemack_rejected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L99",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_mod_syncresponse",
+      "target": "src_tauri_src_sync_mod_syncitemack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L67",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "source": "src_tauri_src_sync_mod_syncitemack_accepted",
+      "target": "src_tauri_src_sync_mod_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/mod.rs",
+      "source_location": "L99",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_mod_syncresponse",
+      "target": "src_tauri_src_sync_mod_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L124",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_cashbatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_cashsessionsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_catalogbatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_categorysync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_expensesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_inventorybatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L163",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_otherincomesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_productupsertsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L111",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_purchaseitemsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_purchaseordersync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_purchasesbatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_saleitemsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_salesbatch",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_salesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_stockmovementsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_stockreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_storesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L192",
+      "weight": 1.0,
+      "source": "src_tauri_src_sync_payloads",
+      "target": "src_tauri_src_sync_payloads_usersync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L83",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_stockmovementsync",
+      "target": "src_tauri_src_sync_payloads_stockreason",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_salesbatch",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_salesbatch",
+      "target": "src_tauri_src_sync_payloads_salesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_cashbatch",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L177",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_catalogbatch",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_inventorybatch",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_purchaseordersync",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_purchasesbatch",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L33",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_salesync",
+      "target": "src_tauri_src_sync_payloads_rs_vec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_salesync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_salesync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L33",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_salesync",
+      "target": "src_tauri_src_sync_payloads_saleitemsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L146",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_cashsessionsync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L58",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_categorysync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L159",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_expensesync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L169",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_otherincomesync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L74",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_productupsertsync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_purchaseitemsync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L105",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_purchaseordersync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L39",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_saleitemsync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_stockmovementsync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L188",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_storesync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L202",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_usersync",
+      "target": "src_tauri_src_sync_payloads_rs_string",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L145",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_cashsessionsync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L158",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_expensesync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L165",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_otherincomesync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L72",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_productupsertsync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_purchaseitemsync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_purchaseordersync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_saleitemsync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_stockmovementsync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L188",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_storesync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L202",
+      "weight": 1.0,
+      "context": "field",
+      "source": "src_tauri_src_sync_payloads_usersync",
+      "target": "src_tauri_src_sync_payloads_rs_option",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_inventorybatch",
+      "target": "src_tauri_src_sync_payloads_categorysync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_inventorybatch",
+      "target": "src_tauri_src_sync_payloads_productupsertsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_inventorybatch",
+      "target": "src_tauri_src_sync_payloads_stockmovementsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_purchasesbatch",
+      "target": "src_tauri_src_sync_payloads_purchaseordersync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_purchaseordersync",
+      "target": "src_tauri_src_sync_payloads_expensesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_purchaseordersync",
+      "target": "src_tauri_src_sync_payloads_purchaseitemsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L125",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_cashbatch",
+      "target": "src_tauri_src_sync_payloads_cashsessionsync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L126",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_cashbatch",
+      "target": "src_tauri_src_sync_payloads_expensesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_cashbatch",
+      "target": "src_tauri_src_sync_payloads_otherincomesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L176",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_catalogbatch",
+      "target": "src_tauri_src_sync_payloads_storesync",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "src-tauri/src/sync/payloads.rs",
+      "source_location": "L177",
+      "weight": 1.0,
+      "context": "generic_arg",
+      "source": "src_tauri_src_sync_payloads_catalogbatch",
+      "target": "src_tauri_src_sync_payloads_usersync",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src-tauri/tauri.conf.json",
@@ -27275,7 +28756,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/stores/components/StoreCard.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "src_features_stores_components_storecard",
       "target": "src_features_stores_components_storecard_storecard",
@@ -27327,7 +28808,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/stores/components/StoreDetailModal.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "src_features_stores_components_storedetailmodal",
       "target": "src_features_stores_components_storedetailmodal_storedetailmodal",
@@ -27410,7 +28891,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/stores/components/UserCard.tsx",
-      "source_location": "L19",
+      "source_location": "L21",
       "weight": 1.0,
       "source": "src_features_stores_components_usercard",
       "target": "src_features_stores_components_usercard_usercard",
@@ -31508,5 +32989,5 @@
       "source_file": "cargo_output.txt"
     }
   ],
-  "built_at_commit": "4fe433a559bb9ab694026df0d61306f618499dc3"
+  "built_at_commit": "778b1cf1fa14bc98a5fc29c0b9b16dadd939f32b"
 }

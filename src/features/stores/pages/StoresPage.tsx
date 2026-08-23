@@ -32,7 +32,8 @@ export default function StoresPage() {
     const [selectedStore, setSelectedStore] = useState<Store | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const isAdmin = user?.username === 'admin';
+    // Admin central: usuario "admin" o cualquier cuenta con cargo ADMIN (tambien en modo Replica)
+    const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
 
     useEffect(() => {
         loadStores();
@@ -269,35 +270,37 @@ export default function StoresPage() {
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Personal</h2>
-                                <p className="text-xs text-gray-500">Usuarios disponibles</p>
+                                <p className="text-xs text-gray-500">{users.length} usuario(s) · asignados y sin asignar</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => {
-                                if (checkAdmin()) setIsUserModalOpen(true);
-                            }}
-                            className="bg-white hover:bg-gray-50 text-green-600 p-2 rounded-lg border border-gray-100 shadow-sm transition-all active:scale-95"
-                            title="Crear Usuario"
-                        >
-                            <Plus className="w-5 h-5" />
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setIsUserModalOpen(true)}
+                                className="bg-white hover:bg-gray-50 text-green-600 p-2 rounded-lg border border-gray-100 shadow-sm transition-all active:scale-95"
+                                title="Crear Usuario"
+                            >
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        )}
                     </div>
 
                     <div className="space-y-4">
-                        {users.filter(u => !u.store_id).length > 0 ? (
-                            users.filter(u => !u.store_id).map((user) => (
+                        {users.length > 0 ? (
+                            users.map((user) => (
                                 <UserCard
                                     key={user.id}
                                     user={user}
                                     stores={stores}
+                                    isAdmin={isAdmin}
                                     onEdit={openEditUser}
                                     onDelete={handleDeleteUser}
                                     onStoreChange={handleUserStoreChange}
+                                    onUnassign={handleUnassignUser}
                                 />
                             ))
                         ) : (
                             <div className="text-center py-12 px-4 bg-white rounded-2xl border border-dashed border-gray-200">
-                                <p className="text-sm text-gray-400">No hay personal sin asignar</p>
+                                <p className="text-sm text-gray-400">No hay personal registrado</p>
                             </div>
                         )}
                     </div>
@@ -315,15 +318,15 @@ export default function StoresPage() {
                                 <p className="text-sm text-gray-500">Gestión de puntos de venta</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => {
-                                if (checkAdmin()) setIsStoreModalOpen(true);
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Nueva Sede
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setIsStoreModalOpen(true)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Nueva Sede
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -332,6 +335,7 @@ export default function StoresPage() {
                                 key={store.id}
                                 store={store}
                                 assignedUsers={users.filter(u => u.store_id === store.id)}
+                                isAdmin={isAdmin}
                                 onEdit={openEditStore}
                                 onDelete={handleDeleteStore}
                                 onDoubleClick={openStoreDetail}
@@ -381,6 +385,7 @@ export default function StoresPage() {
                 onClose={closeDetailModal}
                 store={selectedStore}
                 assignedUsers={selectedStore ? users.filter(u => u.store_id === selectedStore.id) : []}
+                isAdmin={isAdmin}
                 onUnassignUser={handleUnassignUser}
             />
         </div>

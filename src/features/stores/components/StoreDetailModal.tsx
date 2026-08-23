@@ -16,10 +16,11 @@ interface StoreDetailModalProps {
     onClose: () => void;
     store: Store | null;
     assignedUsers: User[];
+    isAdmin: boolean;
     onUnassignUser: (userId: number) => Promise<void>;
 }
 
-export default function StoreDetailModal({ isOpen, onClose, store, assignedUsers, onUnassignUser }: StoreDetailModalProps) {
+export default function StoreDetailModal({ isOpen, onClose, store, assignedUsers, isAdmin, onUnassignUser }: StoreDetailModalProps) {
     if (!store) return null;
 
     return (
@@ -91,13 +92,15 @@ export default function StoreDetailModal({ isOpen, onClose, store, assignedUsers
                                                             <span className="truncate">{user.cargo || 'Sin cargo'}</span>
                                                         </div>
                                                     </div>
-                                                    <button
-                                                        onClick={() => onUnassignUser(user.id)}
-                                                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-red-100 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                                        title="Desvincular de la sede"
-                                                    >
-                                                        <UserMinus className="w-4 h-4" />
-                                                    </button>
+                                                    {isAdmin && (
+                                                        <button
+                                                            onClick={() => onUnassignUser(user.id)}
+                                                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-red-100 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                            title="Desvincular de la sede"
+                                                        >
+                                                            <UserMinus className="w-4 h-4" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             ))}
                                         </div>

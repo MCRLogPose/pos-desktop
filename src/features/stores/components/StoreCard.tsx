@@ -14,12 +14,13 @@ interface Store {
 interface StoreCardProps {
     store: Store;
     assignedUsers: User[];
+    isAdmin: boolean;
     onEdit: (store: Store) => void;
     onDelete: (storeId: number) => void;
     onDoubleClick: (store: Store) => void;
 }
 
-export default function StoreCard({ store, assignedUsers, onEdit, onDelete, onDoubleClick }: StoreCardProps) {
+export default function StoreCard({ store, assignedUsers, isAdmin, onEdit, onDelete, onDoubleClick }: StoreCardProps) {
     const maxAvatars = 3;
     const remainingCount = assignedUsers.length > maxAvatars ? assignedUsers.length : 0;
     const visibleUsers = assignedUsers.slice(0, maxAvatars);
@@ -80,26 +81,30 @@ export default function StoreCard({ store, assignedUsers, onEdit, onDelete, onDo
                         {/* Placeholder for future status or tags */}
                     </div>
                     <div className="flex gap-2">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit(store);
-                            }}
-                            className="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all active:scale-95"
-                            title="Editar sede"
-                        >
-                            <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(store.id);
-                            }}
-                            className="p-2 hover:bg-red-50 text-red-600 rounded-xl transition-all active:scale-95"
-                            title="Eliminar sede"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        {isAdmin && (
+                            <>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEdit(store);
+                                    }}
+                                    className="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all active:scale-95"
+                                    title="Editar sede"
+                                >
+                                    <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDelete(store.id);
+                                    }}
+                                    className="p-2 hover:bg-red-50 text-red-600 rounded-xl transition-all active:scale-95"
+                                    title="Eliminar sede"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

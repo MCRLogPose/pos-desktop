@@ -39,7 +39,7 @@ const MODE_VISIBILITY: Record<OperatingMode, string[]> = {
         '/reports', '/stores', '/settings',
     ],
     replica: [
-        '/pos', '/sales', '/inventory', '/finance',
+        '/dashboard', '/pos', '/sales', '/inventory', '/finance',
         '/stores', '/settings',
     ],
     hybrid: ALL_NAV_ITEMS.map((item) => item.path),

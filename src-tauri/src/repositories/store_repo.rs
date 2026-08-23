@@ -59,10 +59,17 @@ impl StoreRepository {
     }
 
     pub async fn soft_delete(&self, id: i64) -> Result<(), sqlx::Error> {
+        let mut tx = self.pool.begin().await?;
+        // Desvincular usuarios antes de dar de baja la sede para no dejarlos huerfanos
+        sqlx::query("UPDATE users SET store_id = NULL WHERE store_id = ?")
+            .bind(id)
+            .execute(&mut *tx)
+            .await?;
         sqlx::query("UPDATE stores SET is_active = 0 WHERE id = ?")
             .bind(id)
-            .execute(&self.pool)
+            .execute(&mut *tx)
             .await?;
+        tx.commit().await?;
         Ok(())
     }
 }

@@ -3,6 +3,7 @@ pub mod db;
 pub mod models;
 pub mod repositories;
 pub mod services;
+pub mod sync;
 
 use commands::auth::AppState;
 use services::auth_service::AuthService;
