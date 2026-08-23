@@ -1,4 +1,8 @@
+pub mod apply;
+#[cfg(test)]
+mod apply_tests;
 pub mod payloads;
+pub mod server;
 
 use serde::{Deserialize, Serialize};
 
@@ -18,7 +22,10 @@ pub enum SyncTopic {
 pub struct SyncEnvelope<T> {
     pub sync_id: String,
     pub device_id: String,
+    #[serde(default)]
     pub store_id: i64,
+    #[serde(default)]
+    pub store_code: Option<String>,
     pub topic: SyncTopic,
     pub schema_version: u32,
     pub sent_at: String,
@@ -28,7 +35,7 @@ pub struct SyncEnvelope<T> {
 impl<T> SyncEnvelope<T> {
     pub fn new(
         device_id: impl Into<String>,
-        store_id: i64,
+        store_code: Option<String>,
         topic: SyncTopic,
         sent_at: String,
         payload: T,
@@ -36,7 +43,8 @@ impl<T> SyncEnvelope<T> {
         Self {
             sync_id: uuid::Uuid::new_v4().to_string(),
             device_id: device_id.into(),
-            store_id,
+            store_id: 0,
+            store_code,
             topic,
             schema_version: SYNC_SCHEMA_VERSION,
             sent_at,
@@ -130,7 +138,7 @@ mod tests {
         let batch = SalesBatch { sales: vec![sale] };
         let env = SyncEnvelope::new(
             "replica-gamarra-01",
-            2,
+            Some("GAMARRA".to_string()),
             SyncTopic::Sales,
             "2026-08-23T14:31:00-05:00".to_string(),
             batch,
@@ -140,7 +148,7 @@ mod tests {
 
         assert_eq!(json["topic"], "sales");
         assert_eq!(json["device_id"], "replica-gamarra-01");
-        assert_eq!(json["store_id"], 2);
+        assert_eq!(json["store_code"], "GAMARRA");
         assert_eq!(json["schema_version"], SYNC_SCHEMA_VERSION);
         assert_eq!(json["payload"]["sales"][0]["payment_method"], "yape");
         assert_eq!(

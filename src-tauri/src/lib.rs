@@ -29,6 +29,7 @@ pub fn run() {
             let cash_service = services::cash_service::CashService::new(pool.clone());
             let purchase_order_service =
                 services::purchase_order_service::PurchaseOrderService::new(pool.clone());
+            let sync_pool_for_server = pool.clone();
             let config_service = ConfigService::new(pool);
 
                 // Initialize Admin if needed
@@ -36,6 +37,42 @@ pub fn run() {
                     .initialize_admin()
                     .await
                     .expect("Failed to initialize admin");
+
+                // Identidad unica de esta maquina para la sincronizacion
+                if config_service
+                    .get_config("device_id")
+                    .await
+                    .ok()
+                    .flatten()
+                    .is_none()
+                {
+                    let _ = config_service
+                        .set_config("device_id", &uuid::Uuid::new_v4().to_string())
+                        .await;
+                }
+
+                // El servidor de sincronizacion solo corre en Primary (e Hybrid para pruebas).
+                // Replica no expone puertos: usara el cliente HTTP hacia la Primary.
+                let mode = config_service
+                    .get_operating_mode()
+                    .await
+                    .unwrap_or_else(|_| "hybrid".to_string());
+                if mode == "primary" || mode == "hybrid" {
+                    let sync_port = config_service
+                        .get_config("sync_port")
+                        .await
+                        .ok()
+                        .flatten()
+                        .and_then(|v| v.parse::<u16>().ok())
+                        .unwrap_or(8787);
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = sync::server::run_server(sync_pool_for_server, sync_port)
+                            .await
+                        {
+                            log::error!("[sync] {e}");
+                        }
+                    });
+                }
 
                 // Manage State
                 app_handle.manage(AppState {

@@ -118,50 +118,57 @@ Crea dos tablas nuevas:
 
 ---
 
-## Fase 2: Sync Queue - Replica (Documentada)
+## Fase 2: Sincronización Replica → Primary (EN PROGRESO 🔄)
 
-### 2.1 Backend
-- Implementar `sync/queue.rs` — CRUD de `sync_queue`
-- Integrar con `sales_service` y `cash_service` para registrar en `sync_queue` al crear venta/cerrar caja
-- Implementar `sync/retention.rs` — limpieza de datos antiguos (31 días)
-- Implementar job scheduler para sync a las 8pm
-- Implementar `sync/client.rs` — enviar batch vía Reqwest
+### 2.0 Contrato de datos (COMPLETADA ✅)
+- [x] `sync/mod.rs` — Envelope común (`SyncEnvelope<T>`): sync_id, device_id, store_id, topic, schema_version, sent_at, payload
+- [x] `SyncTopic` — 5 segmentos independientes: sales, inventory, purchases, cash, catalog
+- [x] Acks por ítem (`accepted | duplicate | rejected`) para idempotencia y reintentos seguros
+- [x] `sync/payloads.rs` — Batches por tema:
+  - SalesBatch (ventas + items)
+  - InventoryBatch (categorías, upserts de productos, movimientos de stock por delta)
+  - PurchasesBatch (lotes + items + gasto general generado)
+  - CashBatch (sesiones de caja, gastos, ingresos varios)
+  - CatalogBatch (sedes y usuarios)
+- [x] Migración `011_sync_ids.sql` — columna `uuid` única con backfill en orders, cash_sessions, other_income, users, stores, products, categories
+- [x] Anti-colisión: identidad por `sync_uuid` (nunca IDs locales), claves naturales (username, code, name), stock por deltas con reason/reference
+- [x] Tests de serialización JSON (`cargo test sync::`) — 2/2 pasando
+- [x] `SyncEnvelope` incluye `store_code` (código de sede como identidad entre máquinas; el `store_id` numérico local es solo informativo)
 
-### 2.2 Tablas a sincronizar
-| Tabla | Entidad | Descripción |
-|-------|---------|-------------|
-| `orders` | order | Ventas realizadas |
-| `order_items` | order_item | Items de ventas |
-| `cash_sessions` | cash_session | Sesiones de caja |
-| `expenses` | expense | Gastos registrados |
-| `other_income` | other_income | Otros ingresos |
-| `products` | product | Cambios de inventario |
-| `stores` | store | Edición de tienda asignada |
-| `purchase_orders` | purchase_order | Lotes de compra |
-| `purchase_order_items` | purchase_order_item | Items de lotes |
-
-### 2.3 Verificación
-- [ ] sync_queue registra ventas al crear
-- [ ] sync_queue registra caja al cerrar
-- [ ] Retención elimina datos > 31 días
-- [ ] Scheduler ejecuta sync a las 8pm
-- [ ] Client envía batch correctamente
+### 2.1 Cliente HTTP Replica (PENDIENTE ⏳)
+- [ ] `sync/client.rs` — Reqwest: POST de cada batch a `http://<ip-tailscale-primary>:8787/sync/<topic>`
+- [ ] Config `primary_url` en `app_config` (se pide/guarda al configurar modo Replica)
+- [ ] Reintentos con backoff; marcar filas como sincronizadas solo con ack `accepted`
+- [ ] Job scheduler — envío diario programado (8pm) + envío manual desde UI
 
 ---
 
-## Fase 3: Sync Server - Primary (Documentada)
+## Fase 3: Sync Server - Primary (INICIADO 🔄)
 
-### 3.1 Backend
-- Implementar `sync/server.rs` — Axum server
-- Implementar `POST /api/sync` — recibir y aplicar batch
-- Implementar `sync_log` y `replica_nodes`
-- Implementar endpoints de monitoreo
+> Decisión de arquitectura: el servidor axum corre **embebido dentro de la app Tauri**.
+> Se inicia automáticamente si `operating_mode = primary|hybrid`. La máquina Replica NO abre puertos ni corre servidor: solo usa el cliente HTTP. Un solo binario/instalador para ambos roles.
 
-### 3.2 Verificación
-- [ ] Primary inicia servidor HTTP en puerto 8080
-- [ ] POST /api/sync recibe y aplica batch
-- [ ] sync_log registra sincronizaciones
-- [ ] replica_nodes registra nodos conectados
+### 3.1 Backend (COMPLETADA ✅ para arranque básico)
+- [x] Dependencias: `axum 0.8`, `tokio (net)`
+- [x] `sync/server.rs` — Router con `GET /health` y `POST /sync/{sales,inventory,purchases,cash,catalog}`
+- [x] Arranque automático del listener según modo (`lib.rs`), puerto configurable vía `app_config.sync_port` (default 8787, bind 0.0.0.0 accesible por Tailscale)
+- [x] Generación automática de `device_id` en `app_config`
+- [x] Validación de `schema_version`; respuesta con ack por cada ítem del batch
+
+### 3.2 Persistencia en Primary (COMPLETADA ✅)
+- [x] Migración `012_sync_server.sql` — `sync_applied_items` (gate exactly-once) y `sync_log` (bitácora por envelope)
+- [x] `sync/apply.rs` — appliers transaccionales por tema:
+  - Facts append-only con exactly-once vía `sync_applied_items`: ventas (+items), sesiones, gastos, ingresos, lotes (+items +gasto generado), movimientos de stock (delta)
+  - Estado mutable con upsert last-write-wins (sin gate): productos (por code/name), categorías, sedes (por code/name), usuarios (por username) — adoptan uuid con COALESCE
+- [x] Resolución de referencias cruzadas: sede por `store_code`, usuario por `username`, producto por code→name→stub creado automáticamente (no se pierde la venta/lote), categoría creada al vuelo
+- [x] Corrección de contrato: `SyncEnvelope.store_id` local era ambiguo entre máquinas → se agregó `store_code` como clave real de sede
+- [x] `/health` verifica conexión a BD; cada endpoint registra counts accepted/duplicate/rejected en `sync_log`
+- [ ] Tabla `replica_nodes` (registro de dispositivos conectados) — pendiente
+- [ ] Endpoints de monitoreo (últimos sync por dispositivo, pendientes fallidos) — pendiente
+
+### 3.3 Verificación
+- [x] `cargo check` sin errores; `cargo test sync::` — 8/8 pasando (contrato JSON + 6 tests de aplicación con SQLite en memoria: idempotencia, rechazo de vendedor desconocido sin persistir, deltas exactamente-una-vez, upserts LWW, lote+gasto generado, ingreso ligado a última sesión)
+- [ ] Prueba end-to-end: curl desde otra máquina de la VPN → `/health` y un batch real persistido
 
 ---
 

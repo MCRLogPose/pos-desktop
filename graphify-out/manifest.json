@@ -165,8 +165,8 @@
     "semantic_hash": "ef8eaeb9b060517f7f6331eea392eb87"
   },
   "src-tauri/src/lib.rs": {
-    "mtime": 1787468972.7347305,
-    "ast_hash": "3b9817bba361035ed21d20d3f86f4d39",
+    "mtime": 1787470177.8781846,
+    "ast_hash": "f131cdea556470122dd06e2ed906222d",
     "semantic_hash": ""
   },
   "src-tauri/src/main.rs": {
@@ -950,8 +950,8 @@
     "semantic_hash": ""
   },
   "docs/IMPLEMENTACION_V2.md": {
-    "mtime": 1784517853.8036375,
-    "ast_hash": "69738d0af7605b4c86ca34455b75955a",
+    "mtime": 1787472748.4304757,
+    "ast_hash": "063bc7ccb0218adb4355555e2f53960d",
     "semantic_hash": ""
   },
   "src-tauri/migrations/007_expenses_sync.sql": {
@@ -1025,13 +1025,33 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/mod.rs": {
-    "mtime": 1787468990.677781,
-    "ast_hash": "5b02fc123c9e3eb05bb802503ee23a94",
+    "mtime": 1787471640.9397018,
+    "ast_hash": "ec8b593bc95886d79e70de5eb698e27b",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/payloads.rs": {
     "mtime": 1787468963.4300475,
     "ast_hash": "58f270d0daa603f32667007e2d192079",
+    "semantic_hash": ""
+  },
+  "src-tauri/src/sync/server.rs": {
+    "mtime": 1787471797.2614813,
+    "ast_hash": "a6d88188452988640c1bb0607a5245a5",
+    "semantic_hash": ""
+  },
+  "src-tauri/migrations/012_sync_server.sql": {
+    "mtime": 1787470976.4351745,
+    "ast_hash": "5d19e84791438f02b03a1d42fe69805b",
+    "semantic_hash": ""
+  },
+  "src-tauri/src/sync/apply.rs": {
+    "mtime": 1787472403.2392874,
+    "ast_hash": "338cf446b89c281d4e8e0ab5be66c583",
+    "semantic_hash": ""
+  },
+  "src-tauri/src/sync/apply_tests.rs": {
+    "mtime": 1787472667.5820959,
+    "ast_hash": "d531d63dba649a2c8470a005e67c853b",
     "semantic_hash": ""
   }
 }
