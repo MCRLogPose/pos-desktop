@@ -27,6 +27,13 @@ impl CashService {
             .map_err(|e| e.to_string())
     }
 
+    pub async fn get_sessions(&self, store_id: i64) -> Result<Vec<CashSession>, String> {
+        self.cash_repo
+            .get_sessions(store_id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
     pub async fn open_session(&self, payload: OpenCashPayload) -> Result<i64, String> {
         // Check if there is already an active session for this store
         if let Some(_) = self.get_active_session(payload.store_id).await? {

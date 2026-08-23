@@ -88,6 +88,7 @@ pub fn run() {
             // Cash
             commands::cash::get_active_cash_session,
             commands::cash::get_last_closed_cash_session,
+            commands::cash::get_cash_sessions,
             commands::cash::open_cash_session,
             commands::cash::close_cash_session,
             commands::cash::add_cash_expense,

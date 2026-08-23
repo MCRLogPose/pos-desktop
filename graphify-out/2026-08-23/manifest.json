@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/commands/cash.rs": {
-    "mtime": 1787465715.428103,
-    "ast_hash": "579c484a2d278d2e4679b5fc6bc22278",
+    "mtime": 1783888817.6450717,
+    "ast_hash": "6a301d4f5ceef7c03bc5ce6dd9908110",
     "semantic_hash": ""
   },
   "src-tauri/src/commands/inventory.rs": {
@@ -165,8 +165,8 @@
     "semantic_hash": "ef8eaeb9b060517f7f6331eea392eb87"
   },
   "src-tauri/src/lib.rs": {
-    "mtime": 1787465715.4294372,
-    "ast_hash": "31d5e52cff2d80311c54136c0949eef3",
+    "mtime": 1784511497.2428236,
+    "ast_hash": "42b35d61123c0238c518180ff52e26da",
     "semantic_hash": ""
   },
   "src-tauri/src/main.rs": {
@@ -205,8 +205,8 @@
     "semantic_hash": "d25ad64a81e48d6c3ccd04ff2c099466"
   },
   "src-tauri/src/repositories/cash_repo.rs": {
-    "mtime": 1787465715.4334009,
-    "ast_hash": "42f5af23d7b10024838ac043027c6fe9",
+    "mtime": 1787456620.7326508,
+    "ast_hash": "0f4df91dfa661a38636396eac6277fc2",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/inventory_repo.rs": {
@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/services/cash_service.rs": {
-    "mtime": 1787465715.4370432,
-    "ast_hash": "b7a2edf3b914757ba638e7860c246f69",
+    "mtime": 1783882894.273954,
+    "ast_hash": "6267cd07eb50a78d8333b28cccf1a1d8",
     "semantic_hash": ""
   },
   "src-tauri/src/services/inventory_service.rs": {
@@ -295,9 +295,9 @@
     "semantic_hash": "1f561cb0fee0cb438b0af07d976b1dcb"
   },
   "src/context/CashContext.tsx": {
-    "mtime": 1787465715.439035,
-    "ast_hash": "ce84f2f272385e65b6471e289843b44a",
-    "semantic_hash": ""
+    "mtime": 1783571937.8187008,
+    "ast_hash": "ac5e5d0d714d85949a6b7e477754a4f0",
+    "semantic_hash": "ac5e5d0d714d85949a6b7e477754a4f0"
   },
   "src/context/NotificationContext.tsx": {
     "mtime": 1769923622.397606,
@@ -435,9 +435,9 @@
     "semantic_hash": ""
   },
   "src/features/user/pages/FinancePage.tsx": {
-    "mtime": 1787465715.442672,
-    "ast_hash": "fb790a6bee3f197f188b4ad914eda3ad",
-    "semantic_hash": ""
+    "mtime": 1773293515.0945115,
+    "ast_hash": "ac1058c8208d2ba663de379e38f2386d",
+    "semantic_hash": "ac1058c8208d2ba663de379e38f2386d"
   },
   "src/features/user/pages/HomePage.tsx": {
     "mtime": 1773291572.5714805,

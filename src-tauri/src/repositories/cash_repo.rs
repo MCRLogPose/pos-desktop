@@ -28,6 +28,16 @@ impl CashRepository {
         .await
     }
 
+    /// Historial completo de cajas de la tienda, la mas reciente primero.
+    pub async fn get_sessions(&self, store_id: i64) -> Result<Vec<CashSession>, sqlx::Error> {
+        sqlx::query_as::<_, CashSession>(
+            "SELECT * FROM cash_sessions WHERE store_id = ? ORDER BY opened_at DESC, id DESC",
+        )
+        .bind(store_id)
+        .fetch_all(&self.pool)
+        .await
+    }
+
     pub async fn open_session(&self, payload: OpenCashPayload) -> Result<i64, sqlx::Error> {
         let id = sqlx::query(
             r#"

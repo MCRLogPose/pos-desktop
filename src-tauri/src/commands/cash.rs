@@ -19,6 +19,14 @@ pub async fn get_last_closed_cash_session(
 }
 
 #[tauri::command]
+pub async fn get_cash_sessions(
+    state: State<'_, AppState>,
+    store_id: i64,
+) -> Result<Vec<CashSession>, String> {
+    state.cash_service.get_sessions(store_id).await
+}
+
+#[tauri::command]
 pub async fn open_cash_session(
     state: State<'_, AppState>,
     payload: OpenCashPayload,

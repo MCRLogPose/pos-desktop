@@ -3,7 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from './NotificationContext';
 import { useAuth } from './AuthContext';
 
-interface CashSession {
+export interface CashSession {
     id: number;
     opened_by: number;
     opened_at: string;
