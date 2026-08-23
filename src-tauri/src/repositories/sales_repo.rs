@@ -15,11 +15,11 @@ impl SalesRepository {
     pub async fn create_order(&self, payload: CreateOrderPayload) -> Result<i64, sqlx::Error> {
         let mut tx = self.pool.begin().await?;
 
-        // 1. Insert the order header
+        // 1. Insert the order header (hora local Peru, CURRENT_TIMESTAMP guardaria UTC)
         let order_id = sqlx::query(
             r#"
-            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
             "#,
         )
         .bind(payload.user_id)

@@ -31,8 +31,8 @@ impl CashRepository {
     pub async fn open_session(&self, payload: OpenCashPayload) -> Result<i64, sqlx::Error> {
         let id = sqlx::query(
             r#"
-            INSERT INTO cash_sessions (opened_by, opening_cash, opening_virtual, expected_closing_cash, expected_closing_virtual, status, store_id)
-            VALUES (?, ?, ?, ?, ?, 'open', ?)
+            INSERT INTO cash_sessions (opened_by, opening_cash, opening_virtual, expected_closing_cash, expected_closing_virtual, status, store_id, opened_at)
+            VALUES (?, ?, ?, ?, ?, 'open', ?, datetime('now', 'localtime'))
             "#
         )
         .bind(payload.opened_by)
@@ -62,7 +62,7 @@ impl CashRepository {
             r#"
             UPDATE cash_sessions 
             SET closed_by = ?, 
-                closed_at = CURRENT_TIMESTAMP, 
+                closed_at = datetime('now', 'localtime'),
                 real_closing_cash = ?, 
                 real_closing_virtual = ?, 
                 difference = ?, 
@@ -94,7 +94,7 @@ impl CashRepository {
         let expense_uuid = uuid::Uuid::new_v4().to_string();
 
         let id = sqlx::query(
-            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, store_id, source) VALUES (?, ?, ?, ?, ?, ?, 'cash_session')"
+            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, store_id, source, created_at) VALUES (?, ?, ?, ?, ?, ?, 'cash_session', datetime('now', 'localtime'))"
         )
         .bind(&expense_uuid)
         .bind(session_id)
@@ -241,7 +241,7 @@ impl CashRepository {
         uuid: &str,
     ) -> Result<i64, sqlx::Error> {
         let id = sqlx::query(
-            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, category, supplier, store_id) VALUES (?, NULL, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, category, supplier, store_id, created_at) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))"
         )
         .bind(uuid)
         .bind(description)
@@ -267,7 +267,7 @@ impl CashRepository {
         let mut tx = self.pool.begin().await?;
 
         let id = sqlx::query(
-            "INSERT INTO other_income (cash_session_id, description, amount, payment_method, store_id) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO other_income (cash_session_id, description, amount, payment_method, store_id, created_at) VALUES (?, ?, ?, ?, ?, datetime('now', 'localtime'))"
         )
         .bind(session_id)
         .bind(description)

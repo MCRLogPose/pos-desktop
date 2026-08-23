@@ -205,8 +205,8 @@
     "semantic_hash": "d25ad64a81e48d6c3ccd04ff2c099466"
   },
   "src-tauri/src/repositories/cash_repo.rs": {
-    "mtime": 1783890797.9494383,
-    "ast_hash": "a498b1f01afaf0e15808e3c5598bcfdc",
+    "mtime": 1787456620.7326508,
+    "ast_hash": "0f4df91dfa661a38636396eac6277fc2",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/inventory_repo.rs": {
@@ -220,9 +220,9 @@
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/sales_repo.rs": {
-    "mtime": 1783571937.80565,
-    "ast_hash": "63743c18aa7de5e63ba88d521aa89655",
-    "semantic_hash": "63743c18aa7de5e63ba88d521aa89655"
+    "mtime": 1787456591.0993023,
+    "ast_hash": "89920da71d0911c7820919ea064e3288",
+    "semantic_hash": ""
   },
   "src-tauri/src/repositories/store_repo.rs": {
     "mtime": 1783571937.80565,
@@ -450,9 +450,9 @@
     "semantic_hash": ""
   },
   "src/features/user/pages/POSPage.tsx": {
-    "mtime": 1773293458.8428557,
-    "ast_hash": "ea45842240e41ef0afd098da5dbeac79",
-    "semantic_hash": "ea45842240e41ef0afd098da5dbeac79"
+    "mtime": 1787455996.7358673,
+    "ast_hash": "799aa27510875f3af094ce5e374145bc",
+    "semantic_hash": ""
   },
   "src/features/user/pages/ReportsPage.tsx": {
     "mtime": 1783891054.0798497,
@@ -1012,6 +1012,11 @@
   "src/features/setup/pages/SetupPage.tsx": {
     "mtime": 1784514816.1050684,
     "ast_hash": "6d3216c51a771c7a5b7e94d7a289c69a",
+    "semantic_hash": ""
+  },
+  "src-tauri/migrations/010_local_timestamps.sql": {
+    "mtime": 1787456582.9176872,
+    "ast_hash": "7275bd9983f095c1d03defa677aed775",
     "semantic_hash": ""
   }
 }

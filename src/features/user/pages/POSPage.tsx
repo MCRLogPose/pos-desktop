@@ -321,9 +321,12 @@ const POSPage = () => {
                                         </div>
                                         <div className="p-3">
                                             <h3 className="font-semibold text-gray-900 truncate text-sm">{product.name}</h3>
-                                            {product.category_name && (
-                                                <p className="text-xs text-gray-400 truncate">{product.category_name}</p>
-                                            )}
+                                            <article className="flex items-center gap-2">
+                                                {product.category_name && (
+                                                    <p className="text-xs text-gray-600 truncate">{product.category_name}</p>
+                                                )} |
+                                                <h3 className="font-semibold text-red-900 truncate text-xs">{product.code}</h3>
+                                            </article>
                                             <p className="text-blue-600 font-bold mt-1">S/ {product.price.toFixed(2)}</p>
                                         </div>
                                     </div>
