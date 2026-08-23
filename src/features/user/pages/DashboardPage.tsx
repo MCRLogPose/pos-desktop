@@ -26,8 +26,18 @@ interface OrderItem {
   product_id?: i64;
 }
 
+interface Expense {
+  id: i64;
+  amount: number;
+  created_at: string;
+}
+
 
 type i64 = number;
+
+// Fecha local (Peru) en formato YYYY-MM-DD; toISOString() usaria UTC y desfaza +5h
+const localDateKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const StatCard = ({ title, value, icon: Icon, color }: any) => (
   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
@@ -47,7 +57,7 @@ const DashboardPage = () => {
   const [sales, setSales] = useState<Sale[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [expenses, setExpenses] = useState<number>(0);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -60,25 +70,17 @@ const DashboardPage = () => {
     if (!activeStoreId) return;
     setIsLoading(true);
     try {
-      const [salesData, productsData, itemsData] = await Promise.all([
+      const [salesData, productsData, itemsData, expensesData] = await Promise.all([
         invoke<Sale[]>('get_sales', { storeId: activeStoreId }),
         invoke<Product[]>('get_products', { storeId: activeStoreId }),
         invoke<OrderItem[]>('get_all_order_items', { storeId: activeStoreId }),
+        invoke<Expense[]>('get_all_expenses', { storeId: activeStoreId }),
       ]);
 
       setSales(salesData);
       setProducts(productsData);
       setOrderItems(itemsData);
-
-      // Fetch active session expenses if any
-      const activeSession = await invoke<any>('get_active_cash_session', { storeId: activeStoreId });
-      if (activeSession) {
-        const transactions = await invoke<any[]>('get_cash_session_transactions', { sessionId: activeSession.id });
-        const totalExpenses = transactions
-          .filter(t => t.type === 'expense')
-          .reduce((sum, t) => sum + (t.amount as number), 0);
-        setExpenses(totalExpenses);
-      }
+      setExpenses(expensesData);
     } catch (error) {
       console.error(error);
       showNotification('error', 'Error', 'Error al cargar datos del dashboard');
@@ -89,31 +91,28 @@ const DashboardPage = () => {
 
   // ─── Stats Aggregation ──────────────────────────────────────
   const stats = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateKey(new Date());
     const todaySales = sales.filter(s => s.created_at.startsWith(today));
-    
+    const todayExpenses = expenses.filter(e => e.created_at.startsWith(today));
+
     return {
       totalSales: todaySales.reduce((sum, s) => sum + s.total, 0),
       ordersCount: todaySales.length,
       inventoryCount: products.reduce((sum, p) => sum + p.stock, 0),
-      todayExpenses: expenses
+      todayExpenses: todayExpenses.reduce((sum, e) => sum + e.amount, 0)
     };
   }, [sales, products, expenses]);
 
   // ─── Chart Data ─────────────────────────────────────────────
   const chartData = useMemo(() => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (6 - i));
-      return d.toISOString().split('T')[0];
-    });
-
     const daysMap = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
 
-    return last7Days.map(date => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const date = localDateKey(d);
       const daySales = sales.filter(s => s.created_at.startsWith(date));
       const total = daySales.reduce((sum, s) => sum + s.total, 0);
-      const d = new Date(date + 'T00:00:00');
       return {
         name: daysMap[d.getDay()],
         ventas: total
@@ -164,7 +163,7 @@ const DashboardPage = () => {
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `reporte_completo_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `reporte_completo_${localDateKey(new Date())}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

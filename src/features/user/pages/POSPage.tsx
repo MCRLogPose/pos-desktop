@@ -223,7 +223,7 @@ const POSPage = () => {
 
     // ─── Render ───────────────────────────────────────────────
     return (
-        <div className="flex h-[calc(100vh-2rem)] gap-6">
+        <div className="flex h-full min-h-0 gap-6">
 
             {/* ── Products Section ── */}
             <div className="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

@@ -1,11 +1,11 @@
 # Graph Report - pos-desktop  (2026-08-22)
 
 ## Corpus Check
-- 138 files · ~132,826 words
+- 138 files · ~132,845 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1223 nodes · 1793 edges · 129 communities (79 shown, 50 thin omitted)
+- 1222 nodes · 1792 edges · 130 communities (80 shown, 50 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
@@ -62,6 +62,7 @@
 - OpenCode Plugin Config
 - OpenCode Package Config
 - Graphify Plugin
+- PermissionEntry
 - Login Card UI
 - User Service
 - Desktop Identifier Schema
@@ -161,7 +162,7 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (129 total, 50 thin omitted)
+## Communities (130 total, 50 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
@@ -172,28 +173,28 @@ Cohesion: 0.07
 Nodes (39): create_sale(), get_all_order_items(), get_sale_detail(), get_sales(), Option, OrderItemExport, Result, Sale (+31 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.14
-Nodes (34): gr(), l(), w(), a(), b(), Be(), C(), Ct() (+26 more)
+Cohesion: 0.17
+Nodes (27): gr(), w(), a(), b(), Be(), C(), Ct(), d() (+19 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.10
-Nodes (55): AppState, add_cash_expense(), add_cash_other_income(), add_expense_standalone(), close_cash_session(), delete_expense(), get_active_cash_session(), get_all_expenses() (+47 more)
+Cohesion: 0.11
+Nodes (53): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+45 more)
 
 ### Community 5 - "Inventory Models"
-Cohesion: 0.09
-Nodes (23): Product, Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryRepository (+15 more)
+Cohesion: 0.16
+Nodes (14): Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryService, Category (+6 more)
 
 ### Community 6 - "Package Dependencies"
 Cohesion: 0.05
 Nodes (32): dependencies, clsx, lottie-react, lucide-react, motion, react, react-dom, react-hook-form (+24 more)
 
 ### Community 7 - "Main App Core"
-Cohesion: 0.09
-Nodes (29): change_password(), create_user(), get_users(), login(), Option, Result, State, String (+21 more)
+Cohesion: 0.11
+Nodes (18): Error, Option, Result, Self, SqlitePool, Store, Vec, StoreRepository (+10 more)
 
 ### Community 8 - "Cash Session Models"
 Cohesion: 0.12
@@ -224,8 +225,8 @@ Cohesion: 0.12
 Nodes (20): ExportFormat, ExportModalProps, formatDateTime(), paymentMethodColor(), paymentMethodLabel(), Sale, SaleDetailModal(), SaleDetailModalProps (+12 more)
 
 ### Community 15 - "Cash Repository"
-Cohesion: 0.10
-Nodes (31): create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String, Vec (+23 more)
+Cohesion: 0.07
+Nodes (40): Product, create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String (+32 more)
 
 ### Community 16 - "TypeScript Node Config"
 Cohesion: 0.10
@@ -240,16 +241,16 @@ Cohesion: 0.11
 Nodes (17): app, security, windows, build, beforeBuildCommand, beforeDevCommand, devUrl, frontendDist (+9 more)
 
 ### Community 19 - "Desktop Schema Definitions"
-Cohesion: 0.15
-Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
+Cohesion: 0.13
+Nodes (14): anyOf, definitions, Number, Target, Value, description, anyOf, description (+6 more)
 
 ### Community 20 - "Windows Schema Definitions"
 Cohesion: 0.15
 Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
 ### Community 21 - "User Commands"
-Cohesion: 0.44
-Nodes (11): create_staff_user(), delete_user(), get_all_users(), get_users_by_store(), Option, Result, State, String (+3 more)
+Cohesion: 0.37
+Nodes (14): create_category(), create_product(), delete_category(), delete_product(), get_categories(), get_products(), Category, Option (+6 more)
 
 ### Community 22 - "Auth Commands"
 Cohesion: 0.04
@@ -296,12 +297,12 @@ Cohesion: 0.38
 Nodes (6): AppHandle, init_db(), Box, Error, Result, SqlitePool
 
 ### Community 33 - "Dashboard Page"
-Cohesion: 0.25
-Nodes (7): DashboardPage(), Expense, i64, localDateKey(), OrderItem, Product, Sale
+Cohesion: 0.29
+Nodes (6): DashboardPage(), i64, localDateKey(), OrderItem, Product, Sale
 
 ### Community 35 - "Desktop Schema Root"
-Cohesion: 0.40
-Nodes (4): anyOf, description, $schema, title
+Cohesion: 0.42
+Nodes (10): create_store(), delete_store(), get_stores(), Option, Result, State, Store, String (+2 more)
 
 ### Community 36 - "Windows Schema Root"
 Cohesion: 0.40
@@ -335,6 +336,10 @@ Nodes (4): description, required, type, Capability
 Cohesion: 0.50
 Nodes (4): default, description, type, description
 
+### Community 47 - "PermissionEntry"
+Cohesion: 0.67
+Nodes (3): PermissionEntry, anyOf, description
+
 ### Community 52 - "Desktop Identifier Schema"
 Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
@@ -344,8 +349,8 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 56 - "html2canvas Minified A"
-Cohesion: 0.18
-Nodes (11): A(), B(), Hn(), Kr(), Lr(), mr(), sB(), SUPPORT_FOREIGNOBJECT_DRAWING() (+3 more)
+Cohesion: 0.14
+Nodes (18): A(), B(), Hn(), Kr(), l(), Lr(), mr(), sB() (+10 more)
 
 ### Community 61 - "html2canvas Range Bounds"
 Cohesion: 0.22
@@ -424,24 +429,24 @@ Cohesion: 0.15
 Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
 
 ## Knowledge Gaps
-- **443 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+438 more)
+- **442 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+437 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `User Commands`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Desktop Schema Root`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `User Commands`?**
+  _High betweenness centrality (0.076) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `PurchaseOrderService` connect `Cash Repository` to `Pt`, `Auth and Cash Commands`, `Inventory Models`?**
+- **Why does `PurchaseOrderService` connect `Cash Repository` to `Pt`, `Auth and Cash Commands`?**
   _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _446 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _445 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.033646322378716745 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
   _Cohesion score 0.07039187227866474 - nodes in this community are weakly interconnected._
-- **Should `jsPDF Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.14444444444444443 - nodes in this community are weakly interconnected._
+- **Should `Cargo Build Errors` be split into smaller, more focused modules?**
+  _Cohesion score 0.09956709956709957 - nodes in this community are weakly interconnected._
