@@ -1,16 +1,16 @@
 # Graph Report - pos-desktop  (2026-08-23)
 
 ## Corpus Check
-- 145 files · ~138,864 words
+- 145 files · ~139,209 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1344 nodes · 2173 edges · 132 communities (82 shown, 50 thin omitted)
+- 1353 nodes · 2190 edges · 132 communities (82 shown, 50 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e58616bb`
+- Built from commit: `8386be50`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -183,8 +183,8 @@ Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.09
-Nodes (67): AppState, add_cash_expense(), add_cash_other_income(), add_expense_standalone(), close_cash_session(), delete_expense(), get_active_cash_session(), get_all_expenses() (+59 more)
+Cohesion: 0.08
+Nodes (67): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+59 more)
 
 ### Community 5 - "Inventory Models"
 Cohesion: 0.09
@@ -303,12 +303,12 @@ Cohesion: 0.25
 Nodes (7): DashboardPage(), Expense, i64, localDateKey(), OrderItem, Product, Sale
 
 ### Community 35 - "Desktop Schema Root"
-Cohesion: 0.08
-Nodes (31): Into, Json, envelope_serializes_with_expected_json_shape(), Option, Self, String, T, Vec (+23 more)
+Cohesion: 0.07
+Nodes (40): Arc, HeaderMap, Into, Json, Next, Request, Response, envelope_serializes_with_expected_json_shape() (+32 more)
 
 ### Community 36 - "Windows Schema Root"
-Cohesion: 0.41
-Nodes (11): change_password(), create_user(), get_users(), login(), Option, Result, State, String (+3 more)
+Cohesion: 0.44
+Nodes (11): create_staff_user(), delete_user(), get_all_users(), get_users_by_store(), Option, Result, State, String (+3 more)
 
 ### Community 37 - "Store Models"
 Cohesion: 0.50
@@ -448,7 +448,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Windows Schema Root`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`?**
   _High betweenness centrality (0.065) - this node is a cross-community bridge._
-- **Why does `AuthService` connect `Main App Core` to `User Models`, `Windows Schema Root`, `Auth and Cash Commands`, `html2canvas Internal A`?**
+- **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
   _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Why does `PurchaseOrderService` connect `Cash Repository` to `Pt`, `Auth and Cash Commands`, `Inventory Models`?**
   _High betweenness centrality (0.018) - this node is a cross-community bridge._

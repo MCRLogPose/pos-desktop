@@ -146,12 +146,13 @@ Crea dos tablas nuevas:
 ## Fase 3: Sync Server - Primary (INICIADO 🔄)
 
 > Decisión de arquitectura: el servidor axum corre **embebido dentro de la app Tauri**.
-> Se inicia automáticamente si `operating_mode = primary|hybrid`. La máquina Replica NO abre puertos ni corre servidor: solo usa el cliente HTTP. Un solo binario/instalador para ambos roles.
+> Se inicia automáticamente **solo si `operating_mode = primary`** (Hybrid es local y NO participa en sincronización). La máquina Replica NO abre puertos ni corre servidor: solo usa el cliente HTTP. Un solo binario/instalador para ambos roles.
 
 ### 3.1 Backend (COMPLETADA ✅ para arranque básico)
 - [x] Dependencias: `axum 0.8`, `tokio (net)`
 - [x] `sync/server.rs` — Router con `GET /health` y `POST /sync/{sales,inventory,purchases,cash,catalog}`
 - [x] Arranque automático del listener según modo (`lib.rs`), puerto configurable vía `app_config.sync_port` (default 8787, bind 0.0.0.0 accesible por Tailscale)
+- [x] Autenticación Bearer: `sync_token` autogenerado en `app_config` al arrancar como Primary; middleware valida `Authorization: Bearer <token>` en `/health` y `/sync/*` (401 si falta o es inválido)
 - [x] Generación automática de `device_id` en `app_config`
 - [x] Validación de `schema_version`; respuesta con ack por cada ítem del batch
 
@@ -168,7 +169,15 @@ Crea dos tablas nuevas:
 
 ### 3.3 Verificación
 - [x] `cargo check` sin errores; `cargo test sync::` — 8/8 pasando (contrato JSON + 6 tests de aplicación con SQLite en memoria: idempotencia, rechazo de vendedor desconocido sin persistir, deltas exactamente-una-vez, upserts LWW, lote+gasto generado, ingreso ligado a última sesión)
-- [ ] Prueba end-to-end: curl desde otra máquina de la VPN → `/health` y un batch real persistido
+- [ ] Prueba end-to-end Fish (Primary) ↔ vestikr1 (Réplica simulada con curl, no requiere la app instalada):
+  - [ ] Requisitos: Tailscale activo en ambas máquinas; ACL de tailnet que solo permita vestikr1 → fish TCP 8787; firewall inbound de Fish para 8787 limitado a `100.64.0.0/10`
+  - [ ] Fish: configurar modo **Primary** desde la UI (instalación fresca queda en hybrid y NO levanta servidor); arrancar `pnpm tauri dev`
+  - [ ] Obtener el token: leer `app_config.sync_token` de `%APPDATA%\com.cruzr.vestikPOS\pos.db` en Fish
+  - [ ] vestikr1: `curl -H "Authorization: Bearer <sync_token>" http://100.100.162.18:8787/health` → JSON con status ok
+  - [ ] vestikr1: POST de un `SyncEnvelope<SalesBatch>` a `/sync/sales` con el header Bearer → acks `accepted`
+  - [ ] Reenviar el mismo envelope → acks `duplicate` (exactly-once)
+  - [ ] En Fish verificar persistencia: fila en `orders`, registro en `sync_log`, gate en `sync_applied_items`
+  - [ ] Negativos desde vestikr1: sin token / token inválido → 401; `schema_version` distinto → acks `rejected`
 
 ---
 

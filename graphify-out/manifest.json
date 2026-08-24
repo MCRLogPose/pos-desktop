@@ -165,8 +165,8 @@
     "semantic_hash": "ef8eaeb9b060517f7f6331eea392eb87"
   },
   "src-tauri/src/lib.rs": {
-    "mtime": 1787470177.8781846,
-    "ast_hash": "f131cdea556470122dd06e2ed906222d",
+    "mtime": 1787545516.5811503,
+    "ast_hash": "85750f8d5dbd22a2841d5865f3015b99",
     "semantic_hash": ""
   },
   "src-tauri/src/main.rs": {
@@ -950,8 +950,8 @@
     "semantic_hash": ""
   },
   "docs/IMPLEMENTACION_V2.md": {
-    "mtime": 1787472748.4304757,
-    "ast_hash": "063bc7ccb0218adb4355555e2f53960d",
+    "mtime": 1787545709.2353406,
+    "ast_hash": "da7bf392e438aecc1f8261866dd50a88",
     "semantic_hash": ""
   },
   "src-tauri/migrations/007_expenses_sync.sql": {
@@ -1035,8 +1035,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/server.rs": {
-    "mtime": 1787471797.2614813,
-    "ast_hash": "a6d88188452988640c1bb0607a5245a5",
+    "mtime": 1787545537.136129,
+    "ast_hash": "1e0b9b251bc289d5f0e76567017cbead",
     "semantic_hash": ""
   },
   "src-tauri/migrations/012_sync_server.sql": {

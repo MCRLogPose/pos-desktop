@@ -3,12 +3,54 @@ use super::payloads::{
     CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch,
 };
 use super::{SyncEnvelope, SyncItemAck, SyncResponse, SyncTopic, SYNC_SCHEMA_VERSION};
-use axum::extract::{Json, State};
+use axum::extract::{Json, Request, State};
+use axum::http::{header, HeaderMap, StatusCode};
+use axum::middleware::{self, Next};
+use axum::response::Response;
 use axum::routing::{get, post};
 use axum::Router;
 use serde_json::json;
 use sqlx::SqlitePool;
 use std::net::SocketAddr;
+use std::sync::Arc;
+
+/// Token compartido que toda replica debe presentar como `Authorization: Bearer <token>`.
+#[derive(Clone)]
+struct SyncToken(Arc<String>);
+
+fn constant_time_eq(a: &str, b: &str) -> bool {
+    let (a, b) = (a.as_bytes(), b.as_bytes());
+    if a.len() != b.len() {
+        return false;
+    }
+    a.iter()
+        .zip(b.iter())
+        .fold(0u8, |acc, (x, y)| acc | (x ^ y))
+        == 0
+}
+
+async fn authorize(
+    State(expected): State<SyncToken>,
+    headers: HeaderMap,
+    req: Request,
+    next: Next,
+) -> Result<Response, (StatusCode, &'static str)> {
+    let provided = headers
+        .get(header::AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.strip_prefix("Bearer "))
+        .map(|token| constant_time_eq(token, expected.0.as_str()))
+        .unwrap_or(false);
+
+    if provided {
+        Ok(next.run(req).await)
+    } else {
+        Err((
+            StatusCode::UNAUTHORIZED,
+            "token de sincronizacion ausente o invalido",
+        ))
+    }
+}
 
 trait SyncBatch {
     fn item_uuids(&self) -> Vec<String>;
@@ -180,7 +222,7 @@ sync_endpoint!(sync_purchases, PurchasesBatch, SyncTopic::Purchases, apply::appl
 sync_endpoint!(sync_cash, CashBatch, SyncTopic::Cash, apply::apply_cash_batch);
 sync_endpoint!(sync_catalog, CatalogBatch, SyncTopic::Catalog, apply::apply_catalog_batch);
 
-pub async fn run_server(pool: SqlitePool, port: u16) -> Result<(), String> {
+pub async fn run_server(pool: SqlitePool, port: u16, sync_token: String) -> Result<(), String> {
     let app = Router::new()
         .route("/health", get(health))
         .route("/sync/sales", post(sync_sales))
@@ -188,7 +230,11 @@ pub async fn run_server(pool: SqlitePool, port: u16) -> Result<(), String> {
         .route("/sync/purchases", post(sync_purchases))
         .route("/sync/cash", post(sync_cash))
         .route("/sync/catalog", post(sync_catalog))
-        .with_state(pool);
+        .with_state(pool)
+        .layer(middleware::from_fn_with_state(
+            SyncToken(Arc::new(sync_token)),
+            authorize,
+        ));
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr)

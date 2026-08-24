@@ -51,13 +51,14 @@ pub fn run() {
                         .await;
                 }
 
-                // El servidor de sincronizacion solo corre en Primary (e Hybrid para pruebas).
+                // El servidor de sincronizacion SOLO corre en Primary.
                 // Replica no expone puertos: usara el cliente HTTP hacia la Primary.
+                // Hybrid es local y no participa en sincronizacion.
                 let mode = config_service
                     .get_operating_mode()
                     .await
                     .unwrap_or_else(|_| "hybrid".to_string());
-                if mode == "primary" || mode == "hybrid" {
+                if mode == "primary" {
                     let sync_port = config_service
                         .get_config("sync_port")
                         .await
@@ -65,9 +66,28 @@ pub fn run() {
                         .flatten()
                         .and_then(|v| v.parse::<u16>().ok())
                         .unwrap_or(8787);
+
+                    // Token compartido que las replicas presentan como Authorization: Bearer
+                    let sync_token = match config_service.get_config("sync_token").await {
+                        Ok(Some(token)) if !token.is_empty() => token,
+                        _ => {
+                            let token = uuid::Uuid::new_v4().to_string();
+                            if let Err(e) =
+                                config_service.set_config("sync_token", &token).await
+                            {
+                                log::warn!("[sync] no se pudo guardar sync_token: {e}");
+                            }
+                            token
+                        }
+                    };
+
                     tauri::async_runtime::spawn(async move {
-                        if let Err(e) = sync::server::run_server(sync_pool_for_server, sync_port)
-                            .await
+                        if let Err(e) = sync::server::run_server(
+                            sync_pool_for_server,
+                            sync_port,
+                            sync_token,
+                        )
+                        .await
                         {
                             log::error!("[sync] {e}");
                         }

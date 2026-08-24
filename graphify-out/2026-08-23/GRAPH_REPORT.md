@@ -1,12 +1,12 @@
 # Graph Report - pos-desktop  (2026-08-23)
 
 ## Corpus Check
-- 142 files · ~135,232 words
+- 145 files · ~138,864 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1291 nodes · 1951 edges · 132 communities (82 shown, 50 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.71)
+- 1344 nodes · 2173 edges · 132 communities (82 shown, 50 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
@@ -137,14 +137,14 @@
 ## God Nodes (most connected - your core abstractions)
 1. `AppState` - 61 edges
 2. `compilerOptions` - 25 edges
-3. `CashRepository` - 21 edges
-4. `compilerOptions` - 18 edges
-5. `e()` - 17 edges
-6. `m()` - 17 edges
-7. `UserRepository` - 17 edges
-8. `CashService` - 17 edges
-9. `InventoryRepository` - 16 edges
-10. `VESTIKPOS — Diseño de Arquitectura: Modos de Configuración` - 15 edges
+3. `SyncItemAck` - 24 edges
+4. `CashRepository` - 21 edges
+5. `compilerOptions` - 18 edges
+6. `e()` - 17 edges
+7. `m()` - 17 edges
+8. `UserRepository` - 17 edges
+9. `CashService` - 17 edges
+10. `InventoryRepository` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `GastosPage()` --indirect_call--> `v()`  [INFERRED]
@@ -168,23 +168,23 @@
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
-Nodes (23): an(), Be(), cn(), Cs(), dA(), ee(), FA(), fe() (+15 more)
+Nodes (29): A(), an(), Be(), cn(), Cs(), dA(), ee(), FA() (+21 more)
 
 ### Community 1 - "Sales Commands"
 Cohesion: 0.07
 Nodes (39): create_sale(), get_all_order_items(), get_sale_detail(), get_sales(), Option, OrderItemExport, Result, Sale (+31 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.14
-Nodes (34): gr(), l(), w(), a(), b(), Be(), C(), Ct() (+26 more)
+Cohesion: 0.16
+Nodes (23): gr(), w(), b(), Be(), C(), Ct(), Dt(), Ee() (+15 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.10
-Nodes (56): AppState, add_cash_expense(), add_cash_other_income(), add_expense_standalone(), close_cash_session(), delete_expense(), get_active_cash_session(), get_all_expenses() (+48 more)
+Cohesion: 0.09
+Nodes (67): AppState, add_cash_expense(), add_cash_other_income(), add_expense_standalone(), close_cash_session(), delete_expense(), get_active_cash_session(), get_all_expenses() (+59 more)
 
 ### Community 5 - "Inventory Models"
 Cohesion: 0.09
@@ -303,8 +303,8 @@ Cohesion: 0.25
 Nodes (7): DashboardPage(), Expense, i64, localDateKey(), OrderItem, Product, Sale
 
 ### Community 35 - "Desktop Schema Root"
-Cohesion: 0.09
-Nodes (29): Into, Json, envelope_serializes_with_expected_json_shape(), Option, Self, String, T, Vec (+21 more)
+Cohesion: 0.08
+Nodes (31): Into, Json, envelope_serializes_with_expected_json_shape(), Option, Self, String, T, Vec (+23 more)
 
 ### Community 36 - "Windows Schema Root"
 Cohesion: 0.41
@@ -319,8 +319,8 @@ Cohesion: 0.25
 Nodes (6): ConfigService, Option, Result, Self, SqlitePool, String
 
 ### Community 39 - "html2canvas Internal B"
-Cohesion: 0.33
-Nodes (5): Expense, OtherIncome, Period, Product, Sale
+Cohesion: 0.22
+Nodes (8): I(), s(), Expense, OtherIncome, Period, Product, ReportsPage(), Sale
 
 ### Community 40 - "Desktop Capability Schemas"
 Cohesion: 0.50
@@ -339,8 +339,8 @@ Cohesion: 0.50
 Nodes (4): default, description, type, description
 
 ### Community 47 - "store.rs"
-Cohesion: 0.44
-Nodes (11): create_staff_user(), delete_user(), get_all_users(), get_users_by_store(), Option, Result, State, String (+3 more)
+Cohesion: 0.16
+Nodes (49): CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch, apply_cash_batch(), apply_catalog_batch(), apply_inventory_batch() (+41 more)
 
 ### Community 48 - "desktop-schema.json"
 Cohesion: 0.40
@@ -359,12 +359,12 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 56 - "html2canvas Minified A"
-Cohesion: 0.18
-Nodes (11): A(), B(), Hn(), Kr(), Lr(), mr(), sB(), SUPPORT_FOREIGNOBJECT_DRAWING() (+3 more)
+Cohesion: 0.25
+Nodes (16): B(), l(), sB(), SUPPORT_SVG_DRAWING(), SUPPORT_WORD_BREAKING(), a(), d(), De() (+8 more)
 
 ### Community 61 - "html2canvas Range Bounds"
-Cohesion: 0.22
-Nodes (10): _(), E(), I(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k() (+2 more)
+Cohesion: 0.33
+Nodes (7): _(), E(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k()
 
 ### Community 102 - "Migraciones"
 Cohesion: 0.17
@@ -446,17 +446,17 @@ Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, form
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Windows Schema Root`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `store.rs`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Windows Schema Root`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`?**
+  _High betweenness centrality (0.065) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Windows Schema Root`, `Auth and Cash Commands`, `html2canvas Internal A`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **Why does `PurchaseOrderService` connect `Cash Repository` to `Pt`, `Auth and Cash Commands`, `Inventory Models`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
+  _High betweenness centrality (0.018) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
   _447 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.033646322378716745 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03163503163503163 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
   _Cohesion score 0.07039187227866474 - nodes in this community are weakly interconnected._
-- **Should `jsPDF Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.14444444444444443 - nodes in this community are weakly interconnected._
+- **Should `Cargo Build Errors` be split into smaller, more focused modules?**
+  _Cohesion score 0.09956709956709957 - nodes in this community are weakly interconnected._
