@@ -6,7 +6,7 @@ pub mod server;
 
 use serde::{Deserialize, Serialize};
 
-pub const SYNC_SCHEMA_VERSION: u32 = 1;
+pub const SYNC_SCHEMA_VERSION: u32 = 2;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]

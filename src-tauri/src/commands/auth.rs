@@ -33,7 +33,8 @@ pub async fn create_user(
     password: String,
     email: Option<String>,
 ) -> Result<User, String> {
-    // For now, we allow creating users as requested "ingreso de nuevos usuario".
+    // Los usuarios nacen en cada dispositivo; Primary solo recibe el directorio por sync.
+    state.config_service.reject_in_primary().await?;
     state
         .auth_service
         .create_user(&username, &password, email.as_deref())

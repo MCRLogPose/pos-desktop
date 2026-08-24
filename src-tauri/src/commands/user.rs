@@ -18,6 +18,8 @@ pub async fn create_staff_user(
     store_id: Option<i64>,
     role_name: String, // "VENDEDOR" or "GERENTE" only
 ) -> Result<User, String> {
+    state.config_service.reject_in_primary().await?;
+
     // Validate role - only allow VENDEDOR or GERENTE
     if role_name != "VENDEDOR" && role_name != "GERENTE" {
         return Err("Solo se permiten roles VENDEDOR o GERENTE".to_string());
@@ -73,6 +75,7 @@ pub async fn update_user(
     email: Option<String>,
     store_id: Option<i64>,
 ) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     let repo = &state.auth_service.user_repo;
     repo.update_user(id, cargo.as_deref(), email.as_deref(), store_id)
         .await
@@ -81,6 +84,7 @@ pub async fn update_user(
 
 #[tauri::command]
 pub async fn delete_user(state: State<'_, AppState>, id: i64) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     let repo = &state.auth_service.user_repo;
     repo.soft_delete_user(id).await.map_err(|e| e.to_string())
 }

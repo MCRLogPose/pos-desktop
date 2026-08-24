@@ -193,7 +193,6 @@ pub struct UserSync {
     pub sync_uuid: String,
     pub local_user_id: i64,
     pub username: String,
-    pub password_hash: String,
     pub cargo: Option<String>,
     pub email: Option<String>,
     pub store_code: Option<String>,

@@ -17,12 +17,15 @@ async fn test_pool() -> SqlitePool {
         .unwrap();
     static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
     MIGRATOR.run(&pool).await.unwrap();
+    crate::db::ensure_user_identity_v2(&pool).await.unwrap();
     seed(&pool).await;
     pool
 }
 
 async fn seed(pool: &SqlitePool) {
-    sqlx::query("INSERT INTO users (username, password_hash, cargo, is_active, created_at) VALUES ('vendedor1', 'hash', 'VENDEDOR', 1, datetime('now','localtime'))")
+    // vendedor1 pertenece a la sede MAIN (id=1, sembrada por migracion 005):
+    // asi la identidad compuesta (sede, username) resuelve al usuario local.
+    sqlx::query("INSERT INTO users (username, password_hash, cargo, store_id, is_active, created_at) VALUES ('vendedor1', 'hash', 'VENDEDOR', 1, 1, datetime('now','localtime'))")
         .execute(pool)
         .await
         .unwrap();
@@ -163,7 +166,6 @@ async fn catalog_upsert_updates_existing_rows() {
             sync_uuid: "user-0001".into(),
             local_user_id: 55,
             username: "vendedor1".into(),
-            password_hash: "nuevo-hash".into(),
             cargo: Some("ADMIN".into()),
             email: None,
             store_code: Some("MAIN".into()),
@@ -188,6 +190,152 @@ async fn catalog_upsert_updates_existing_rows() {
     let replay = apply_catalog_batch(&pool, &batch, "dev-1", None).await;
     assert!(replay.iter().all(|a| a.status == SyncItemStatus::Accepted));
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM stores").await, 2);
+}
+
+#[tokio::test]
+async fn user_sync_preserves_local_password() {
+    let pool = test_pool().await;
+    let batch = CatalogBatch {
+        stores: vec![],
+        users: vec![UserSync {
+            sync_uuid: "user-0001".into(),
+            local_user_id: 55,
+            username: "vendedor1".into(),
+            cargo: Some("VENDEDOR".into()),
+            email: Some("nuevo@x.com".into()),
+            store_code: Some("MAIN".into()),
+            role_name: None,
+            is_active: true,
+            created_at: None,
+        }],
+    };
+
+    let acks = apply_catalog_batch(&pool, &batch, "dev-1", None).await;
+    assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+
+    // El hash local ('hash') debe sobrevivir al sync: las credenciales nunca viajan.
+    let hash: String =
+        sqlx::query_scalar("SELECT password_hash FROM users WHERE username = 'vendedor1'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(hash, "hash");
+
+    let email: String =
+        sqlx::query_scalar("SELECT email FROM users WHERE username = 'vendedor1'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(email, "nuevo@x.com");
+}
+
+#[tokio::test]
+async fn directory_users_cannot_login_locally() {
+    let pool = test_pool().await;
+    let batch = CatalogBatch {
+        stores: vec![StoreSync {
+            sync_uuid: "store-0002".into(),
+            local_store_id: 9,
+            code: Some("SANJUAN".into()),
+            name: "San Juan".into(),
+            address: None,
+            is_active: true,
+            created_at: None,
+        }],
+        users: vec![UserSync {
+            sync_uuid: "user-0002".into(),
+            local_user_id: 56,
+            username: "cajera01".into(),
+            cargo: Some("VENDEDOR".into()),
+            email: None,
+            store_code: Some("SANJUAN".into()),
+            role_name: None,
+            is_active: true,
+            created_at: None,
+        }],
+    };
+
+    let acks = apply_catalog_batch(&pool, &batch, "dev-2", None).await;
+    assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+
+    let hash: String =
+        sqlx::query_scalar("SELECT password_hash FROM users WHERE username = 'cajera01'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert!(!hash.starts_with("$2")); // no es un hash bcrypt valido
+}
+
+#[tokio::test]
+async fn admin_account_is_never_synced() {
+    let pool = test_pool().await;
+    let batch = CatalogBatch {
+        stores: vec![],
+        users: vec![UserSync {
+            sync_uuid: "user-admin-1".into(),
+            local_user_id: 99,
+            username: "admin".into(),
+            cargo: Some("ADMIN".into()),
+            email: None,
+            store_code: Some("MAIN".into()),
+            role_name: None,
+            is_active: true,
+            created_at: None,
+        }],
+    };
+
+    let acks = apply_catalog_batch(&pool, &batch, "dev-otro", None).await;
+    assert_eq!(acks[0].status, SyncItemStatus::Rejected);
+    assert!(acks[0].message.as_deref().unwrap_or_default().contains("admin"));
+    assert_eq!(
+        count(&pool, "SELECT COUNT(*) FROM users WHERE username = 'admin'").await,
+        0
+    );
+}
+
+#[tokio::test]
+async fn same_username_in_different_stores_coexist() {
+    let pool = test_pool().await;
+    let mk_store = |uuid: &str, code: &str| StoreSync {
+        sync_uuid: uuid.into(),
+        local_store_id: 0,
+        code: Some(code.into()),
+        name: format!("Sede {code}"),
+        address: None,
+        is_active: true,
+        created_at: None,
+    };
+    let mk_user = |uuid: &str, store_code: &str| UserSync {
+        sync_uuid: uuid.into(),
+        local_user_id: 0,
+        username: "cajero01".into(),
+        cargo: Some("VENDEDOR".into()),
+        email: None,
+        store_code: Some(store_code.into()),
+        role_name: None,
+        is_active: true,
+        created_at: None,
+    };
+
+    let batch = CatalogBatch {
+        stores: vec![mk_store("store-A", "SANJUAN"), mk_store("store-B", "MIRAFLORES")],
+        users: vec![mk_user("user-A", "SANJUAN"), mk_user("user-B", "MIRAFLORES")],
+    };
+
+    let acks = apply_catalog_batch(&pool, &batch, "multi-dev", None).await;
+    assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+    assert_eq!(
+        count(&pool, "SELECT COUNT(*) FROM users WHERE username = 'cajero01'").await,
+        2
+    );
+
+    // Reenvio del mismo lote: upserts idempotentes, sin duplicar filas.
+    let replay = apply_catalog_batch(&pool, &batch, "multi-dev", None).await;
+    assert!(replay.iter().all(|a| a.status == SyncItemStatus::Accepted));
+    assert_eq!(
+        count(&pool, "SELECT COUNT(*) FROM users WHERE username = 'cajero01'").await,
+        2
+    );
 }
 
 #[tokio::test]
@@ -227,6 +375,7 @@ async fn purchase_order_with_generated_expense_applies_once() {
     };
 
     let acks = apply_purchases_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    eprintln!("ACK: {acks:?}");
     assert_eq!(acks[0].status, SyncItemStatus::Accepted);
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM purchase_orders").await, 1);
     assert_eq!(

@@ -10,15 +10,15 @@ impl UserRepository {
         Self { pool }
     }
 
-    pub async fn find_by_username(&self, username: &str) -> Result<Option<User>, sqlx::Error> {
-        let user = sqlx::query_as::<_, User>(
-            "SELECT id, username, password_hash, cargo, email, store_id, is_active, created_at FROM users WHERE username = ?"
+    pub async fn find_all_by_username(&self, username: &str) -> Result<Vec<User>, sqlx::Error> {
+        let users = sqlx::query_as::<_, User>(
+            "SELECT id, username, password_hash, cargo, email, store_id, is_active, created_at FROM users WHERE username = ? ORDER BY id"
         )
         .bind(username)
-        .fetch_optional(&self.pool)
+        .fetch_all(&self.pool)
         .await?;
 
-        Ok(user)
+        Ok(users)
     }
 
     pub async fn create_user(

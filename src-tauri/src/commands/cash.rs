@@ -31,6 +31,7 @@ pub async fn open_cash_session(
     state: State<'_, AppState>,
     payload: OpenCashPayload,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_primary().await?;
     state.cash_service.open_session(payload).await
 }
 
@@ -40,6 +41,7 @@ pub async fn close_cash_session(
     session_id: i64,
     payload: CloseCashPayload,
 ) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     state.cash_service.close_session(session_id, payload).await
 }
 
@@ -51,6 +53,7 @@ pub async fn add_cash_expense(
     amount: f64,
     payment_method: String,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_primary().await?;
     state
         .cash_service
         .add_expense(session_id, description, amount, payment_method)
@@ -65,6 +68,7 @@ pub async fn add_cash_other_income(
     amount: f64,
     payment_method: String,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_primary().await?;
     state
         .cash_service
         .add_other_income(session_id, description, amount, payment_method)
@@ -95,6 +99,8 @@ pub async fn update_expense(
     state: State<'_, AppState>,
     payload: crate::models::cash::UpdateExpensePayload,
 ) -> Result<(), String> {
+    // Los gastos generales nacen solo en Primary/Hybrid.
+    state.config_service.reject_in_replica().await?;
     state.cash_service.update_expense(payload).await
 }
 
@@ -103,6 +109,7 @@ pub async fn delete_expense(
     state: State<'_, AppState>,
     id: i64,
 ) -> Result<(), String> {
+    state.config_service.reject_in_replica().await?;
     state.cash_service.delete_expense(id).await
 }
 
@@ -116,6 +123,7 @@ pub async fn add_expense_standalone(
     supplier: Option<String>,
     store_id: i64,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_replica().await?;
     let expense_uuid = uuid::Uuid::new_v4().to_string();
     state
         .cash_service

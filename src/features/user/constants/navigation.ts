@@ -30,12 +30,15 @@ const ALL_NAV_ITEMS: NavItem[] = [
     { icon: Settings, label: 'Configuración', path: '/settings' },
 ];
 
-// Primary: Dashboard, Ventas, Inventario, Gastos, Reportes, Tiendas (read-only), Configuración
-// Replica: Punto de Venta, Ventas, Inventario, Finanzas, Tiendas, Configuración
-// Hybrid: Todo
+// Políticas de visibilidad por modo (la edición se restringe además por página y backend):
+// Primary: Dashboard, Ventas, Inventario (read-only), Gastos (propios), Finanzas (read-only),
+//          Reportes, Tiendas/Usuarios (read-only), Configuración. Sin Punto de Venta.
+// Replica: Punto de Venta, Ventas, Inventario, Finanzas, Tiendas, Configuración.
+//          Sin Gastos ni Reportes.
+// Hybrid: Todo (modo de pruebas local).
 const MODE_VISIBILITY: Record<OperatingMode, string[]> = {
     primary: [
-        '/dashboard', '/sales', '/inventory', '/expenses',
+        '/dashboard', '/sales', '/inventory', '/expenses', '/finance',
         '/reports', '/stores', '/settings',
     ],
     replica: [

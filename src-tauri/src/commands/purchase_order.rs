@@ -7,6 +7,7 @@ pub async fn create_purchase_order(
     state: State<'_, AppState>,
     payload: CreatePurchaseOrderPayload,
 ) -> Result<PurchaseOrderWithItems, String> {
+    state.config_service.reject_in_primary().await?;
     state
         .purchase_order_service
         .create_purchase_order(payload)

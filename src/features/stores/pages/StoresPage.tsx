@@ -9,6 +9,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { userService, type User } from '@/services/userService';
 import { useNotification } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 
 interface Store {
     id: number;
@@ -34,6 +35,9 @@ export default function StoresPage() {
 
     // Admin central: usuario "admin" o cualquier cuenta con cargo ADMIN (tambien en modo Replica)
     const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
+    // Primary: directorio (sedes/usuarios) es de solo lectura; lo gestiona la replica y llega por sync
+    const { isPrimary } = useConfig();
+    const canManage = isAdmin && !isPrimary;
 
     useEffect(() => {
         loadStores();
@@ -273,7 +277,7 @@ export default function StoresPage() {
                                 <p className="text-xs text-gray-500">{users.length} usuario(s) · asignados y sin asignar</p>
                             </div>
                         </div>
-                        {isAdmin && (
+                        {canManage && (
                             <button
                                 onClick={() => setIsUserModalOpen(true)}
                                 className="bg-white hover:bg-gray-50 text-green-600 p-2 rounded-lg border border-gray-100 shadow-sm transition-all active:scale-95"
@@ -291,7 +295,7 @@ export default function StoresPage() {
                                     key={user.id}
                                     user={user}
                                     stores={stores}
-                                    isAdmin={isAdmin}
+                                    isAdmin={canManage}
                                     onEdit={openEditUser}
                                     onDelete={handleDeleteUser}
                                     onStoreChange={handleUserStoreChange}
@@ -318,7 +322,7 @@ export default function StoresPage() {
                                 <p className="text-sm text-gray-500">Gestión de puntos de venta</p>
                             </div>
                         </div>
-                        {isAdmin && (
+                        {canManage && (
                             <button
                                 onClick={() => setIsStoreModalOpen(true)}
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 active:scale-95"
@@ -335,7 +339,7 @@ export default function StoresPage() {
                                 key={store.id}
                                 store={store}
                                 assignedUsers={users.filter(u => u.store_id === store.id)}
-                                isAdmin={isAdmin}
+                                isAdmin={canManage}
                                 onEdit={openEditStore}
                                 onDelete={handleDeleteStore}
                                 onDoubleClick={openStoreDetail}
@@ -385,7 +389,7 @@ export default function StoresPage() {
                 onClose={closeDetailModal}
                 store={selectedStore}
                 assignedUsers={selectedStore ? users.filter(u => u.store_id === selectedStore.id) : []}
-                isAdmin={isAdmin}
+                isAdmin={canManage}
                 onUnassignUser={handleUnassignUser}
             />
         </div>

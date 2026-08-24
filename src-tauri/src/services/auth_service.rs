@@ -49,32 +49,32 @@ impl AuthService {
     }
 
     pub async fn login(&self, username: &str, password: &str) -> Result<User, String> {
-        let user_opt = self
+        let candidates = self
             .user_repo
-            .find_by_username(username)
+            .find_all_by_username(username)
             .await
             .map_err(|e| format!("Database error: {}", e))?;
 
-        if let Some(user) = user_opt {
+        // Con identidad compuesta (sede, username) puede haber varios candidatos:
+        // la contrasena decide cual es el usuario real.
+        let had_candidates = !candidates.is_empty();
+        for user in &candidates {
             if bcrypt::verify(password, &user.password_hash)
                 .map_err(|e| format!("Hash error: {}", e))?
             {
-                // Solo validar tienda si NO es admin? 
-                // El usuario dice: "para poder ingresar al sistema debe si o si estar asignado a una tienda"
-                // Pero también dice: "el super admin puede acceder a cualquier tienda"
-                // Si es admin, puede no tener tienda asignada en la DB pero seleccionar una al entrar.
-                
                 if user.cargo.as_deref() != Some("ADMIN") && user.store_id.is_none() {
                     return Err("Usuario no tiene una tienda asignada. Contacte al administrador.".to_string());
                 }
 
-                Ok(user)
-            } else {
-                Err("Credenciales inválidas".to_string())
+                return Ok(user.clone());
             }
-        } else {
-            Err("Usuario no encontrado".to_string())
         }
+
+        Err(if had_candidates {
+            "Credenciales inválidas".to_string()
+        } else {
+            "Usuario no encontrado".to_string()
+        })
     }
 
     pub async fn create_user(
@@ -83,7 +83,13 @@ impl AuthService {
         password: &str,
         email: Option<&str>,
     ) -> Result<User, String> {
-        if let Ok(Some(_)) = self.user_repo.find_by_username(username).await {
+        if !self
+            .user_repo
+            .find_all_by_username(username)
+            .await
+            .map_err(|e| e.to_string())?
+            .is_empty()
+        {
             return Err("Username already exists".to_string());
         }
 
@@ -104,15 +110,14 @@ impl AuthService {
     }
 
     pub async fn verify_admin_password(&self, password: &str) -> Result<bool, String> {
-        let admin = self
+        let admins = self
             .user_repo
-            .find_by_username("admin")
+            .find_all_by_username("admin")
             .await
             .map_err(|e| e.to_string())?;
-        if let Some(user) = admin {
-            verify(password, &user.password_hash).map_err(|e| e.to_string())
-        } else {
-            Err("Admin user not found".to_string())
+        match admins.first() {
+            Some(user) => verify(password, &user.password_hash).map_err(|e| e.to_string()),
+            None => Err("Admin user not found".to_string()),
         }
     }
 

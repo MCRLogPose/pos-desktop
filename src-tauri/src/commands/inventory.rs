@@ -11,6 +11,7 @@ pub async fn get_categories(state: State<'_, AppState>) -> Result<Vec<Category>,
 
 #[tauri::command]
 pub async fn create_category(state: State<'_, AppState>, name: String) -> Result<Category, String> {
+    state.config_service.reject_in_primary().await?;
     state.inventory_service.create_category(&name).await
 }
 
@@ -20,11 +21,13 @@ pub async fn update_category(
     id: i64,
     name: String,
 ) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     state.inventory_service.update_category(id, &name).await
 }
 
 #[tauri::command]
 pub async fn delete_category(state: State<'_, AppState>, id: i64) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     state.inventory_service.delete_category(id).await
 }
 
@@ -48,6 +51,7 @@ pub async fn create_product(
     image_url: Option<String>,
     store_id: i64,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_primary().await?;
     state
         .inventory_service
         .create_product(
@@ -78,6 +82,7 @@ pub async fn update_product(
     image_url: Option<String>,
     store_id: i64,
 ) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     state
         .inventory_service
         .update_product(
@@ -97,5 +102,6 @@ pub async fn update_product(
 
 #[tauri::command]
 pub async fn delete_product(state: State<'_, AppState>, id: i64) -> Result<(), String> {
+    state.config_service.reject_in_primary().await?;
     state.inventory_service.delete_product(id).await
 }

@@ -19,6 +19,7 @@ pub async fn create_sale(
     cash_session_id: i64,
     store_id: i64,
 ) -> Result<i64, String> {
+    state.config_service.reject_in_primary().await?;
     let payload = CreateOrderPayload {
         user_id,
         client_document,

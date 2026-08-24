@@ -57,7 +57,21 @@ pub async fn resolve_store_id_tx(tx: &mut Tx, store_code: Option<&str>) -> Optio
     }
 }
 
-async fn resolve_user_id(tx: &mut Tx, username: &str) -> Option<i64> {
+async fn resolve_user_id(tx: &mut Tx, username: &str, store_id: Option<i64>) -> Option<i64> {
+    // Preferencia por el usuario de la sede del envelope; si no existe,
+    // acepta solo coincidencia unica global (fetch_optional falla con duplicados).
+    if let Some(sid) = store_id {
+        let row = sqlx::query("SELECT id FROM users WHERE username = ?1 AND store_id = ?2")
+            .bind(username)
+            .bind(sid)
+            .fetch_optional(&mut **tx)
+            .await
+            .ok()
+            .flatten();
+        if let Some(row) = row {
+            return row.try_get::<i64, _>(0).ok();
+        }
+    }
     scalar_opt(tx, "SELECT id FROM users WHERE username = ?1", username).await
 }
 
@@ -210,7 +224,7 @@ async fn apply_one_sale(
         .seller_username
         .as_deref()
         .ok_or("venta sin vendedor")?;
-    let user_id = resolve_user_id(tx, seller_username)
+    let user_id = resolve_user_id(tx, seller_username, Some(store_id))
         .await
         .ok_or_else(|| format!("vendedor desconocido '{seller_username}'"))?;
 
@@ -463,7 +477,7 @@ async fn apply_one_purchase(
         .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
 
     let created_by = match po.created_by_username.as_deref() {
-        Some(u) => resolve_user_id(tx, u).await,
+        Some(u) => resolve_user_id(tx, u, Some(store_id)).await,
         None => None,
     };
 
@@ -578,11 +592,11 @@ async fn apply_one_session(
 
     let fallback_admin = s.opened_by_username.is_none();
     let opened_by = s.opened_by_username.as_deref().unwrap_or("admin");
-    let opened_by_id = resolve_user_id(tx, opened_by)
+    let opened_by_id = resolve_user_id(tx, opened_by, Some(store_id))
         .await
         .ok_or_else(|| format!("usuario de apertura desconocido '{opened_by}'"))?;
     let closed_by = match s.closed_by_username.as_deref() {
-        Some(u) => resolve_user_id(tx, u).await,
+        Some(u) => resolve_user_id(tx, u, Some(store_id)).await,
         None => None,
     };
 
@@ -773,18 +787,50 @@ async fn upsert_store(tx: &mut Tx, s: &StoreSync) -> Result<SyncItemAck, String>
     Ok(SyncItemAck::accepted(&s.sync_uuid, Some(id)))
 }
 
+/// Hash placeholder para usuarios de directorio llegados por sync:
+/// bcrypt nunca lo verifica, asi que estos usuarios no pueden iniciar sesion.
+const SYNC_NO_LOGIN_HASH: &str = "!sync-no-login";
+
 async fn upsert_user(tx: &mut Tx, u: &UserSync) -> Result<SyncItemAck, String> {
+    // La cuenta admin es bootstrap local de cada dispositivo: nunca se sincroniza.
+    if u.username.eq_ignore_ascii_case("admin") {
+        return Ok(SyncItemAck::rejected(
+            &u.sync_uuid,
+            "la cuenta 'admin' es local de cada dispositivo y no se sincroniza",
+        ));
+    }
+
     let store_id = match u.store_code.as_deref() {
         Some(code) => scalar_opt(tx, "SELECT id FROM stores WHERE code = ?1", code).await,
         None => None,
     };
 
-    let existing =
-        scalar_opt(tx, "SELECT id FROM users WHERE username = ?1", &u.username).await;
+    // Identidad compuesta (sede, username): replicas distintas pueden tener el mismo username.
+    let existing: Option<i64> = match store_id {
+        Some(sid) => {
+            let row = sqlx::query("SELECT id FROM users WHERE username = ?1 AND store_id = ?2")
+                .bind(&u.username)
+                .bind(sid)
+                .fetch_optional(&mut **tx)
+                .await
+                .map_err(|e| format!("error buscando usuario: {e}"))?;
+            row.map(|r| r.try_get::<i64, _>(0).map_err(|e| e.to_string()))
+                .transpose()?
+        }
+        None => {
+            let row = sqlx::query("SELECT id FROM users WHERE username = ?1 AND store_id IS NULL")
+                .bind(&u.username)
+                .fetch_optional(&mut **tx)
+                .await
+                .map_err(|e| format!("error buscando usuario: {e}"))?;
+            row.map(|r| r.try_get::<i64, _>(0).map_err(|e| e.to_string()))
+                .transpose()?
+        }
+    };
 
     if let Some(id) = existing {
-        sqlx::query("UPDATE users SET password_hash = ?1, cargo = ?2, email = ?3, store_id = ?4, is_active = ?5, uuid = COALESCE(uuid, ?6) WHERE id = ?7")
-            .bind(&u.password_hash)
+        // Las contrasenas NUNCA se sincronizan: cada dispositivo conserva sus credenciales.
+        sqlx::query("UPDATE users SET cargo = ?1, email = ?2, store_id = ?3, is_active = ?4, uuid = COALESCE(uuid, ?5) WHERE id = ?6")
             .bind(&u.cargo)
             .bind(&u.email)
             .bind(store_id)
@@ -799,7 +845,7 @@ async fn upsert_user(tx: &mut Tx, u: &UserSync) -> Result<SyncItemAck, String> {
 
     sqlx::query("INSERT INTO users (username, password_hash, cargo, email, store_id, is_active, created_at, uuid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, COALESCE(?7, datetime('now','localtime')), ?8)")
         .bind(&u.username)
-        .bind(&u.password_hash)
+        .bind(SYNC_NO_LOGIN_HASH)
         .bind(&u.cargo)
         .bind(&u.email)
         .bind(store_id)

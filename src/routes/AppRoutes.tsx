@@ -13,22 +13,25 @@ import SalesPage from "@/features/user/pages/SalesPage.tsx";
 import GastosPage from "@/features/user/pages/GastosPage.tsx";
 
 import { ProtectedRoute } from "@/context/AuthContext";
+import { ModeGuard } from "@/routes/ModeGuard";
 
 const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/pos" element={<POSPage />} />
-                <Route path="/sales" element={<SalesPage />} />
-                <Route path="/inventory" element={<InventoryPage />} />
-                <Route path="/expenses" element={<GastosPage />} />
-                <Route path="/finance" element={<FinancePage />} />
-                <Route path="/reports" element={<ReportsPage />} />
-                <Route path="/stores" element={<StoresPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
+                <Route element={<ModeGuard />}>
+                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/pos" element={<POSPage />} />
+                    <Route path="/sales" element={<SalesPage />} />
+                    <Route path="/inventory" element={<InventoryPage />} />
+                    <Route path="/expenses" element={<GastosPage />} />
+                    <Route path="/finance" element={<FinancePage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
+                    <Route path="/stores" element={<StoresPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                </Route>
             </Route>
         </Routes>
     );

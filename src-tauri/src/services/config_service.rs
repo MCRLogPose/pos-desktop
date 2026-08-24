@@ -55,4 +55,34 @@ impl ConfigService {
         }
         self.set_config("operating_mode", mode).await
     }
+
+    /// Datos operativos (ventas, caja, inventario, lotes, sedes, usuarios):
+    /// en Primary solo llegan por sincronizacion, nunca se crean/editan localmente.
+    pub async fn reject_in_primary(&self) -> Result<(), String> {
+        self.reject_mode(
+            "primary",
+            "en modo Primary los datos operativos solo llegan por sincronización",
+        )
+        .await
+    }
+
+    /// Gastos generales (standalone): nacen solo en Primary/Hybrid.
+    pub async fn reject_in_replica(&self) -> Result<(), String> {
+        self.reject_mode(
+            "replica",
+            "en modo Replica los gastos generales se registran en el Primary",
+        )
+        .await
+    }
+
+    async fn reject_mode(&self, blocked: &str, reason: &str) -> Result<(), String> {
+        let current =
+            self.get_operating_mode()
+                .await
+                .unwrap_or_else(|_| "hybrid".to_string());
+        if current == blocked {
+            return Err(format!("Operación no permitida: {reason}"));
+        }
+        Ok(())
+    }
 }
