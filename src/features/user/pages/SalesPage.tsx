@@ -8,6 +8,7 @@ import { useNotification } from '@/context/NotificationContext';
 import { clsx } from 'clsx';
 import ExportModal, { type ExportFormat } from '../components/modals/ExportModal';
 import SaleDetailModal, { type Sale } from '../components/modals/SaleDetailModal';
+import AnularVentaModal from '../components/modals/AnularVentaModal';
 import { useAuth } from '@/context/AuthContext';
 import SalesTable from '../components/tables/SalesTable';
 
@@ -48,7 +49,7 @@ const formatDateTime = (dateStr: string) => {
 // ─── Main Component ───────────────────────────────────────────
 const SalesPage = () => {
   const { showNotification } = useNotification();
-  const { activeStoreId } = useAuth();
+  const { user, activeStoreId } = useAuth();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,6 +72,7 @@ const SalesPage = () => {
   // Modals
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [saleToAnular, setSaleToAnular] = useState<Sale | null>(null);
 
   useEffect(() => {
     if (activeStoreId) {
@@ -99,6 +101,30 @@ const SalesPage = () => {
     } catch {
       // Fallback: show sale without items detail
       setSelectedSale(sale);
+    }
+  };
+
+  const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
+
+  const canAnular = (sale: Sale) =>
+    !!user && (isAdmin || user.id === sale.user_id);
+
+  const handleAnular = async (reason: string) => {
+    if (!saleToAnular || !user) return;
+    try {
+      await invoke('anular_venta', {
+        saleId: saleToAnular.id,
+        userId: user.id,
+        reason,
+      });
+      showNotification('success', 'Venta anulada', `La venta #${saleToAnular.id} fue anulada correctamente.`);
+      setSaleToAnular(null);
+      setSelectedSale(null);
+      loadSales();
+    } catch (error) {
+      const msg = typeof error === 'string' ? error : 'No se pudo anular la venta.';
+      showNotification('error', 'Error', msg);
+      throw error;
     }
   };
 
@@ -433,6 +459,8 @@ const SalesPage = () => {
           sales={paginatedSales}
           isLoading={isLoading}
           onViewDetail={handleViewDetail}
+          onAnular={setSaleToAnular}
+          canAnular={canAnular}
         />
 
         {/* Pagination */}
@@ -469,6 +497,12 @@ const SalesPage = () => {
       <SaleDetailModal
         sale={selectedSale}
         onClose={() => setSelectedSale(null)}
+      />
+
+      <AnularVentaModal
+        sale={saleToAnular}
+        onClose={() => setSaleToAnular(null)}
+        onConfirm={handleAnular}
       />
     </div>
   );

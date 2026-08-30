@@ -1,6 +1,7 @@
 use crate::commands::auth::AppState;
 use crate::models::sales::{
-    CreateOrderItemPayload, CreateOrderPayload, OrderItemExport, Sale, SaleDetail,
+    AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, ItemAnuladoExport,
+    OrderItemExport, Sale, SaleDetail, VentaAnuladaExport,
 };
 use tauri::State;
 
@@ -55,4 +56,36 @@ pub async fn get_all_order_items(
     store_id: i64,
 ) -> Result<Vec<OrderItemExport>, String> {
     state.sales_service.get_all_order_items(store_id).await
+}
+
+/// Anula una venta: la borra fisicamente (orders + order_items) y registra la
+/// justificacion y los items eliminados para auditoria y sincronizacion.
+/// Solo en Replica/Hybrid; en Primary las ventas solo llegan por sync.
+#[tauri::command]
+pub async fn anular_venta(
+    state: State<'_, AppState>,
+    sale_id: i64,
+    user_id: i64,
+    reason: String,
+) -> Result<AnulacionResult, String> {
+    state.config_service.reject_in_primary().await?;
+    state.sales_service.anular_venta(sale_id, user_id, reason).await
+}
+
+/// Listado de ventas anuladas (historial).
+#[tauri::command]
+pub async fn get_anulaciones(
+    state: State<'_, AppState>,
+    store_id: i64,
+) -> Result<Vec<VentaAnuladaExport>, String> {
+    state.sales_service.get_anulaciones(store_id).await
+}
+
+/// Items anulados (detalle/export CSV).
+#[tauri::command]
+pub async fn get_all_items_anulados(
+    state: State<'_, AppState>,
+    store_id: i64,
+) -> Result<Vec<ItemAnuladoExport>, String> {
+    state.sales_service.get_all_items_anulados(store_id).await
 }

@@ -1,4 +1,4 @@
-import { Eye, ShoppingBag } from 'lucide-react';
+import { Eye, ShoppingBag, XCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { Sale } from '../modals/SaleDetailModal';
 
@@ -6,6 +6,8 @@ interface SalesTableProps {
   sales: Sale[];
   isLoading: boolean;
   onViewDetail: (sale: Sale) => void;
+  onAnular: (sale: Sale) => void;
+  canAnular: (sale: Sale) => boolean;
 }
 
 const paymentMethodLabel = (method: string) => {
@@ -31,7 +33,7 @@ const formatDate = (dateStr: string) => {
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-const SalesTable = ({ sales, isLoading, onViewDetail }: SalesTableProps) => {
+const SalesTable = ({ sales, isLoading, onViewDetail, onAnular, canAnular }: SalesTableProps) => {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -90,13 +92,25 @@ const SalesTable = ({ sales, isLoading, onViewDetail }: SalesTableProps) => {
                   <span className="font-bold text-gray-900">S/ {sale.total.toFixed(2)}</span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => onViewDetail(sale)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    Detalles
-                  </button>
+                  <div className="flex items-center justify-end gap-1.5">
+                    {canAnular(sale) && (
+                      <button
+                        onClick={() => onAnular(sale)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                        title="Anular venta"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        Anular
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onViewDetail(sale)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      Detalles
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))

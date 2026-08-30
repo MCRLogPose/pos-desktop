@@ -96,7 +96,10 @@ impl InventoryService {
             .map_err(|e| e.to_string())
     }
 
-    pub async fn delete_product(&self, id: i64) -> Result<(), String> {
+    pub async fn delete_product(&self, id: i64, user_id: i64) -> Result<(), String> {
+        if !self.inventory_repo.user_is_admin(user_id).await.map_err(|e| e.to_string())? {
+            return Err("solo un ADMIN puede eliminar un producto de inventario".into());
+        }
         self.inventory_repo
             .soft_delete_product(id)
             .await

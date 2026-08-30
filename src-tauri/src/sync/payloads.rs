@@ -91,9 +91,7 @@ pub struct StockMovementSync {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PurchasesBatch {
     pub purchase_orders: Vec<PurchaseOrderSync>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+}#[derive(Debug, Serialize, Deserialize)]
 pub struct PurchaseOrderSync {
     pub sync_uuid: String,
     pub local_purchase_order_id: i64,
@@ -126,7 +124,6 @@ pub struct CashBatch {
     pub expenses: Vec<ExpenseSync>,
     pub incomes: Vec<OtherIncomeSync>,
 }
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CashSessionSync {
     pub sync_uuid: String,
@@ -199,4 +196,35 @@ pub struct UserSync {
     pub role_name: Option<String>,
     pub is_active: bool,
     pub created_at: Option<String>,
+}
+
+// ───────────────────────── ANULACIONES ───────────────────────
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AnulacionesBatch {
+    pub anulaciones: Vec<VentaAnuladaSync>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VentaAnuladaSync {
+    pub sync_uuid: String,
+    pub local_anulacion_id: i64,
+    pub order_id: Option<i64>,
+    pub seller_username: Option<String>,
+    pub reason: String,
+    pub payment_method: String,
+    pub subtotal: f64,
+    pub igv: f64,
+    pub total: f64,
+    pub cancelled_at: String,
+    pub items: Vec<ItemAnuladoSync>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ItemAnuladoSync {
+    pub product_code: Option<String>,
+    pub product_name: String,
+    pub unit_price: f64,
+    pub quantity: i64,
+    pub subtotal: f64,
 }

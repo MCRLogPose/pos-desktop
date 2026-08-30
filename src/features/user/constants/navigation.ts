@@ -7,7 +7,8 @@ import {
     Settings, 
     Store, 
     ClipboardList,
-    Receipt 
+    Receipt,
+    XCircle
 } from 'lucide-react';
 
 type OperatingMode = 'primary' | 'replica' | 'hybrid';
@@ -22,6 +23,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: ShoppingCart, label: 'Punta de Venta', path: '/pos' },
     { icon: ClipboardList, label: 'Ventas', path: '/sales' },
+    { icon: XCircle, label: 'Anulados', path: '/anulados' },
     { icon: Package, label: 'Inventario', path: '/inventory' },
     { icon: Receipt, label: 'Gastos', path: '/expenses' },
     { icon: DollarSign, label: 'Finanzas', path: '/finance' },
@@ -38,11 +40,11 @@ const ALL_NAV_ITEMS: NavItem[] = [
 // Hybrid: Todo (modo de pruebas local).
 const MODE_VISIBILITY: Record<OperatingMode, string[]> = {
     primary: [
-        '/dashboard', '/sales', '/inventory', '/expenses', '/finance',
+        '/dashboard', '/sales', '/anulados', '/inventory', '/expenses', '/finance',
         '/reports', '/stores', '/settings',
     ],
     replica: [
-        '/dashboard', '/pos', '/sales', '/inventory', '/finance',
+        '/dashboard', '/pos', '/sales', '/anulados', '/inventory', '/finance',
         '/stores', '/settings',
     ],
     hybrid: ALL_NAV_ITEMS.map((item) => item.path),

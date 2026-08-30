@@ -101,7 +101,7 @@ pub async fn update_product(
 }
 
 #[tauri::command]
-pub async fn delete_product(state: State<'_, AppState>, id: i64) -> Result<(), String> {
+pub async fn delete_product(state: State<'_, AppState>, id: i64, user_id: i64) -> Result<(), String> {
     state.config_service.reject_in_primary().await?;
-    state.inventory_service.delete_product(id).await
+    state.inventory_service.delete_product(id, user_id).await
 }

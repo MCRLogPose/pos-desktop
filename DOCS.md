@@ -416,7 +416,7 @@ Añade columnas `store_id` a tablas existentes y establece valor por defecto (ti
 | `get_products`     | store_id                                            | `Vec<ProductWithCategory>`  |
 | `create_product`   | code, name, category_id, price, cost, stock, unit, image_url, store_id | `i64`   |
 | `update_product`   | id, code, name, category_id, price, cost, stock, unit, image_url, store_id | `()` |
-| `delete_product`   | id                                                  | `()`                        |
+| `delete_product`   | id, user_id                                          | `()`                        |
 
 ### sales (4 comandos)
 

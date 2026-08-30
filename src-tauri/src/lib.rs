@@ -143,6 +143,9 @@ pub fn run() {
             commands::sales::get_sales,
             commands::sales::get_sale_detail,
             commands::sales::get_all_order_items,
+            commands::sales::anular_venta,
+            commands::sales::get_anulaciones,
+            commands::sales::get_all_items_anulados,
             // Cash
             commands::cash::get_active_cash_session,
             commands::cash::get_last_closed_cash_session,

@@ -133,6 +133,19 @@ impl InventoryRepository {
         Ok(())
     }
 
+    /// Devuelve true si el usuario tiene cargo ADMIN.
+    pub async fn user_is_admin(&self, user_id: i64) -> Result<bool, sqlx::Error> {
+        let cargo: Option<String> =
+            sqlx::query_scalar("SELECT cargo FROM users WHERE id = ?")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?;
+        Ok(cargo
+            .as_deref()
+            .map(|c| c.eq_ignore_ascii_case("ADMIN"))
+            .unwrap_or(false))
+    }
+
     pub async fn find_by_code(
         &self,
         code: &str,

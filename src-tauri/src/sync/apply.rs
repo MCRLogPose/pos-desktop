@@ -1,7 +1,7 @@
 use super::payloads::{
-    CashBatch, CashSessionSync, CatalogBatch, CategorySync, ExpenseSync, InventoryBatch,
-    OtherIncomeSync, ProductUpsertSync, PurchaseOrderSync, PurchasesBatch, SaleSync, SalesBatch,
-    StockMovementSync, StoreSync, UserSync,
+    AnulacionesBatch, CashBatch, CashSessionSync, CatalogBatch, CategorySync, ExpenseSync,
+    InventoryBatch, OtherIncomeSync, ProductUpsertSync, PurchaseOrderSync, PurchasesBatch,
+    SaleSync, SalesBatch, StockMovementSync, StoreSync, UserSync, VentaAnuladaSync,
 };
 use super::SyncItemAck;
 use sqlx::{Row, Sqlite, SqlitePool, Transaction};
@@ -857,6 +857,90 @@ async fn upsert_user(tx: &mut Tx, u: &UserSync) -> Result<SyncItemAck, String> {
         .map_err(|e| format!("no se pudo crear el usuario '{}': {e}", u.username))?;
     let id = last_insert_rowid(tx).await.ok_or("sin id de usuario")?;
     Ok(SyncItemAck::accepted(&u.sync_uuid, Some(id)))
+}
+
+pub async fn apply_anulaciones_batch(
+    pool: &SqlitePool,
+    batch: &AnulacionesBatch,
+    device_id: &str,
+    store_code: Option<&str>,
+) -> Vec<SyncItemAck> {
+    let mut acks = Vec::with_capacity(batch.anulaciones.len());
+    for a in &batch.anulaciones {
+        let sc = store_code.map(str::to_string);
+        let ack = with_txn!(pool, a.sync_uuid, |tx| apply_one_anulacion(
+            tx, a, device_id, sc.as_deref()
+        ));
+        acks.push(ack);
+    }
+    acks
+}
+
+async fn apply_one_anulacion(
+    tx: &mut Tx,
+    a: &VentaAnuladaSync,
+    device_id: &str,
+    store_code: Option<&str>,
+) -> Result<SyncItemAck, String> {
+    if !claim_append_item(tx, &a.sync_uuid, "anulaciones", device_id).await? {
+        return Ok(SyncItemAck::duplicate(a.sync_uuid.clone()));
+    }
+
+    let store_id = resolve_store_id_tx(tx, store_code)
+        .await
+        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+
+    // La anulacion la ejecuto un usuario en la replica; se vincula por username
+    // si existe, si no queda sin usuario (no es bloqueante).
+    let user_id: Option<i64> = match a.seller_username.as_deref() {
+        Some(u) => resolve_user_id(tx, u, Some(store_id)).await,
+        None => None,
+    };
+
+    sqlx::query("INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)")
+        .bind(&a.sync_uuid)
+        .bind(a.order_id)
+        .bind(store_id)
+        .bind(user_id)
+        .bind(&a.reason)
+        .bind(&a.payment_method)
+        .bind(a.subtotal)
+        .bind(a.igv)
+        .bind(a.total)
+        .bind(&a.cancelled_at)
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| format!("no se pudo registrar la anulacion: {e}"))?;
+    let anulacion_id = last_insert_rowid(tx)
+        .await
+        .ok_or("no se pudo leer el id de la anulacion")?;
+
+    for item in &a.items {
+        // Los productos nunca se eliminan: si no existe localmente en Primary
+        // se crea a partir del nombre/codigo para poder referenciarlo.
+        let product_id = resolve_or_create_product_id(
+            tx,
+            store_id,
+            item.product_code.as_deref(),
+            &item.product_name,
+            item.unit_price,
+            0.0,
+        )
+        .await?;
+        sqlx::query("INSERT INTO items_anulados (uuid, venta_anulada_id, product_id, product_name, unit_price, quantity, subtotal) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)")
+            .bind(uuid::Uuid::new_v4().to_string())
+            .bind(anulacion_id)
+            .bind(product_id)
+            .bind(&item.product_name)
+            .bind(item.unit_price)
+            .bind(item.quantity)
+            .bind(item.subtotal)
+            .execute(&mut **tx)
+            .await
+            .map_err(|e| format!("no se pudo registrar el item anulado '{}': {e}", item.product_name))?;
+    }
+
+    Ok(SyncItemAck::accepted(&a.sync_uuid, Some(anulacion_id)))
 }
 
 

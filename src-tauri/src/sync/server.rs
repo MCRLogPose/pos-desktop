@@ -1,6 +1,6 @@
 use super::apply;
 use super::payloads::{
-    CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch,
+    AnulacionesBatch, CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch,
 };
 use super::{SyncEnvelope, SyncItemAck, SyncResponse, SyncTopic, SYNC_SCHEMA_VERSION};
 use axum::extract::{Json, Request, State};
@@ -103,13 +103,22 @@ impl SyncBatch for CatalogBatch {
     }
 }
 
+impl SyncBatch for AnulacionesBatch {
+    fn item_uuids(&self) -> Vec<String> {
+        self.anulaciones
+            .iter()
+            .map(|a| a.sync_uuid.clone())
+            .collect()
+    }
+}
+
 async fn health(State(pool): State<SqlitePool>) -> Json<serde_json::Value> {
     let db_ok = sqlx::query("SELECT 1").fetch_optional(&pool).await.is_ok();
     Json(json!({
         "status": if db_ok { "ok" } else { "degraded" },
         "service": "vestikpos-sync",
         "schema_version": SYNC_SCHEMA_VERSION,
-        "topics": ["sales", "inventory", "purchases", "cash", "catalog"]
+        "topics": ["sales", "inventory", "purchases", "cash", "catalog", "anulaciones"]
     }))
 }
 
@@ -221,6 +230,7 @@ sync_endpoint!(sync_inventory, InventoryBatch, SyncTopic::Inventory, apply::appl
 sync_endpoint!(sync_purchases, PurchasesBatch, SyncTopic::Purchases, apply::apply_purchases_batch);
 sync_endpoint!(sync_cash, CashBatch, SyncTopic::Cash, apply::apply_cash_batch);
 sync_endpoint!(sync_catalog, CatalogBatch, SyncTopic::Catalog, apply::apply_catalog_batch);
+sync_endpoint!(sync_anulaciones, AnulacionesBatch, SyncTopic::Anulaciones, apply::apply_anulaciones_batch);
 
 pub async fn run_server(pool: SqlitePool, port: u16, sync_token: String) -> Result<(), String> {
     let app = Router::new()
@@ -230,6 +240,7 @@ pub async fn run_server(pool: SqlitePool, port: u16, sync_token: String) -> Resu
         .route("/sync/purchases", post(sync_purchases))
         .route("/sync/cash", post(sync_cash))
         .route("/sync/catalog", post(sync_catalog))
+        .route("/sync/anulaciones", post(sync_anulaciones))
         .with_state(pool)
         .layer(middleware::from_fn_with_state(
             SyncToken(Arc::new(sync_token)),

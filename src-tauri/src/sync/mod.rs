@@ -16,6 +16,7 @@ pub enum SyncTopic {
     Purchases,
     Cash,
     Catalog,
+    Anulaciones,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

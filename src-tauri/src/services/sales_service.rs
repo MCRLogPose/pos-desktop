@@ -1,4 +1,7 @@
-use crate::models::sales::{CreateOrderPayload, OrderItemExport, Sale, SaleDetail};
+use crate::models::sales::{
+    AnulacionResult, CreateOrderPayload, ItemAnuladoExport, OrderItemExport, Sale, SaleDetail,
+    VentaAnuladaExport,
+};
 use crate::repositories::sales_repo::SalesRepository;
 use sqlx::SqlitePool;
 
@@ -39,6 +42,35 @@ impl SalesService {
     pub async fn get_all_order_items(&self, store_id: i64) -> Result<Vec<OrderItemExport>, String> {
         self.sales_repo
             .get_all_order_items(store_id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn anular_venta(
+        &self,
+        sale_id: i64,
+        requester_user_id: i64,
+        reason: String,
+    ) -> Result<AnulacionResult, String> {
+        self.sales_repo
+            .anular_venta(sale_id, requester_user_id, reason)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn get_anulaciones(&self, store_id: i64) -> Result<Vec<VentaAnuladaExport>, String> {
+        self.sales_repo
+            .get_anulaciones(store_id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn get_all_items_anulados(
+        &self,
+        store_id: i64,
+    ) -> Result<Vec<ItemAnuladoExport>, String> {
+        self.sales_repo
+            .get_all_items_anulados(store_id)
             .await
             .map_err(|e| e.to_string())
     }

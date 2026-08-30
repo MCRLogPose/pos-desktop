@@ -5,6 +5,7 @@ import { useNotification } from '@/context/NotificationContext';
 import ProductModal from '../components/modals/ProductModal';
 import CategoryModal from '../components/modals/CategoryModal';
 import AddStockModal from '../components/modals/AddStockModal';
+import DeleteProductModal from '../components/modals/DeleteProductModal';
 import { useAuth } from '@/context/AuthContext';
 import InventoryTable, { type Product } from '../components/tables/InventoryTable';
 
@@ -15,7 +16,7 @@ interface Category {
 
 const InventoryPage = () => {
   const { showNotification } = useNotification();
-  const { activeStoreId } = useAuth();
+  const { activeStoreId, user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState('');
@@ -24,6 +25,7 @@ const InventoryPage = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   // Pagination (Client-side for now)
@@ -67,16 +69,22 @@ const InventoryPage = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-    if (!activeStoreId) return;
+  const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
+
+  const handleDelete = (product: Product) => {
+    setProductToDelete(product);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete || !user) return;
     try {
-      await invoke('delete_product', { id });
-      showNotification('success', 'Éxito', 'Producto eliminado correctamente');
+      await invoke('delete_product', { id: productToDelete.id, userId: user.id });
+      showNotification('success', 'Éxito', `Producto "${productToDelete.name}" eliminado`);
+      setProductToDelete(null);
       loadProducts();
     } catch (error) {
       console.error(error);
-      showNotification('error', 'Error', 'Error al eliminar producto');
+      showNotification('error', 'Error', 'Error al eliminar el producto');
     }
   };
 
@@ -170,7 +178,7 @@ const InventoryPage = () => {
         <InventoryTable
           products={paginatedProducts}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={isAdmin ? handleDelete : undefined}
         />
 
         {/* Pagination */}
@@ -226,6 +234,12 @@ const InventoryPage = () => {
         onSubmit={loadProducts}
         products={products}
         storeId={activeStoreId}
+      />
+
+      <DeleteProductModal
+        product={productToDelete}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={confirmDeleteProduct}
       />
     </div>
   );
