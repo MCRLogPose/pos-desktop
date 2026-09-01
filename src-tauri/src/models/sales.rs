@@ -47,6 +47,7 @@ pub struct Sale {
     pub igv: f64,
     pub total: f64,
     pub store_id: i64,
+    pub cash_session_id: Option<i64>,
     pub created_at: String,
 }
 

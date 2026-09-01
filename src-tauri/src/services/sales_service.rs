@@ -51,9 +51,10 @@ impl SalesService {
         sale_id: i64,
         requester_user_id: i64,
         reason: String,
+        active_cash_session_id: Option<i64>,
     ) -> Result<AnulacionResult, String> {
         self.sales_repo
-            .anular_venta(sale_id, requester_user_id, reason)
+            .anular_venta(sale_id, requester_user_id, reason, active_cash_session_id)
             .await
             .map_err(|e| e.to_string())
     }

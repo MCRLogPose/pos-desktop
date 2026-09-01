@@ -67,9 +67,10 @@ pub async fn anular_venta(
     sale_id: i64,
     user_id: i64,
     reason: String,
+    cash_session_id: Option<i64>,
 ) -> Result<AnulacionResult, String> {
     state.config_service.reject_in_primary().await?;
-    state.sales_service.anular_venta(sale_id, user_id, reason).await
+    state.sales_service.anular_venta(sale_id, user_id, reason, cash_session_id).await
 }
 
 /// Listado de ventas anuladas (historial).

@@ -65,7 +65,7 @@ const SalesTable = ({ sales, isLoading, onViewDetail, onAnular, canAnular }: Sal
                     <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
                       <ShoppingBag className="w-4 h-4 text-indigo-600" />
                     </div>
-                    <span className="font-semibold text-gray-900">#{sale.id}</span>
+                    <span className="font-semibold text-gray-900">#{sale.displayNumber ?? sale.id}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

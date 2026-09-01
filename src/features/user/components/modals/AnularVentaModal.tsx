@@ -41,7 +41,7 @@ const AnularVentaModal = ({ sale, onClose, onConfirm }: AnularVentaModalProps) =
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Anular venta #{sale.id}</h2>
+              <h2 className="text-lg font-bold text-gray-900">Anular venta #{sale.displayNumber ?? sale.id}</h2>
               <p className="text-xs text-gray-500">
                 Total: S/ {sale.total.toFixed(2)} · {new Date(sale.created_at).toLocaleString('es-PE')}
               </p>

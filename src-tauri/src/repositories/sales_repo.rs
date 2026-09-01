@@ -111,6 +111,7 @@ impl SalesRepository {
                 CAST(o.igv AS REAL) AS igv,
                 CAST(o.total AS REAL) AS total,
                 o.store_id,
+                o.cash_session_id,
                 o.created_at
             FROM orders o
             LEFT JOIN users u ON u.id = o.user_id
@@ -139,6 +140,7 @@ impl SalesRepository {
                 CAST(o.igv AS REAL) AS igv,
                 CAST(o.total AS REAL) AS total,
                 o.store_id,
+                o.cash_session_id,
                 o.created_at
             FROM orders o
             LEFT JOIN users u ON u.id = o.user_id
@@ -215,6 +217,7 @@ impl SalesRepository {
         sale_id: i64,
         requester_user_id: i64,
         reason: String,
+        active_cash_session_id: Option<i64>,
     ) -> Result<AnulacionResult, sqlx::Error> {
         if reason.trim().is_empty() {
             return Err(sqlx::Error::Protocol(
@@ -260,7 +263,24 @@ impl SalesRepository {
             ));
         }
 
-        // 3. Permiso: ADMIN o el vendedor que creo la venta
+        // 3. La venta debe pertenecer a la sesion de caja activa (turno actual)
+        if let Some(active_session_id) = active_cash_session_id {
+            match order.cash_session_id {
+                Some(session_id) if session_id != active_session_id => {
+                    return Err(sqlx::Error::Protocol(
+                        "esta venta pertenece a otro turno y no puede anularse desde aqui".into(),
+                    ));
+                }
+                None => {
+                    return Err(sqlx::Error::Protocol(
+                        "esta venta no esta asociada a ninguna sesion de caja".into(),
+                    ));
+                }
+                _ => {} // matches
+            }
+        }
+
+        // 4. Permiso: ADMIN o el vendedor que creo la venta
         let requester_cargo: Option<String> = sqlx::query_scalar(
             "SELECT cargo FROM users WHERE id = ?",
         )
@@ -279,7 +299,7 @@ impl SalesRepository {
             ));
         }
 
-        // 4. Cargar los items antes de borrarlos
+        // 5. Cargar los items antes de borrarlos
         #[derive(sqlx::FromRow)]
         struct ItemRow {
             product_id: i64,
@@ -297,7 +317,7 @@ impl SalesRepository {
         .fetch_all(&mut *tx)
         .await?;
 
-        // 5. Registrar la anulacion (cabecera)
+        // 6. Registrar la anulacion (cabecera)
         let venta_anulada_id = sqlx::query(
             r#"
             INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at)
@@ -317,7 +337,7 @@ impl SalesRepository {
         .await?
         .last_insert_rowid();
 
-        // 6. Registrar los items eliminados + revertir stock
+        // 7. Registrar los items eliminados + revertir stock
         for item in &items {
             sqlx::query(
                 r#"
@@ -343,7 +363,7 @@ impl SalesRepository {
                 .await?;
         }
 
-        // 7. Revertir esperados de caja si la venta estaba asociada a una sesion
+        // 8. Revertir esperados de caja si la venta estaba asociada a una sesion
         if let Some(cash_session_id) = order.cash_session_id {
             let col = if order.payment_method == "cash" {
                 "expected_closing_cash"
@@ -359,7 +379,7 @@ impl SalesRepository {
             .await?;
         }
 
-        // 8. Borrar items y la orden (FK CASCADE refuerza order_items)
+        // 9. Borrar items y la orden (FK CASCADE refuerza order_items)
         sqlx::query("DELETE FROM order_items WHERE order_id = ?")
             .bind(order.id)
             .execute(&mut *tx)

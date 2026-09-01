@@ -22,6 +22,8 @@ interface Sale {
   igv: number;
   total: number;
   created_at: string;
+  cash_session_id?: number | null;
+  displayNumber?: number;
   items?: SaleItem[];
 }
 
@@ -70,7 +72,7 @@ const SaleDetailModal = ({ sale, onClose }: SaleDetailModalProps) => {
               <FileText className="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Venta #{sale.id}</h2>
+              <h2 className="text-lg font-bold text-gray-900">Venta #{sale.displayNumber ?? sale.id}</h2>
               <p className="text-xs text-gray-500">{formatDateTime(sale.created_at)}</p>
             </div>
           </div>

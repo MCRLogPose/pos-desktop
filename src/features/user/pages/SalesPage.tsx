@@ -10,6 +10,7 @@ import ExportModal, { type ExportFormat } from '../components/modals/ExportModal
 import SaleDetailModal, { type Sale } from '../components/modals/SaleDetailModal';
 import AnularVentaModal from '../components/modals/AnularVentaModal';
 import { useAuth } from '@/context/AuthContext';
+import { useCash } from '@/context/CashContext';
 import SalesTable from '../components/tables/SalesTable';
 
 // ─── Types ────────────────────────────────────────────────────
@@ -50,6 +51,7 @@ const formatDateTime = (dateStr: string) => {
 const SalesPage = () => {
   const { showNotification } = useNotification();
   const { user, activeStoreId } = useAuth();
+  const { activeSession } = useCash();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -97,7 +99,7 @@ const SalesPage = () => {
   const handleViewDetail = async (sale: Sale) => {
     try {
       const detailed = await invoke<Sale>('get_sale_detail', { saleId: sale.id });
-      setSelectedSale(detailed);
+      setSelectedSale({ ...detailed, displayNumber: sale.displayNumber });
     } catch {
       // Fallback: show sale without items detail
       setSelectedSale(sale);
@@ -106,8 +108,12 @@ const SalesPage = () => {
 
   const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
 
+  // Solo se puede anular una venta si esta dentro del turno (sesion de caja) activo.
   const canAnular = (sale: Sale) =>
-    !!user && (isAdmin || user.id === sale.user_id);
+    !!user &&
+    (isAdmin || user.id === sale.user_id) &&
+    !!activeSession &&
+    sale.cash_session_id === activeSession.id;
 
   const handleAnular = async (reason: string) => {
     if (!saleToAnular || !user) return;
@@ -116,6 +122,7 @@ const SalesPage = () => {
         saleId: saleToAnular.id,
         userId: user.id,
         reason,
+        cashSessionId: activeSession?.id ?? null,
       });
       showNotification('success', 'Venta anulada', `La venta #${saleToAnular.id} fue anulada correctamente.`);
       setSaleToAnular(null);
@@ -191,9 +198,9 @@ const SalesPage = () => {
 
   const exportOrdersCSV = () => {
     try {
-      const headers = ['ID', 'Fecha', 'Cliente', 'Documento', 'Teléfono', 'Método de Pago', 'Subtotal', 'IGV', 'Total'];
+      const headers = ['N°', 'Fecha', 'Cliente', 'Documento', 'Teléfono', 'Método de Pago', 'Subtotal', 'IGV', 'Total'];
       const rows = filteredSales.map(s => [
-        s.id,
+        s.displayNumber ?? s.id,
         formatDateTime(s.created_at),
         s.client_name || '',
         s.client_document || '',
@@ -221,11 +228,23 @@ const SalesPage = () => {
   };
 
   // ─── Filter & Sort Logic ──────────────────────────────────
+  // Numeracion consecutiva solo para la UI (independiente del id real de DB,
+  // que deja huecos al anular ventas). Se asigna por orden cronologico sobre
+  // todas las ventas del dia, para que sea estable ante filtros/ordenacion.
+  const salesWithDisplayNumber = useMemo(() => {
+    const byCreatedAt = [...sales].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    const indexByKey = new Map<number, number>();
+    byCreatedAt.forEach((s, idx) => indexByKey.set(s.id, idx + 1));
+    return sales.map(s => ({ ...s, displayNumber: indexByKey.get(s.id) ?? 0 }));
+  }, [sales]);
+
   const filteredSales = useMemo(() => {
-    let result = sales.filter(s => {
+    let result = salesWithDisplayNumber.filter(s => {
       const searchLower = search.toLowerCase();
       const matchSearch = !search
-        || String(s.id).includes(searchLower)
+        || String(s.displayNumber ?? s.id).includes(searchLower)
         || (s.client_name?.toLowerCase().includes(searchLower))
         || (s.client_document?.toLowerCase().includes(searchLower))
         || (s.client_phone?.toLowerCase().includes(searchLower));
@@ -250,7 +269,7 @@ const SalesPage = () => {
     });
 
     return result;
-  }, [sales, search, filterPayment, dateFrom, dateTo, sortField, sortDir]);
+  }, [salesWithDisplayNumber, search, filterPayment, dateFrom, dateTo, sortField, sortDir]);
 
   const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
   const paginatedSales = filteredSales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
