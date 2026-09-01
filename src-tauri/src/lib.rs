@@ -146,6 +146,7 @@ pub fn run() {
             commands::sales::create_sale,
             commands::sales::get_sales,
             commands::sales::get_sale_detail,
+            commands::sales::get_session_payment_summary,
             commands::sales::get_all_order_items,
             commands::sales::anular_venta,
             commands::sales::get_anulaciones,

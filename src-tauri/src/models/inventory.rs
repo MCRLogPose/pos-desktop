@@ -23,6 +23,8 @@ pub struct Product {
     pub is_active: bool,
     pub store_id: Option<i64>,
     pub created_at: Option<NaiveDateTime>,
+    pub supplier_name: Option<String>,
+    pub created_by: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]
@@ -41,4 +43,6 @@ pub struct ProductWithCategory {
     pub is_active: bool,
     pub store_id: Option<i64>,
     pub created_at: Option<NaiveDateTime>,
+    pub supplier_name: Option<String>,
+    pub created_by_name: Option<String>,
 }

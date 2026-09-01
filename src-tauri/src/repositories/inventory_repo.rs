@@ -72,9 +72,11 @@ impl InventoryRepository {
         let sql = r#"
             SELECT 
                 p.id, p.code, p.name, p.category_id, c.name as category_name,
-                p.price, p.cost, p.stock, p.min_stock, p.unit, p.image_url, p.is_active, p.store_id, p.created_at
+                p.price, p.cost, p.stock, p.min_stock, p.unit, p.image_url, p.is_active, p.store_id, p.created_at,
+                p.supplier_name, u.username as created_by_name
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN users u ON p.created_by = u.id
             WHERE p.is_active = 1 AND p.store_id = ?
             ORDER BY p.name ASC
         "#;
@@ -95,9 +97,11 @@ impl InventoryRepository {
         unit: Option<&str>,
         image_url: Option<&str>,
         store_id: i64,
+        supplier_name: Option<&str>,
+        created_by: Option<i64>,
     ) -> Result<i64, sqlx::Error> {
         let result = sqlx::query(
-            "INSERT INTO products (code, name, category_id, price, cost, stock, unit, image_url, store_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO products (code, name, category_id, price, cost, stock, unit, image_url, store_id, supplier_name, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(code)
         .bind(name)
@@ -108,6 +112,8 @@ impl InventoryRepository {
         .bind(unit)
         .bind(image_url)
         .bind(store_id)
+        .bind(supplier_name)
+        .bind(created_by)
         .execute(&self.pool)
         .await?;
 
@@ -135,9 +141,11 @@ impl InventoryRepository {
         unit: Option<&str>,
         image_url: Option<&str>,
         store_id: i64,
+        supplier_name: Option<&str>,
+        created_by: Option<i64>,
     ) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "UPDATE products SET code=?, name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=? WHERE id=?"
+            "UPDATE products SET code=?, name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=?, supplier_name=COALESCE(?, supplier_name), created_by=COALESCE(?, created_by) WHERE id=?"
         )
         .bind(code)
         .bind(name)
@@ -148,6 +156,8 @@ impl InventoryRepository {
         .bind(unit)
         .bind(image_url)
         .bind(store_id)
+        .bind(supplier_name)
+        .bind(created_by)
         .bind(id)
         .execute(&self.pool)
         .await?;
@@ -235,15 +245,32 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
         Option<String>,
         Option<String>,
         bool,
+        Option<String>,
+        Option<String>,
     )> = sqlx::query_as(
-        "SELECT p.uuid, p.code, p.name, c.name, p.price, p.cost, p.min_stock, p.unit, p.image_url, p.is_active
+        "SELECT p.uuid, p.code, p.name, c.name, p.price, p.cost, p.min_stock, p.unit, p.image_url, p.is_active,
+                p.supplier_name, u.username
          FROM products p LEFT JOIN categories c ON p.category_id = c.id
+         LEFT JOIN users u ON p.created_by = u.id
          WHERE p.id = ?",
     )
     .bind(id)
     .fetch_optional(pool)
     .await?;
-    let Some((sync_uuid, code, name, category_name, price, cost, min_stock, unit, image_url, is_active)) = row
+    let Some((
+        sync_uuid,
+        code,
+        name,
+        category_name,
+        price,
+        cost,
+        min_stock,
+        unit,
+        image_url,
+        is_active,
+        supplier_name,
+        created_by_username,
+    )) = row
     else {
         return Ok(());
     };
@@ -265,6 +292,8 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
                 unit,
                 image_url,
                 is_active,
+                supplier_name,
+                created_by_username,
                 occurred_at: chrono::Local::now().to_rfc3339(),
             },
         )

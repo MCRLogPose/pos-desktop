@@ -79,6 +79,10 @@ pub struct ProductUpsertSync {
     pub unit: Option<String>,
     pub image_url: Option<String>,
     pub is_active: bool,
+    #[serde(default)]
+    pub supplier_name: Option<String>,
+    #[serde(default)]
+    pub created_by_username: Option<String>,
     pub occurred_at: String,
 }
 

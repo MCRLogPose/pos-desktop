@@ -380,6 +380,11 @@ async fn upsert_product(
         None => None,
     };
 
+    let created_by = match p.created_by_username.as_deref() {
+        Some(username) => resolve_user_id(tx, username, Some(store_id)).await,
+        None => None,
+    };
+
     let existing = match p.code.as_deref() {
         Some(code) => sqlx::query(
             "SELECT id FROM products WHERE store_id = ?1 AND code = ?2 LIMIT 1",
@@ -395,7 +400,7 @@ async fn upsert_product(
     let existing = existing.or(resolve_product_id(tx, store_id, None, &p.name).await);
 
     if let Some(id) = existing {
-        sqlx::query("UPDATE products SET name = ?1, category_id = ?2, price = ?3, cost = ?4, min_stock = ?5, unit = ?6, image_url = ?7, is_active = ?8, uuid = COALESCE(uuid, ?9) WHERE id = ?10")
+        sqlx::query("UPDATE products SET name = ?1, category_id = ?2, price = ?3, cost = ?4, min_stock = ?5, unit = ?6, image_url = ?7, is_active = ?8, uuid = COALESCE(uuid, ?9), supplier_name = COALESCE(?10, supplier_name), created_by = COALESCE(?11, created_by) WHERE id = ?12")
             .bind(&p.name)
             .bind(category_id)
             .bind(p.price)
@@ -405,6 +410,8 @@ async fn upsert_product(
             .bind(&p.image_url)
             .bind(p.is_active)
             .bind(&p.sync_uuid)
+            .bind(&p.supplier_name)
+            .bind(created_by)
             .bind(id)
             .execute(&mut **tx)
             .await
@@ -412,7 +419,7 @@ async fn upsert_product(
         return Ok(SyncItemAck::accepted(&p.sync_uuid, Some(id)));
     }
 
-    sqlx::query("INSERT INTO products (code, name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12)")
+    sqlx::query("INSERT INTO products (code, name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)")
         .bind(&p.code)
         .bind(&p.name)
         .bind(category_id)
@@ -425,6 +432,8 @@ async fn upsert_product(
         .bind(store_id)
         .bind(&p.occurred_at)
         .bind(&p.sync_uuid)
+        .bind(&p.supplier_name)
+        .bind(created_by)
         .execute(&mut **tx)
         .await
         .map_err(|e| format!("no se pudo crear el producto '{}': {e}", p.name))?;

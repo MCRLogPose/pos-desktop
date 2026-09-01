@@ -1,6 +1,6 @@
 use crate::models::sales::{
-    AnulacionResult, CreateOrderPayload, ItemAnuladoExport, OrderItemExport, Sale, SaleDetail,
-    VentaAnuladaExport,
+    AnulacionResult, CreateOrderPayload, ItemAnuladoExport, OrderItemExport, PaymentMethodTotal,
+    Sale, SaleDetail, VentaAnuladaExport,
 };
 use crate::repositories::sales_repo::SalesRepository;
 use sqlx::SqlitePool;
@@ -42,6 +42,16 @@ impl SalesService {
     pub async fn get_all_order_items(&self, store_id: i64) -> Result<Vec<OrderItemExport>, String> {
         self.sales_repo
             .get_all_order_items(store_id)
+            .await
+            .map_err(|e| e.to_string())
+    }
+
+    pub async fn get_session_payment_totals(
+        &self,
+        session_id: i64,
+    ) -> Result<Vec<PaymentMethodTotal>, String> {
+        self.sales_repo
+            .get_session_payment_totals(session_id)
             .await
             .map_err(|e| e.to_string())
     }

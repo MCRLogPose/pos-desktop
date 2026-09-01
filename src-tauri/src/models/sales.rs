@@ -78,6 +78,13 @@ pub struct OrderPayment {
     pub amount: f64,
 }
 
+/// Total por método de pago dentro de una sesión de caja (resumen de ventas).
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+pub struct PaymentMethodTotal {
+    pub payment_method: String,
+    pub amount: f64,
+}
+
 /// Full sale detail including its items and payment fractions.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SaleDetail {

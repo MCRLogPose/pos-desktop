@@ -59,9 +59,23 @@ impl InventoryService {
         unit: Option<&str>,
         image_url: Option<&str>,
         store_id: i64,
+        supplier_name: Option<&str>,
+        created_by: Option<i64>,
     ) -> Result<i64, String> {
         self.inventory_repo
-            .create_product(code, name, category_id, price, cost, stock, unit, image_url, store_id)
+            .create_product(
+                code,
+                name,
+                category_id,
+                price,
+                cost,
+                stock,
+                unit,
+                image_url,
+                store_id,
+                supplier_name,
+                created_by,
+            )
             .await
             .map_err(|e| e.to_string())
     }
@@ -78,6 +92,8 @@ impl InventoryService {
         unit: Option<&str>,
         image_url: Option<&str>,
         store_id: i64,
+        supplier_name: Option<&str>,
+        created_by: Option<i64>,
     ) -> Result<(), String> {
         self.inventory_repo
             .update_product(
@@ -91,6 +107,8 @@ impl InventoryService {
                 unit,
                 image_url,
                 store_id,
+                supplier_name,
+                created_by,
             )
             .await
             .map_err(|e| e.to_string())

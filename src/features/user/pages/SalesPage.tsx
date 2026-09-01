@@ -47,6 +47,12 @@ const formatDateTime = (dateStr: string) => {
   });
 };
 
+const todayStr = () => {
+  const d = new Date();
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 10);
+};
+
 // ─── Main Component ───────────────────────────────────────────
 const SalesPage = () => {
   const { showNotification } = useNotification();
@@ -58,8 +64,8 @@ const SalesPage = () => {
   // Filters
   const [search, setSearch] = useState('');
   const [filterPayment, setFilterPayment] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(todayStr());
+  const [dateTo, setDateTo] = useState(todayStr());
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   // Sorting

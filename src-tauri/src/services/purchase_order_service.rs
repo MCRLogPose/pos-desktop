@@ -77,6 +77,8 @@ impl PurchaseOrderService {
                         None,
                         item.image_url.as_deref(),
                         payload.store_id,
+                        payload.supplier_name.as_deref(),
+                        Some(payload.created_by),
                     )
                     .await
                     .map_err(|e| e.to_string())?;
@@ -95,6 +97,8 @@ impl PurchaseOrderService {
                         None,
                         item.image_url.as_deref(),
                         payload.store_id,
+                        payload.supplier_name.as_deref(),
+                        Some(payload.created_by),
                     )
                     .await
                     .map_err(|e| e.to_string())?;

@@ -3,6 +3,7 @@ import { Search, Plus, Filter, ArrowUpDown, Layers, PackagePlus } from 'lucide-r
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import ProductModal from '../components/modals/ProductModal';
+import ProductDetailModal from '../components/modals/ProductDetailModal';
 import CategoryModal from '../components/modals/CategoryModal';
 import AddStockModal from '../components/modals/AddStockModal';
 import DeleteProductModal from '../components/modals/DeleteProductModal';
@@ -27,6 +28,7 @@ const InventoryPage = () => {
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
 
   // Pagination (Client-side for now)
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,7 +51,7 @@ const InventoryPage = () => {
       // Compute status based on stock
       const computedData = data.map(p => ({
         ...p,
-        status: p.stock === 0 ? 'out_of_stock' : (p.stock <= (p.min_stock || 5) ? 'low_stock' : 'active') as any
+        status: (p.stock === 0 ? 'out_of_stock' : (p.stock <= (p.min_stock || 5) ? 'low_stock' : 'active')) as Product['status']
       }));
       setProducts(computedData);
     } catch (error) {
@@ -91,6 +93,10 @@ const InventoryPage = () => {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setIsProductModalOpen(true);
+  };
+
+  const handleView = (product: Product) => {
+    setViewingProduct(product);
   };
 
   const openNewProduct = () => {
@@ -177,7 +183,8 @@ const InventoryPage = () => {
         {/* Table */}
         <InventoryTable
           products={paginatedProducts}
-          onEdit={handleEdit}
+          onView={handleView}
+          onEdit={isAdmin ? handleEdit : undefined}
           onDelete={isAdmin ? handleDelete : undefined}
         />
 
@@ -240,6 +247,11 @@ const InventoryPage = () => {
         product={productToDelete}
         onClose={() => setProductToDelete(null)}
         onConfirm={confirmDeleteProduct}
+      />
+
+      <ProductDetailModal
+        product={viewingProduct}
+        onClose={() => setViewingProduct(null)}
       />
     </div>
   );

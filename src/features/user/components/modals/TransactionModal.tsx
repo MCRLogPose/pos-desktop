@@ -10,9 +10,10 @@ interface TransactionModalProps {
     onClose: () => void;
     type: 'income' | 'expense';
     storeId: number | null;
+    onSaved?: () => void;
 }
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, type, storeId }) => {
+const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, type, storeId, onSaved }) => {
     const { activeSession, refreshSession } = useCash();
     const { showNotification } = useNotification();
     const [amount, setAmount] = useState(0);
@@ -53,6 +54,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, ty
             );
             
             await refreshSession();
+            onSaved?.();
             onClose();
         } catch (error) {
             showNotification('error', 'Error', String(error));

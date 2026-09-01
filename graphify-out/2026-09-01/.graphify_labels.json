@@ -20,6 +20,7 @@
   "18": "Tauri Configuration",
   "19": "Desktop Schema Definitions",
   "20": "Windows Schema Definitions",
+  "21": "payloads.rs",
   "22": "Auth Commands",
   "23": "Checkout and POS Page",
   "24": "Desktop Schema Capabilities",
@@ -58,6 +59,7 @@
   "57": "Identifier",
   "58": "PermissionEntry",
   "59": "windows-schema.json",
+  "60": "user.rs",
   "61": "html2canvas Range Bounds",
   "62": "Tailwind Test Component",
   "63": "Login Form UI",
@@ -105,6 +107,7 @@
   "105": "ReportsPage.tsx",
   "106": "tsc_final_output.txt - TypeScript Errors",
   "107": "React + TypeScript + Vite",
+  "108": "navigation.ts",
   "109": "AGENTS.md - Graphify Agent Instructions",
   "110": "README.md - React TypeScript Vite Template",
   "111": "React Framework",
@@ -131,5 +134,8 @@
   "132": "5. Cambios en la Base de Datos",
   "133": "9. Seguridad",
   "134": "8. Flujo de Instalación",
-  "135": "GastosTable.tsx"
+  "135": "GastosTable.tsx",
+  "136": "FinancePage.tsx",
+  "137": "MainLayout.tsx",
+  "138": "react"
 }

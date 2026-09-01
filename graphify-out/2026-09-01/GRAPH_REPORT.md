@@ -1,16 +1,16 @@
 # Graph Report - pos-desktop  (2026-09-01)
 
 ## Corpus Check
-- 157 files · ~152,531 words
+- 161 files · ~154,973 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1489 nodes · 2556 edges · 133 communities (83 shown, 50 thin omitted)
+- 1511 nodes · 2612 edges · 139 communities (88 shown, 51 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `49839147`
+- Built from commit: `dd112b1f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,6 +36,7 @@
 - Tauri Configuration
 - Desktop Schema Definitions
 - Windows Schema Definitions
+- payloads.rs
 - Auth Commands
 - Checkout and POS Page
 - Desktop Schema Capabilities
@@ -73,6 +74,7 @@
 - Identifier
 - PermissionEntry
 - windows-schema.json
+- user.rs
 - html2canvas Range Bounds
 - Settings Page
 - Android Chrome Icon
@@ -106,6 +108,7 @@
 - ReportsPage.tsx
 - tsc_final_output.txt - TypeScript Errors
 - React + TypeScript + Vite
+- navigation.ts
 - AGENTS.md - Graphify Agent Instructions
 - README.md - React TypeScript Vite Template
 - React Framework
@@ -133,9 +136,12 @@
 - 9. Seguridad
 - 8. Flujo de Instalación
 - GastosTable.tsx
+- FinancePage.tsx
+- MainLayout.tsx
+- react
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 69 edges
+1. `AppState` - 70 edges
 2. `SyncItemAck` - 26 edges
 3. `compilerOptions` - 25 edges
 4. `CashRepository` - 21 edges
@@ -164,15 +170,15 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (133 total, 50 thin omitted)
+## Communities (139 total, 51 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
 Nodes (29): A(), an(), Be(), cn(), Cs(), dA(), ee(), FA() (+21 more)
 
 ### Community 1 - "Sales Commands"
-Cohesion: 0.07
-Nodes (53): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+45 more)
+Cohesion: 0.06
+Nodes (57): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), get_session_payment_summary() (+49 more)
 
 ### Community 2 - "jsPDF Vendor Library"
 Cohesion: 0.16
@@ -183,16 +189,16 @@ Cohesion: 0.10
 Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherIncome Model, cargo_output.txt - Rust Compilation Errors, SqliteRow::get() Missing Trait Error, Tauri App v0.1.0, AuthContext.tsx (+14 more)
 
 ### Community 4 - "Auth and Cash Commands"
-Cohesion: 0.07
-Nodes (83): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+75 more)
+Cohesion: 0.08
+Nodes (71): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+63 more)
 
 ### Community 5 - "Inventory Models"
-Cohesion: 0.16
-Nodes (14): Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryService, Category (+6 more)
+Cohesion: 0.09
+Nodes (26): Product, Category, Product, ProductWithCategory, NaiveDateTime, Option, String, enqueue_category() (+18 more)
 
 ### Community 6 - "Package Dependencies"
-Cohesion: 0.05
-Nodes (35): dependencies, clsx, lottie-react, lucide-react, motion, react, react-dom, react-hook-form (+27 more)
+Cohesion: 0.13
+Nodes (15): dependencies, clsx, lottie-react, lucide-react, motion, react-dom, react-hook-form, react-router-dom (+7 more)
 
 ### Community 7 - "Main App Core"
 Cohesion: 0.12
@@ -224,11 +230,11 @@ Nodes (27): compilerOptions, allowImportingTsExtensions, allowSyntheticDefaultIm
 
 ### Community 14 - "User Modal Components"
 Cohesion: 0.07
-Nodes (33): AnularVentaModalProps, ExportFormat, ExportModalProps, formatDateTime(), paymentMethodColor(), paymentMethodLabel(), Sale, SaleDetailModal() (+25 more)
+Nodes (36): AnularVentaModalProps, ExportFormat, ExportModalProps, formatDateTime(), PaymentAllocation, paymentMethodColor(), paymentMethodLabel(), Sale (+28 more)
 
 ### Community 15 - "Cash Repository"
-Cohesion: 0.07
-Nodes (45): Product, create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String (+37 more)
+Cohesion: 0.13
+Nodes (26): create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String, Vec (+18 more)
 
 ### Community 16 - "TypeScript Node Config"
 Cohesion: 0.10
@@ -236,7 +242,7 @@ Nodes (19): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib
 
 ### Community 17 - "Category and Product Modals"
 Cohesion: 0.08
-Nodes (16): AddStockModalProps, Product, Category, CategoryModalProps, DeleteProduct, DeleteProductModalProps, BatchItem, Category (+8 more)
+Nodes (20): AddStockModalProps, Product, Category, CategoryModalProps, DeleteProduct, DeleteProductModalProps, formatDate(), getStatusInfo() (+12 more)
 
 ### Community 18 - "Tauri Configuration"
 Cohesion: 0.11
@@ -250,13 +256,17 @@ Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, descript
 Cohesion: 0.15
 Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
+### Community 21 - "payloads.rs"
+Cohesion: 0.24
+Nodes (25): AnulacionesBatch, CashBatch, CashSessionSync, CatalogBatch, CategorySync, ExpenseSync, InventoryBatch, ItemAnuladoSync (+17 more)
+
 ### Community 22 - "Auth Commands"
 Cohesion: 0.04
 Nodes (45): Arquitectura General, Autenticación, auth (4 comandos), Backend — Comandos Tauri (API IPC), Base de Datos — Esquema Completo, cash (9 comandos), CashSession, Ciclo de Venta (POS) (+37 more)
 
 ### Community 23 - "Checkout and POS Page"
 Cohesion: 0.20
-Nodes (6): CheckoutModalProps, PaymentMethod, CartItem, Category, PaymentMethod, Product
+Nodes (9): CheckoutModal(), CheckoutModalProps, methods, PaymentAllocation, PaymentMethod, round2(), CartItem, Category (+1 more)
 
 ### Community 24 - "Desktop Schema Capabilities"
 Cohesion: 0.20
@@ -299,8 +309,8 @@ Cohesion: 0.25
 Nodes (7): DashboardPage(), Expense, i64, localDateKey(), OrderItem, Product, Sale
 
 ### Community 35 - "Desktop Schema Root"
-Cohesion: 0.07
-Nodes (41): Arc, HeaderMap, Into, Json, Next, Request, Response, envelope_serializes_with_expected_json_shape() (+33 more)
+Cohesion: 0.06
+Nodes (42): Arc, HeaderMap, Into, Json, Next, Request, Response, topic_str() (+34 more)
 
 ### Community 36 - "Windows Schema Root"
 Cohesion: 0.40
@@ -319,8 +329,8 @@ Cohesion: 0.22
 Nodes (8): I(), s(), Expense, OtherIncome, Period, Product, ReportsPage(), Sale
 
 ### Community 40 - "Desktop Capability Schemas"
-Cohesion: 0.08
-Nodes (45): build_envelope_for_topic(), parse_item(), Option, Result, Self, SqlitePool, String, T (+37 more)
+Cohesion: 0.12
+Nodes (20): build_envelope_for_topic(), parse_item(), Option, Result, Self, SqlitePool, String, T (+12 more)
 
 ### Community 41 - "Desktop Description Schema"
 Cohesion: 0.50
@@ -359,12 +369,16 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 58 - "PermissionEntry"
-Cohesion: 0.19
-Nodes (17): CashRepository, enqueue_cash_session_close(), enqueue_cash_session_open(), enqueue_expense(), enqueue_expense_standalone(), enqueue_other_income(), CashSession, Error (+9 more)
+Cohesion: 0.12
+Nodes (24): CashRepository, enqueue_cash_session_close(), enqueue_cash_session_open(), enqueue_expense(), enqueue_expense_standalone(), enqueue_other_income(), CashSession, Error (+16 more)
 
 ### Community 59 - "windows-schema.json"
 Cohesion: 0.40
 Nodes (4): anyOf, description, $schema, title
+
+### Community 60 - "user.rs"
+Cohesion: 0.45
+Nodes (12): create_staff_user(), delete_user(), enqueue_user(), get_all_users(), get_users_by_store(), Option, Result, State (+4 more)
 
 ### Community 61 - "html2canvas Range Bounds"
 Cohesion: 0.33
@@ -393,6 +407,10 @@ Nodes (6): AppRoutes.tsx Unused useAuth Error, tsc_final_output.txt - TypeScript
 ### Community 107 - "React + TypeScript + Vite"
 Cohesion: 0.50
 Nodes (3): Expanding the ESLint configuration, React Compiler, React + TypeScript + Vite
+
+### Community 108 - "navigation.ts"
+Cohesion: 0.23
+Nodes (9): Navbar(), NavbarProps, Sidebar(), SidebarProps, ALL_NAV_ITEMS, getNavItems(), MODE_VISIBILITY, NavItem (+1 more)
 
 ### Community 125 - "VESTIKPOS — Diseño de Arquitectura: Modos de Configuración"
 Cohesion: 0.25
@@ -438,25 +456,33 @@ Nodes (3): 8.1 Primera ejecución, 8.2 Cambio de modo, 8. Flujo de Instalación
 Cohesion: 0.15
 Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
 
+### Community 136 - "FinancePage.tsx"
+Cohesion: 0.28
+Nodes (6): SummaryCardProps, SummaryRow, FinancePage(), formatDate(), formatTime(), Transaction
+
+### Community 138 - "react"
+Cohesion: 0.29
+Nodes (5): react, CloseCashModal(), CloseCashModalProps, TransactionModal(), TransactionModalProps
+
 ## Knowledge Gaps
-- **465 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+460 more)
+- **468 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+463 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **51 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Desktop Capability Schemas`, `Cash Repository`?**
-  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Desktop Capability Schemas`, `Cash Repository`, `PermissionEntry`, `user.rs`?**
+  _High betweenness centrality (0.093) - this node is a cross-community bridge._
 - **Why does `SyncClient` connect `Desktop Capability Schemas` to `Auth and Cash Commands`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _468 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _471 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.03163503163503163 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
-  _Cohesion score 0.06582952815829528 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06426484907497566 - nodes in this community are weakly interconnected._
 - **Should `Cargo Build Errors` be split into smaller, more focused modules?**
   _Cohesion score 0.09956709956709957 - nodes in this community are weakly interconnected._

@@ -1,7 +1,7 @@
 use crate::commands::auth::AppState;
 use crate::models::sales::{
     AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, CreateOrderPaymentPayload,
-    ItemAnuladoExport, OrderItemExport, Sale, SaleDetail, VentaAnuladaExport,
+    ItemAnuladoExport, OrderItemExport, PaymentMethodTotal, Sale, SaleDetail, VentaAnuladaExport,
 };
 use tauri::State;
 
@@ -54,6 +54,15 @@ pub async fn get_sale_detail(
     sale_id: i64,
 ) -> Result<Option<SaleDetail>, String> {
     state.sales_service.get_sale_detail(sale_id).await
+}
+
+/// Totales de ventas por método de pago dentro de una sesión de caja.
+#[tauri::command]
+pub async fn get_session_payment_summary(
+    state: State<'_, AppState>,
+    session_id: i64,
+) -> Result<Vec<PaymentMethodTotal>, String> {
+    state.sales_service.get_session_payment_totals(session_id).await
 }
 
 #[tauri::command]

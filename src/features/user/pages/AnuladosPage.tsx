@@ -39,6 +39,12 @@ const formatDateTime = (dateStr: string) => {
   });
 };
 
+const todayStr = () => {
+  const d = new Date();
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 10);
+};
+
 const AnuladosPage = () => {
   const { showNotification } = useNotification();
   const { activeStoreId } = useAuth();
@@ -48,8 +54,8 @@ const AnuladosPage = () => {
   // Filters
   const [search, setSearch] = useState('');
   const [filterPayment, setFilterPayment] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(todayStr());
+  const [dateTo, setDateTo] = useState(todayStr());
   const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   // Sorting

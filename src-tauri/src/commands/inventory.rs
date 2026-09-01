@@ -50,6 +50,8 @@ pub async fn create_product(
     unit: Option<String>,
     image_url: Option<String>,
     store_id: i64,
+    supplier_name: Option<String>,
+    created_by: Option<i64>,
 ) -> Result<i64, String> {
     state.config_service.reject_in_primary().await?;
     state
@@ -64,6 +66,8 @@ pub async fn create_product(
             unit.as_deref(),
             image_url.as_deref(),
             store_id,
+            supplier_name.as_deref(),
+            created_by,
         )
         .await
 }
@@ -81,6 +85,8 @@ pub async fn update_product(
     unit: Option<String>,
     image_url: Option<String>,
     store_id: i64,
+    supplier_name: Option<String>,
+    created_by: Option<i64>,
 ) -> Result<(), String> {
     state.config_service.reject_in_primary().await?;
     state
@@ -96,6 +102,8 @@ pub async fn update_product(
             unit.as_deref(),
             image_url.as_deref(),
             store_id,
+            supplier_name.as_deref(),
+            created_by,
         )
         .await
 }

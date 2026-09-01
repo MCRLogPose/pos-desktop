@@ -1,6 +1,7 @@
 use crate::models::sales::{
     AnulacionResult, CreateOrderPayload, CreateOrderPaymentPayload, ItemAnuladoExport,
-    OrderItemExport, OrderPayment, Sale, SaleDetail, SaleItem, VentaAnuladaExport,
+    OrderItemExport, OrderPayment, PaymentMethodTotal, Sale, SaleDetail, SaleItem,
+    VentaAnuladaExport,
 };
 use crate::sync::payloads::{ItemAnuladoSync, PaymentSync, SaleItemSync, SaleSync, VentaAnuladaSync};
 use crate::sync::queue::SyncQueue;
@@ -269,6 +270,29 @@ impl SalesRepository {
             "#,
         )
         .bind(store_id)
+        .fetch_all(&self.pool)
+        .await
+    }
+
+    /// Totales por método de pago de las ventas de una sesión de caja.
+    /// Las anulaciones borran la orden, así que solo quedan ventas vigentes.
+    pub async fn get_session_payment_totals(
+        &self,
+        session_id: i64,
+    ) -> Result<Vec<PaymentMethodTotal>, sqlx::Error> {
+        sqlx::query_as::<_, PaymentMethodTotal>(
+            r#"
+            SELECT
+                op.payment_method,
+                CAST(SUM(op.amount) AS REAL) AS amount
+            FROM order_payments op
+            INNER JOIN orders o ON o.id = op.order_id
+            WHERE o.cash_session_id = ?
+            GROUP BY op.payment_method
+            ORDER BY op.payment_method ASC
+            "#,
+        )
+        .bind(session_id)
         .fetch_all(&self.pool)
         .await
     }

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowUpRight, ArrowDownRight, Plus, FileText, Wallet, Clock, CreditCard, ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Plus, FileText, Wallet, Clock, CreditCard, ChevronLeft, ChevronRight, RotateCcw, ShoppingBag } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useCash, type CashSession } from '@/context/CashContext';
 import { invoke } from '@tauri-apps/api/core';
 import OpenCashModal from '../components/modals/OpenCashModal';
 import CloseCashModal from '../components/modals/CloseCashModal';
 import TransactionModal from '../components/modals/TransactionModal';
+import SummaryCard from '../components/finance/SummaryCard';
 import { useAuth } from '@/context/AuthContext';
 
 interface Transaction {
@@ -42,6 +43,7 @@ const FinancePage = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [sessions, setSessions] = useState<CashSession[]>([]);
     const [viewIndex, setViewIndex] = useState(0);
+    const [paymentSummary, setPaymentSummary] = useState({ cash: 0, yape: 0, card: 0 });
 
     const [isOpenModalOpen, setIsOpenModalOpen] = useState(false);
     const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
@@ -86,7 +88,32 @@ const FinancePage = () => {
         fetchTransactions();
     }, [viewedSession?.id]);
 
-    const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, curr) => acc + curr.amount, 0);
+    const loadPaymentSummary = async () => {
+        if (!viewedSession) {
+            setPaymentSummary({ cash: 0, yape: 0, card: 0 });
+            return;
+        }
+        try {
+            const data = await invoke<{ payment_method: string; amount: number }[]>(
+                'get_session_payment_summary',
+                { sessionId: viewedSession.id }
+            );
+            const summary = { cash: 0, yape: 0, card: 0 };
+            data.forEach(d => {
+                if (d.payment_method === 'cash') summary.cash = d.amount;
+                else if (d.payment_method === 'yape') summary.yape = d.amount;
+                else summary.card += d.amount;
+            });
+            setPaymentSummary(summary);
+        } catch (error) {
+            console.error('Failed to fetch payment summary:', error);
+        }
+    };
+
+    useEffect(() => {
+        loadPaymentSummary();
+    }, [viewedSession?.id]);
+
     const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((acc, curr) => acc + curr.amount, 0);
 
     const totalIncomeCash = transactions.filter(t => t.type === 'income' && t.payment_method === 'cash').reduce((acc, curr) => acc + curr.amount, 0);
@@ -94,6 +121,15 @@ const FinancePage = () => {
     
     const totalExpensesCash = transactions.filter(t => t.type === 'expense' && t.payment_method === 'cash').reduce((acc, curr) => acc + curr.amount, 0);
     const totalExpensesVirtual = transactions.filter(t => t.type === 'expense' && (t.payment_method as string === 'virtual' || t.payment_method as string === 'yape' || t.payment_method as string === 'card')).reduce((acc, curr) => acc + curr.amount, 0);
+
+    const ventasEfectivo = paymentSummary.cash;
+    const totalVentas = paymentSummary.cash + paymentSummary.yape + paymentSummary.card;
+
+    const refreshData = () => {
+        loadSessions();
+        fetchTransactions();
+        loadPaymentSummary();
+    };
 
     return (
         <div className="space-y-6">
@@ -206,101 +242,74 @@ const FinancePage = () => {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 content-start">
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group min-h-[160px] flex flex-col justify-center">
-                        <div className="absolute right-0 top-0 p-6 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-                            <Wallet className="w-32 h-32" />
-                        </div>
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Efectivo en Caja</p>
-                                <h3 className="text-4xl font-black text-slate-900">
-                                    S/ {viewedSession ? viewedSession.expected_closing_cash.toFixed(2) : '0.00'}
-                                </h3>
-                            </div>
-                            <div className={clsx(
-                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1.5",
-                                viewedSession ? (isViewingActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500") : "bg-red-100 text-red-700"
-                            )}>
-                                <span className={clsx("w-2 h-2 rounded-full", isViewingActive ? "bg-green-500 animate-pulse" : "bg-gray-400")} />
-                                {isViewingActive ? 'Caja Abierta' : 'Caja Cerrada'}
-                            </div>
-                        </div>
-                        <div className="flex gap-6 text-[10px] uppercase font-bold tracking-wider">
-                            <div className="text-gray-400">
-                                <span className="opacity-60 mr-1">Apertura:</span>
-                                <span className="text-slate-600">S/ {viewedSession?.opening_cash.toFixed(2) || '0.00'}</span>
-                            </div>
-                            <div className="text-gray-400">
-                                <span className="opacity-60 mr-1">Cambio:</span>
-                                <span className={clsx(
-                                    (viewedSession?.expected_closing_cash || 0) >= (viewedSession?.opening_cash || 0) ? "text-green-600" : "text-red-600"
-                                )}>
-                                    S/ {((viewedSession?.expected_closing_cash || 0) - (viewedSession?.opening_cash || 0)).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 content-start">
+                    {/* Dinero en Caja */}
+                    <SummaryCard
+                        title="Dinero en Caja"
+                        icon={<Wallet className="w-5 h-5" />}
+                        accentClass="bg-green-50 text-green-600"
+                        rows={[
+                            { label: 'Caja Inicial', value: viewedSession ? `S/ ${viewedSession.opening_cash.toFixed(2)}` : 'S/ 0.00' },
+                            { label: 'Ventas en Efectivo', value: `S/ ${ventasEfectivo.toFixed(2)}`, valueClass: 'text-green-600' },
+                            { label: 'Ingresos en Efectivo', value: `S/ ${totalIncomeCash.toFixed(2)}`, valueClass: 'text-green-600' },
+                            { label: 'Salidas en Efectivo', value: `- S/ ${totalExpensesCash.toFixed(2)}`, valueClass: 'text-red-500' },
+                        ]}
+                        footer={{
+                            label: 'Efectivo en Caja',
+                            value: viewedSession ? `S/ ${viewedSession.expected_closing_cash.toFixed(2)}` : 'S/ 0.00',
+                            valueClass: 'text-green-600',
+                        }}
+                    />
 
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group min-h-[160px] flex flex-col justify-center">
-                        <div className="absolute right-0 top-0 p-6 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none">
-                            <CreditCard className="w-32 h-32" />
-                        </div>
-                        <p className="text-gray-500 text-sm font-bold uppercase tracking-wider mb-1">Dinero Virtual / Banco</p>
-                        <h3 className="text-4xl font-black text-slate-900">
-                            S/ {viewedSession ? viewedSession.expected_closing_virtual.toFixed(2) : '0.00'}
-                        </h3>
-                        <div className="mt-4 flex gap-4 text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                            <div>
-                                <span className="opacity-60 mr-1">Apertura: </span>
-                                <span className="text-slate-600">S/ {viewedSession?.opening_virtual.toFixed(2) || '0.00'}</span>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Ventas del Día */}
+                    <SummaryCard
+                        title="Ventas del Día"
+                        icon={<ShoppingBag className="w-5 h-5" />}
+                        accentClass="bg-blue-50 text-blue-600"
+                        rows={[
+                            { label: 'Total en Efectivo', value: `S/ ${paymentSummary.cash.toFixed(2)}` },
+                            { label: 'Total en Yape', value: `S/ ${paymentSummary.yape.toFixed(2)}` },
+                            { label: 'Total en Tarjeta', value: `S/ ${paymentSummary.card.toFixed(2)}` },
+                        ]}
+                        footer={{
+                            label: 'Total Ventas',
+                            value: `S/ ${totalVentas.toFixed(2)}`,
+                            valueClass: 'text-blue-600',
+                        }}
+                    />
 
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-6 min-h-[160px] justify-center">
-                        <div className="flex items-center gap-5">
-                            <div className="p-5 bg-green-50 rounded-2xl text-green-600 shadow-sm">
-                                <ArrowUpRight className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest">Ingresos Totales (Turno)</p>
-                                <h3 className="text-4xl font-black text-green-600">S/ {totalIncome.toFixed(2)}</h3>
-                            </div>
-                        </div>
-                        <div className="flex gap-8 pt-4 border-t border-gray-50">
-                            <div className="flex-1">
-                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Efectivo</p>
-                                <p className="text-xl font-black text-slate-700">S/ {totalIncomeCash.toFixed(2)}</p>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Virtual</p>
-                                <p className="text-xl font-black text-slate-700">S/ {totalIncomeVirtual.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Dinero Virtual / Banco */}
+                    <SummaryCard
+                        title="Dinero Virtual / Banco"
+                        icon={<CreditCard className="w-5 h-5" />}
+                        accentClass="bg-indigo-50 text-indigo-600"
+                        rows={[
+                            { label: 'Apertura Virtual', value: viewedSession ? `S/ ${viewedSession.opening_virtual.toFixed(2)}` : 'S/ 0.00' },
+                            { label: 'Ingresos Virtual', value: `S/ ${totalIncomeVirtual.toFixed(2)}`, valueClass: 'text-green-600' },
+                            { label: 'Salidas Virtual', value: `- S/ ${totalExpensesVirtual.toFixed(2)}`, valueClass: 'text-red-500' },
+                        ]}
+                        footer={{
+                            label: 'Virtual en Caja',
+                            value: viewedSession ? `S/ ${viewedSession.expected_closing_virtual.toFixed(2)}` : 'S/ 0.00',
+                            valueClass: 'text-indigo-600',
+                        }}
+                    />
 
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-6 min-h-[160px] justify-center">
-                        <div className="flex items-center gap-5">
-                            <div className="p-5 bg-red-50 rounded-2xl text-red-600 shadow-sm">
-                                <ArrowDownRight className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest">Gastos Totales (Turno)</p>
-                                <h3 className="text-4xl font-black text-red-600">S/ {totalExpenses.toFixed(2)}</h3>
-                            </div>
-                        </div>
-                        <div className="flex gap-8 pt-4 border-t border-gray-50">
-                            <div className="flex-1">
-                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Efectivo</p>
-                                <p className="text-xl font-black text-slate-700">S/ {totalExpensesCash.toFixed(2)}</p>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Virtual</p>
-                                <p className="text-xl font-black text-slate-700">S/ {totalExpensesVirtual.toFixed(2)}</p>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Gastos del Turno */}
+                    <SummaryCard
+                        title="Gastos del Turno"
+                        icon={<ArrowDownRight className="w-5 h-5" />}
+                        accentClass="bg-red-50 text-red-600"
+                        rows={[
+                            { label: 'Efectivo', value: `- S/ ${totalExpensesCash.toFixed(2)}`, valueClass: 'text-red-500' },
+                            { label: 'Virtual', value: `- S/ ${totalExpensesVirtual.toFixed(2)}`, valueClass: 'text-red-500' },
+                        ]}
+                        footer={{
+                            label: 'Total Gastos',
+                            value: `S/ ${totalExpenses.toFixed(2)}`,
+                            valueClass: 'text-red-500',
+                        }}
+                    />
                 </div>
 
                 <div className="bg-white rounded-3xl border border-gray-100 shadow-md flex flex-col overflow-hidden">
@@ -398,6 +407,7 @@ const FinancePage = () => {
                 isOpen={transactionModal.isOpen}
                 type={transactionModal.type}
                 onClose={() => setTransactionModal({ ...transactionModal, isOpen: false })}
+                onSaved={refreshData}
                 storeId={activeStoreId}
             />
         </div>
