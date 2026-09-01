@@ -588,7 +588,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_a",
-      "community": 56,
+      "community": 0,
       "norm_label": "a()"
     },
     {
@@ -668,7 +668,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_i",
-      "community": 61,
+      "community": 39,
       "norm_label": "i()"
     },
     {
@@ -1008,7 +1008,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_kr",
-      "community": 56,
+      "community": 0,
       "norm_label": "kr()"
     },
     {
@@ -1018,7 +1018,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_mr",
-      "community": 56,
+      "community": 0,
       "norm_label": "mr()"
     },
     {
@@ -1028,7 +1028,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_lr",
-      "community": 56,
+      "community": 0,
       "norm_label": "lr()"
     },
     {
@@ -1068,7 +1068,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_support_foreignobject_drawing",
-      "community": 56,
+      "community": 0,
       "norm_label": "support_foreignobject_drawing()"
     },
     {
@@ -1298,7 +1298,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "public_vendor_html2canvas_min_hn",
-      "community": 56,
+      "community": 0,
       "norm_label": "hn()"
     },
     {
@@ -1508,7 +1508,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_n",
-      "community": 2,
+      "community": 56,
       "norm_label": "n()"
     },
     {
@@ -1518,7 +1518,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_a",
-      "community": 2,
+      "community": 56,
       "norm_label": "a()"
     },
     {
@@ -1538,7 +1538,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_s",
-      "community": 61,
+      "community": 39,
       "norm_label": "s()"
     },
     {
@@ -1548,7 +1548,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_h",
-      "community": 2,
+      "community": 56,
       "norm_label": "h()"
     },
     {
@@ -1568,7 +1568,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_d",
-      "community": 2,
+      "community": 56,
       "norm_label": "d()"
     },
     {
@@ -1578,7 +1578,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_p",
-      "community": 2,
+      "community": 56,
       "norm_label": "p()"
     },
     {
@@ -1638,7 +1638,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_l",
-      "community": 2,
+      "community": 56,
       "norm_label": "l()"
     },
     {
@@ -1688,7 +1688,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_j",
-      "community": 56,
+      "community": 2,
       "norm_label": "j()"
     },
     {
@@ -1778,7 +1778,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_p_drawimage",
-      "community": 2,
+      "community": 56,
       "norm_label": ".drawimage()"
     },
     {
@@ -1818,7 +1818,7 @@
       "source_location": "L261",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_ee",
-      "community": 56,
+      "community": 2,
       "norm_label": "ee()"
     },
     {
@@ -1828,7 +1828,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_qe",
-      "community": 56,
+      "community": 2,
       "norm_label": "qe()"
     },
     {
@@ -1838,7 +1838,7 @@
       "source_location": "L268",
       "_origin": "ast",
       "id": "public_vendor_jspdf_min_de",
-      "community": 2,
+      "community": 56,
       "norm_label": "de()"
     },
     {
@@ -8488,7 +8488,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads",
-      "community": 21,
+      "community": 40,
       "norm_label": "payloads.rs"
     },
     {
@@ -8498,7 +8498,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_stockreason",
-      "community": 21,
+      "community": 40,
       "norm_label": "stockreason"
     },
     {
@@ -8508,7 +8508,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_salesbatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "salesbatch"
     },
     {
@@ -8518,7 +8518,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_rs_vec",
-      "community": 21,
+      "community": 40,
       "norm_label": "vec"
     },
     {
@@ -8528,7 +8528,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_salesync",
-      "community": 21,
+      "community": 40,
       "norm_label": "salesync"
     },
     {
@@ -8538,7 +8538,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_rs_string",
-      "community": 21,
+      "community": 40,
       "norm_label": "string"
     },
     {
@@ -8548,7 +8548,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_rs_option",
-      "community": 21,
+      "community": 40,
       "norm_label": "option"
     },
     {
@@ -8558,7 +8558,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_saleitemsync",
-      "community": 21,
+      "community": 40,
       "norm_label": "saleitemsync"
     },
     {
@@ -8568,7 +8568,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_inventorybatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "inventorybatch"
     },
     {
@@ -8578,7 +8578,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_categorysync",
-      "community": 21,
+      "community": 40,
       "norm_label": "categorysync"
     },
     {
@@ -8588,7 +8588,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_productupsertsync",
-      "community": 21,
+      "community": 40,
       "norm_label": "productupsertsync"
     },
     {
@@ -8598,7 +8598,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_stockmovementsync",
-      "community": 21,
+      "community": 40,
       "norm_label": "stockmovementsync"
     },
     {
@@ -8608,7 +8608,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_purchasesbatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "purchasesbatch"
     },
     {
@@ -8618,7 +8618,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_purchaseordersync",
-      "community": 21,
+      "community": 40,
       "norm_label": "purchaseordersync"
     },
     {
@@ -8628,7 +8628,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_purchaseitemsync",
-      "community": 21,
+      "community": 40,
       "norm_label": "purchaseitemsync"
     },
     {
@@ -8638,7 +8638,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_cashbatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "cashbatch"
     },
     {
@@ -8648,7 +8648,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_cashsessionsync",
-      "community": 21,
+      "community": 40,
       "norm_label": "cashsessionsync"
     },
     {
@@ -8658,7 +8658,7 @@
       "source_location": "L147",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_expensesync",
-      "community": 21,
+      "community": 40,
       "norm_label": "expensesync"
     },
     {
@@ -8668,7 +8668,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_otherincomesync",
-      "community": 21,
+      "community": 40,
       "norm_label": "otherincomesync"
     },
     {
@@ -8678,7 +8678,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_catalogbatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "catalogbatch"
     },
     {
@@ -8688,7 +8688,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_storesync",
-      "community": 21,
+      "community": 40,
       "norm_label": "storesync"
     },
     {
@@ -8698,7 +8698,7 @@
       "source_location": "L189",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_usersync",
-      "community": 21,
+      "community": 40,
       "norm_label": "usersync"
     },
     {
@@ -8708,7 +8708,7 @@
       "source_location": "L204",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_anulacionesbatch",
-      "community": 21,
+      "community": 40,
       "norm_label": "anulacionesbatch"
     },
     {
@@ -8718,7 +8718,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_ventaanuladasync",
-      "community": 21,
+      "community": 40,
       "norm_label": "ventaanuladasync"
     },
     {
@@ -8728,7 +8728,7 @@
       "source_location": "L224",
       "_origin": "ast",
       "id": "src_tauri_src_sync_payloads_itemanuladosync",
-      "community": 21,
+      "community": 40,
       "norm_label": "itemanuladosync"
     },
     {
@@ -11588,7 +11588,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_features_user_pages_reportspage_reportspage",
-      "community": 61,
+      "community": 39,
       "norm_label": "reportspage()"
     },
     {
@@ -13872,10 +13872,20 @@
       "norm_label": "vestikpos \u2014 sincronizacion replica \u2192 primary"
     },
     {
-      "label": "1. Prop\u00f3sito",
+      "label": "0. Changelog",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
       "source_location": "L9",
+      "_origin": "ast",
+      "id": "docs_sincronizacion_replica_0_changelog",
+      "community": 49,
+      "norm_label": "0. changelog"
+    },
+    {
+      "label": "1. Prop\u00f3sito",
+      "file_type": "document",
+      "source_file": "docs/SINCRONIZACION_REPLICA.md",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_1_prop\u00f3sito",
       "community": 49,
@@ -13885,7 +13895,7 @@
       "label": "2. Navegaci\u00f3n visible en R\u00e9plica",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L24",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_2_navegaci\u00f3n_visible_en_r\u00e9plica",
       "community": 49,
@@ -13895,7 +13905,7 @@
       "label": "3. T\u00f3picos de sincronizaci\u00f3n y tablas",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L43",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_3_t\u00f3picos_de_sincronizaci\u00f3n_y_tablas",
       "community": 49,
@@ -13905,7 +13915,7 @@
       "label": "4. Cat\u00e1logo de acciones CRUD en R\u00e9plica",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L60",
+      "source_location": "L75",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "community": 49,
@@ -13915,7 +13925,7 @@
       "label": "4.1 Ventas (POS + Ventas)",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L69",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_1_ventas_pos_ventas",
       "community": 49,
@@ -13925,7 +13935,7 @@
       "label": "4.2 Anulados",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L78",
+      "source_location": "L93",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_2_anulados",
       "community": 49,
@@ -13935,7 +13945,7 @@
       "label": "4.3 Inventario",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L84",
+      "source_location": "L99",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_3_inventario",
       "community": 49,
@@ -13945,7 +13955,7 @@
       "label": "4.4 Finanzas (caja)",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L98",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_4_finanzas_caja",
       "community": 49,
@@ -13955,7 +13965,7 @@
       "label": "4.5 Tiendas y Usuarios",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L107",
+      "source_location": "L122",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_5_tiendas_y_usuarios",
       "community": 49,
@@ -13965,7 +13975,7 @@
       "label": "4.6 Configuraci\u00f3n (perfil)",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L120",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_4_6_configuraci\u00f3n_perfil",
       "community": 49,
@@ -13975,7 +13985,7 @@
       "label": "5. Comandos solo-lectura usados por la UI R\u00e9plica",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L129",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_5_comandos_solo_lectura_usados_por_la_ui_r\u00e9plica",
       "community": 49,
@@ -13985,7 +13995,7 @@
       "label": "6. Momento de sincronizaci\u00f3n (corte de caja)",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L135",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_6_momento_de_sincronizaci\u00f3n_corte_de_caja",
       "community": 49,
@@ -13995,17 +14005,27 @@
       "label": "7. Resumen de pendientes del cliente R\u00e9plica (Fase 2.1)",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L147",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_7_resumen_de_pendientes_del_cliente_r\u00e9plica_fase_2_1",
       "community": 49,
       "norm_label": "7. resumen de pendientes del cliente replica (fase 2.1)"
     },
     {
+      "label": "7b. Pendientes (pr\u00f3xima iteraci\u00f3n: pruebas de sincronizaci\u00f3n en 2 m\u00e1quinas)",
+      "file_type": "document",
+      "source_file": "docs/SINCRONIZACION_REPLICA.md",
+      "source_location": "L179",
+      "_origin": "ast",
+      "id": "docs_sincronizacion_replica_7b_pendientes_pr\u00f3xima_iteraci\u00f3n_pruebas_de_sincronizaci\u00f3n_en_2_m\u00e1quinas",
+      "community": 49,
+      "norm_label": "7b. pendientes (proxima iteracion: pruebas de sincronizacion en 2 maquinas)"
+    },
+    {
       "label": "8. Referencias",
       "file_type": "document",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L163",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "docs_sincronizacion_replica_8_referencias",
       "community": 49,
@@ -41464,7 +41484,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
-      "target": "docs_sincronizacion_replica_1_prop\u00f3sito",
+      "target": "docs_sincronizacion_replica_0_changelog",
       "confidence_score": 1.0
     },
     {
@@ -41474,6 +41494,16 @@
       "source_location": "L24",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
+      "target": "docs_sincronizacion_replica_1_prop\u00f3sito",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/SINCRONIZACION_REPLICA.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_2_navegaci\u00f3n_visible_en_r\u00e9plica",
       "confidence_score": 1.0
     },
@@ -41481,7 +41511,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L43",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_3_t\u00f3picos_de_sincronizaci\u00f3n_y_tablas",
@@ -41491,7 +41521,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L60",
+      "source_location": "L75",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
@@ -41501,7 +41531,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L129",
+      "source_location": "L144",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_5_comandos_solo_lectura_usados_por_la_ui_r\u00e9plica",
@@ -41511,7 +41541,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L135",
+      "source_location": "L150",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_6_momento_de_sincronizaci\u00f3n_corte_de_caja",
@@ -41521,7 +41551,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L147",
+      "source_location": "L162",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_7_resumen_de_pendientes_del_cliente_r\u00e9plica_fase_2_1",
@@ -41531,7 +41561,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L163",
+      "source_location": "L179",
+      "weight": 1.0,
+      "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
+      "target": "docs_sincronizacion_replica_7b_pendientes_pr\u00f3xima_iteraci\u00f3n_pruebas_de_sincronizaci\u00f3n_en_2_m\u00e1quinas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/SINCRONIZACION_REPLICA.md",
+      "source_location": "L199",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_vestikpos_sincronizaci\u00f3n_r\u00e9plica_primary",
       "target": "docs_sincronizacion_replica_8_referencias",
@@ -41541,7 +41581,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L69",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_1_ventas_pos_ventas",
@@ -41551,7 +41591,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L78",
+      "source_location": "L93",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_2_anulados",
@@ -41561,7 +41601,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L84",
+      "source_location": "L99",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_3_inventario",
@@ -41571,7 +41611,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L98",
+      "source_location": "L113",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_4_finanzas_caja",
@@ -41581,7 +41621,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L107",
+      "source_location": "L122",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_5_tiendas_y_usuarios",
@@ -41591,7 +41631,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/SINCRONIZACION_REPLICA.md",
-      "source_location": "L120",
+      "source_location": "L135",
       "weight": 1.0,
       "source": "docs_sincronizacion_replica_4_cat\u00e1logo_de_acciones_crud_en_r\u00e9plica",
       "target": "docs_sincronizacion_replica_4_6_configuraci\u00f3n_perfil",

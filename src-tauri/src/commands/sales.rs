@@ -1,7 +1,7 @@
 use crate::commands::auth::AppState;
 use crate::models::sales::{
-    AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, ItemAnuladoExport,
-    OrderItemExport, Sale, SaleDetail, VentaAnuladaExport,
+    AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, CreateOrderPaymentPayload,
+    ItemAnuladoExport, OrderItemExport, Sale, SaleDetail, VentaAnuladaExport,
 };
 use tauri::State;
 
@@ -12,7 +12,7 @@ pub async fn create_sale(
     client_document: Option<String>,
     client_phone: Option<String>,
     client_name: Option<String>,
-    payment_method: String,
+    payments: Vec<CreateOrderPaymentPayload>,
     items: Vec<CreateOrderItemPayload>,
     subtotal: f64,
     igv: f64,
@@ -21,12 +21,18 @@ pub async fn create_sale(
     store_id: i64,
 ) -> Result<i64, String> {
     state.config_service.reject_in_primary().await?;
+    let payment_method = payments
+        .iter()
+        .max_by(|a, b| a.amount.partial_cmp(&b.amount).unwrap_or(std::cmp::Ordering::Equal))
+        .map(|p| p.payment_method.clone())
+        .unwrap_or_else(|| "cash".to_string());
     let payload = CreateOrderPayload {
         user_id,
         client_document,
         client_phone,
         client_name,
         payment_method,
+        payments,
         items,
         subtotal,
         igv,

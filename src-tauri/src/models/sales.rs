@@ -11,6 +11,13 @@ pub struct CreateOrderItemPayload {
     pub subtotal: f64,
 }
 
+/// Represents a single payment fraction when creating a sale from the frontend.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CreateOrderPaymentPayload {
+    pub payment_method: String, // "cash" | "card" | "yape"
+    pub amount: f64,
+}
+
 /// Full payload received from the frontend to create a sale.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateOrderPayload {
@@ -18,7 +25,8 @@ pub struct CreateOrderPayload {
     pub client_document: Option<String>,
     pub client_phone: Option<String>,
     pub client_name: Option<String>,
-    pub payment_method: String, // "cash" | "card" | "yape"
+    pub payment_method: String, // "cash" | "card" | "yape" (metodo con mayor monto, para compatibilidad/display)
+    pub payments: Vec<CreateOrderPaymentPayload>,
     pub items: Vec<CreateOrderItemPayload>,
     pub subtotal: f64,
     pub igv: f64,
@@ -62,12 +70,21 @@ pub struct SaleItem {
     pub subtotal: f64,
 }
 
-/// Full sale detail including its items.
+/// A single payment fraction inside a sale, returned in the detail view.
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+pub struct OrderPayment {
+    pub id: i64,
+    pub payment_method: String,
+    pub amount: f64,
+}
+
+/// Full sale detail including its items and payment fractions.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SaleDetail {
     #[serde(flatten)]
     pub sale: Sale,
     pub items: Vec<SaleItem>,
+    pub payments: Vec<OrderPayment>,
 }
 
 /// Flat row used for the "export all items" CSV.

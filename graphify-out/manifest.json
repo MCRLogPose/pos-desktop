@@ -145,8 +145,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/commands/sales.rs": {
-    "mtime": 1788232149.9790552,
-    "ast_hash": "919afd61314e2889567b89620fc68d3e",
+    "mtime": 1788294197.297198,
+    "ast_hash": "126775225bd8de8b902647945046c6a0",
     "semantic_hash": ""
   },
   "src-tauri/src/commands/store.rs": {
@@ -190,8 +190,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/models/sales.rs": {
-    "mtime": 1788243133.7889857,
-    "ast_hash": "1309fc34cdd94e7b666dcdc6897364d3",
+    "mtime": 1788294477.1484785,
+    "ast_hash": "ecd3df5814f5eb20a2d3011ac7cc2565",
     "semantic_hash": ""
   },
   "src-tauri/src/models/store.rs": {
@@ -220,8 +220,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/sales_repo.rs": {
-    "mtime": 1788243133.7999809,
-    "ast_hash": "2a6262c4e401d3cc454873587c3187a7",
+    "mtime": 1788294286.4648209,
+    "ast_hash": "3b571e8761d81bb22e657f03e76edf4a",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/store_repo.rs": {
@@ -370,9 +370,9 @@
     "semantic_hash": "b5081866a4a8e71e0bac48bf63edac97"
   },
   "src/features/user/components/modals/CheckoutModal.tsx": {
-    "mtime": 1771782103.7816317,
-    "ast_hash": "2d4c39f55a2686f26d2a14b812a43f87",
-    "semantic_hash": "2d4c39f55a2686f26d2a14b812a43f87"
+    "mtime": 1788294673.0604706,
+    "ast_hash": "21446c2743239e12b58e323ac1ae4d8a",
+    "semantic_hash": ""
   },
   "src/features/user/components/modals/CloseCashModal.tsx": {
     "mtime": 1783887928.723021,
@@ -395,8 +395,8 @@
     "semantic_hash": ""
   },
   "src/features/user/components/modals/SaleDetailModal.tsx": {
-    "mtime": 1788232289.9218988,
-    "ast_hash": "be1f9f12ca8220bb1a41470281df9d27",
+    "mtime": 1788294726.100549,
+    "ast_hash": "aa4b190e103add095f80cf10fd22c620",
     "semantic_hash": ""
   },
   "src/features/user/components/modals/SessionSummaryModal.tsx": {
@@ -450,8 +450,8 @@
     "semantic_hash": ""
   },
   "src/features/user/pages/POSPage.tsx": {
-    "mtime": 1787458689.2932787,
-    "ast_hash": "ed72f3ffc104680090a505dace4622a5",
+    "mtime": 1788294768.362084,
+    "ast_hash": "46d6d43fb3cbdcbd4498d91867beb162",
     "semantic_hash": ""
   },
   "src/features/user/pages/ReportsPage.tsx": {
@@ -1025,13 +1025,13 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/mod.rs": {
-    "mtime": 1788243133.8120253,
-    "ast_hash": "5dd8b5c8dd73fc31dbdf8a3be078ff35",
+    "mtime": 1788294324.01362,
+    "ast_hash": "716f0a3770fc9c4db93f792622e3b0ad",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/payloads.rs": {
-    "mtime": 1788072568.6057925,
-    "ast_hash": "5c72725b1b4b10a8e6c00fd2059e6a43",
+    "mtime": 1788294310.4118989,
+    "ast_hash": "77fb7a601589963d3f0f5ccc37f099fd",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/server.rs": {
@@ -1045,13 +1045,13 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/apply.rs": {
-    "mtime": 1788072568.5983841,
-    "ast_hash": "7bfc9ec501191d25034488741ff1e295",
+    "mtime": 1788294371.3780253,
+    "ast_hash": "06fa53ebf9d32ac64c86bda48891b120",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/apply_tests.rs": {
-    "mtime": 1788243133.810022,
-    "ast_hash": "63fa7f342bb7068a774b916c4ed4f97f",
+    "mtime": 1788294331.0289085,
+    "ast_hash": "e992e30c13b72b8ab840bd9612b2445c",
     "semantic_hash": ""
   },
   "src-tauri/migrations/013_anulaciones.sql": {
@@ -1112,6 +1112,11 @@
   "src-tauri/src/commands/sync.rs": {
     "mtime": 1788239092.2921047,
     "ast_hash": "d9e8f08573159a2bbd4144adeed105c5",
+    "semantic_hash": ""
+  },
+  "src-tauri/migrations/016_split_payments.sql": {
+    "mtime": 1788294164.8323689,
+    "ast_hash": "c68d7e4f11fdf8ae6fce005c5307f539",
     "semantic_hash": ""
   }
 }

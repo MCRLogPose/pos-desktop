@@ -125,6 +125,7 @@ mod tests {
             client_phone: None,
             client_name: Some("Cliente S.A.".to_string()),
             payment_method: "yape".to_string(),
+            payments: vec![],
             subtotal: 84.74,
             igv: 15.26,
             total: 100.0,

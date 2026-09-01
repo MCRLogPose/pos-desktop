@@ -6,7 +6,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCash } from '@/context/CashContext';
-import CheckoutModal from '../components/modals/CheckoutModal';
+import CheckoutModal, { type PaymentAllocation } from '../components/modals/CheckoutModal';
 
 // ─── Types ───────────────────────────────────────────────────
 interface Category {
@@ -36,8 +36,6 @@ interface CartItem {
     customPrice?: number; // override price for this sale only
 }
 
-type PaymentMethod = 'cash' | 'card' | 'yape';
-
 // ─── Component ───────────────────────────────────────────────
 const POSPage = () => {
     const { showNotification } = useNotification();
@@ -56,7 +54,7 @@ const POSPage = () => {
 
     // Checkout modal
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+    const [payments, setPayments] = useState<PaymentAllocation[]>([]);
     const [clientDocument, setClientDocument] = useState('');
     const [clientPhone, setClientPhone] = useState('');
     const [clientName, setClientName] = useState('');
@@ -164,10 +162,17 @@ const POSPage = () => {
     const igv = total - base;
 
     // ─── Checkout ─────────────────────────────────────────────
-    const handleCheckout = async () => {
+    const handleCheckout = async (checkoutPayments: PaymentAllocation[]) => {
         if (cart.length === 0) return;
         if (!user) {
             showNotification('error', 'Error', 'Debes iniciar sesión para realizar ventas');
+            return;
+        }
+
+        // Validación: debe existir al menos un metodo y la suma debe igualar el total.
+        const sumPayments = checkoutPayments.reduce((acc, p) => acc + (isNaN(p.amount) ? 0 : p.amount), 0);
+        if (checkoutPayments.length === 0 || Math.abs(sumPayments - total) > 0.001) {
+            showNotification('warning', 'Pago incompleto', 'La suma de los métodos de pago debe igualar el total.');
             return;
         }
 
@@ -181,13 +186,18 @@ const POSPage = () => {
                 subtotal: (item.customPrice ?? item.product.price) * item.quantity,
             }));
 
+            const paymentsPayload = checkoutPayments.map(p => ({
+                payment_method: p.method,
+                amount: p.amount,
+            }));
+
             await invoke<number>('create_sale', {
                 userId: user.id,
                 cashSessionId: activeSession?.id,
                 clientDocument: clientDocument.trim() || null,
                 clientPhone: clientPhone.trim() || null,
                 clientName: clientName.trim() || null,
-                paymentMethod,
+                payments: paymentsPayload,
                 items,
                 subtotal: base,
                 igv,
@@ -200,7 +210,7 @@ const POSPage = () => {
             setClientDocument('');
             setClientPhone('');
             setClientName('');
-            setPaymentMethod('cash');
+            setPayments([]);
             setIsCheckoutOpen(false);
 
             // Reload products and cash session to reflect updated stock and balances
@@ -444,13 +454,13 @@ const POSPage = () => {
                 base={base}
                 igv={igv}
                 itemCount={cart.length}
-                paymentMethod={paymentMethod}
+                payments={payments}
                 clientDocument={clientDocument}
                 clientPhone={clientPhone}
                 clientName={clientName}
                 onClose={() => setIsCheckoutOpen(false)}
                 onConfirm={handleCheckout}
-                onPaymentMethodChange={setPaymentMethod}
+                onPaymentsChange={setPayments}
                 onClientDocumentChange={setClientDocument}
                 onClientPhoneChange={setClientPhone}
                 onClientNameChange={setClientName}

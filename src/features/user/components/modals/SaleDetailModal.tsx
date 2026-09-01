@@ -10,6 +10,12 @@ interface SaleItem {
   subtotal: number;
 }
 
+interface PaymentAllocation {
+  id: number;
+  payment_method: string;
+  amount: number;
+}
+
 interface Sale {
   id: number;
   user_id: number;
@@ -25,6 +31,7 @@ interface Sale {
   cash_session_id?: number | null;
   displayNumber?: number;
   items?: SaleItem[];
+  payments?: PaymentAllocation[];
 }
 
 interface SaleDetailModalProps {
@@ -97,12 +104,28 @@ const SaleDetailModal = ({ sale, onClose }: SaleDetailModalProps) => {
             </div>
             <div className="bg-gray-50 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pago</p>
-              <span className={clsx(
-                'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
-                paymentMethodColor(sale.payment_method)
-              )}>
-                {paymentMethodLabel(sale.payment_method)}
-              </span>
+              {sale.payments && sale.payments.length > 0 ? (
+                <div className="space-y-1.5">
+                  {sale.payments.map((p) => (
+                    <div key={p.id} className="flex items-center justify-between gap-2">
+                      <span className={clsx(
+                        'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                        paymentMethodColor(p.payment_method)
+                      )}>
+                        {paymentMethodLabel(p.payment_method)}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-700 tabular-nums">S/ {p.amount.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <span className={clsx(
+                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium',
+                  paymentMethodColor(sale.payment_method)
+                )}>
+                  {paymentMethodLabel(sale.payment_method)}
+                </span>
+              )}
               {sale.user_name && (
                 <p className="text-sm text-gray-500">Vendedor: {sale.user_name}</p>
               )}

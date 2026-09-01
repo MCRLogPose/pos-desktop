@@ -11,6 +11,12 @@ pub enum StockReason {
 
 // ─────────────────────────── SALES ───────────────────────────
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PaymentSync {
+    pub payment_method: String,
+    pub amount: f64,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SalesBatch {
     pub sales: Vec<SaleSync>,
@@ -25,6 +31,8 @@ pub struct SaleSync {
     pub client_phone: Option<String>,
     pub client_name: Option<String>,
     pub payment_method: String,
+    #[serde(default)]
+    pub payments: Vec<PaymentSync>,
     pub subtotal: f64,
     pub igv: f64,
     pub total: f64,
@@ -213,6 +221,8 @@ pub struct VentaAnuladaSync {
     pub seller_username: Option<String>,
     pub reason: String,
     pub payment_method: String,
+    #[serde(default)]
+    pub payments: Vec<PaymentSync>,
     pub subtotal: f64,
     pub igv: f64,
     pub total: f64,

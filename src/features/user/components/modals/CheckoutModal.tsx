@@ -1,8 +1,13 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx } from 'clsx';
-import { X, Banknote, CreditCard, Smartphone, User, Phone } from 'lucide-react';
+import { X, Banknote, CreditCard, Smartphone, User, Phone, Check } from 'lucide-react';
 
-type PaymentMethod = 'cash' | 'card' | 'yape';
+export type PaymentMethod = 'cash' | 'card' | 'yape';
+
+export interface PaymentAllocation {
+    method: PaymentMethod;
+    amount: number;
+}
 
 interface CheckoutModalProps {
     isOpen: boolean;
@@ -11,19 +16,28 @@ interface CheckoutModalProps {
     base: number;
     igv: number;
     itemCount: number;
-    paymentMethod: PaymentMethod;
+    payments: PaymentAllocation[];
     clientDocument: string;
     clientPhone: string;
     clientName: string;
     onClose: () => void;
-    onConfirm: () => void;
-    onPaymentMethodChange: (method: PaymentMethod) => void;
+    onConfirm: (payments: PaymentAllocation[]) => void;
+    onPaymentsChange: (payments: PaymentAllocation[]) => void;
     onClientDocumentChange: (value: string) => void;
     onClientPhoneChange: (value: string) => void;
     onClientNameChange: (value: string) => void;
 }
 
 const inputBase = "w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow";
+
+const methods = [
+    { id: 'cash' as const, label: 'Efectivo', Icon: Banknote, activeClass: 'border-blue-500 bg-blue-50' },
+    { id: 'card' as const, label: 'Tarjeta', Icon: CreditCard, activeClass: 'border-blue-500 bg-blue-50' },
+    { id: 'yape' as const, label: 'Yape', Icon: Smartphone, activeClass: 'border-purple-500 bg-purple-50' },
+];
+
+// Redondeo a 2 decimales para evitar errores de punto flotante.
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 const CheckoutModal = ({
     isOpen,
@@ -32,17 +46,67 @@ const CheckoutModal = ({
     base,
     igv,
     itemCount,
-    paymentMethod,
+    payments,
     clientDocument,
     clientPhone,
     clientName,
     onClose,
     onConfirm,
-    onPaymentMethodChange,
+    onPaymentsChange,
     onClientDocumentChange,
     onClientPhoneChange,
     onClientNameChange,
 }: CheckoutModalProps) => {
+    const selectedSum = round2(payments.reduce((acc, p) => acc + (isNaN(p.amount) ? 0 : p.amount), 0));
+    const remaining = round2(total - selectedSum);
+    const isComplete = payments.length > 0 && remaining <= 0.001;
+    const canConfirm = payments.length > 0 && remaining <= 0.001 && !isProcessing;
+
+    const togglePayment = (method: PaymentMethod, currentEntry?: PaymentAllocation) => {
+        if (currentEntry) {
+            // Al deseleccionar, si queda un solo metodo su monto vuelve al total.
+            const rest = payments.filter(p => p.method !== method);
+            if (rest.length === 1) {
+                onPaymentsChange([{ method: rest[0].method, amount: round2(total) }]);
+            } else if (rest.length === 0) {
+                onPaymentsChange([]);
+            } else {
+                onPaymentsChange(rest);
+            }
+            return;
+        }
+
+        // Al seleccionar, el nuevo metodo recibe automáticamente lo que falta.
+        const already = payments.some(p => p.method === method);
+        if (already) return;
+        if (payments.length === 0) {
+            onPaymentsChange([{ method, amount: round2(total) }]);
+            return;
+        }
+        if (remaining <= 0.001) return; // total cubierto
+        onPaymentsChange([...payments, { method, amount: remaining }]);
+    };
+
+    const updateAmount = (method: PaymentMethod, value: string) => {
+        const parsed = parseFloat(value);
+        const amount = isNaN(parsed) || parsed < 0 ? 0 : round2(parsed);
+
+        const othersSum = round2(
+            payments
+                .filter(p => p.method !== method)
+                .reduce((acc, p) => acc + (isNaN(p.amount) ? 0 : p.amount), 0)
+        );
+        // Ningun monto individual puede superar el total ni dejar que la suma exceda el total.
+        const maxForMethod = round2(Math.max(0, total - othersSum));
+        const clamped = Math.min(amount, maxForMethod);
+
+        onPaymentsChange(
+            payments.map(p =>
+                p.method === method ? { ...p, amount: clamped } : p
+            )
+        );
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -91,26 +155,97 @@ const CheckoutModal = ({
 
                             {/* Payment methods */}
                             <div>
-                                <p className="text-sm font-semibold text-gray-700 mb-2">Método de Pago</p>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {([
-                                        { id: 'cash', label: 'Efectivo', Icon: Banknote, activeClass: 'border-blue-500 bg-blue-50 text-blue-700' },
-                                        { id: 'card', label: 'Tarjeta', Icon: CreditCard, activeClass: 'border-blue-500 bg-blue-50 text-blue-700' },
-                                        { id: 'yape', label: 'Yape', Icon: Smartphone, activeClass: 'border-purple-500 bg-purple-50 text-purple-700' },
-                                    ] as const).map(({ id, label, Icon, activeClass }) => (
-                                        <button
-                                            key={id}
-                                            onClick={() => onPaymentMethodChange(id)}
-                                            className={clsx(
-                                                'flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all',
-                                                paymentMethod === id ? activeClass : 'border-gray-100 hover:border-gray-200 text-gray-600'
-                                            )}
-                                        >
-                                            <Icon className="w-7 h-7" />
-                                            <span className="font-medium text-sm">{label}</span>
-                                        </button>
-                                    ))}
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-sm font-semibold text-gray-700">Método de Pago</p>
+                                    <span className="text-xs font-semibold text-gray-400">puedes dividir el pago</span>
                                 </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {methods.map(({ id, label, Icon, activeClass }) => {
+                                        const entry = payments.find(p => p.method === id);
+                                        const isSelected = !!entry;
+                                        const maxForMethod = round2(Math.max(0, total - (selectedSum - (entry?.amount || 0))));
+                                        return (
+                                            <div
+                                                key={id}
+                                                className={clsx(
+                                                    'flex flex-col rounded-xl border-2 transition-all overflow-hidden',
+                                                    isSelected
+                                                        ? activeClass
+                                                        : 'border-gray-100 hover:border-gray-200'
+                                                )}
+                                            >
+                                                <button
+                                                    onClick={() => togglePayment(id, entry)}
+                                                    disabled={!isSelected && isComplete}
+                                                    className={clsx(
+                                                        'flex flex-col items-center justify-center gap-2 p-4 transition-all flex-1',
+                                                        isSelected ? 'text-blue-700' : 'text-gray-600',
+                                                        !isSelected && isComplete && 'opacity-40 cursor-not-allowed'
+                                                    )}
+                                                    title={!isSelected && isComplete ? 'El total ya está cubierto' : undefined}
+                                                >
+                                                    <Icon className="w-7 h-7" />
+                                                    <span className="font-medium text-sm">{label}</span>
+                                                    {isSelected && (
+                                                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                                                            <Check className="w-3.5 h-3.5" /> Seleccionado
+                                                        </span>
+                                                    )}
+                                                </button>
+
+                                                {isSelected && (
+                                                    <div className="px-2.5 pb-3">
+                                                        <div className="flex items-center gap-1.5 bg-white rounded-lg border border-gray-200 px-2 py-1.5 focus-within:ring-2 focus-within:ring-blue-400">
+                                                            <span className="text-xs font-bold text-gray-400 shrink-0">S/</span>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                max={maxForMethod.toFixed(2)}
+                                                                step="0.01"
+                                                                value={entry.amount || ''}
+                                                                placeholder="0.00"
+                                                                onChange={e => updateAmount(id, e.target.value)}
+                                                                className="w-full text-sm font-semibold tabular-nums focus:outline-none bg-transparent"
+                                                                disabled={isProcessing}
+                                                            />
+                                                        </div>
+                                                        <p className="text-[10px] text-gray-400 mt-1 text-center">
+                                                            {maxForMethod <= 0.001 ? 'Sin saldo disponible' : `Máx. S/ ${maxForMethod.toFixed(2)}`}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Progress del total asignado */}
+                                {payments.length > 0 && (
+                                    <div className="mt-4 rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-1.5">
+                                        <div className="flex justify-between text-xs text-gray-500">
+                                            <span className="font-semibold uppercase tracking-wider text-gray-400">Total asignado</span>
+                                            <span className="font-semibold tabular-nums text-gray-700">S/ {selectedSum.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm">
+                                            {isComplete ? (
+                                                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+                                                    <Check className="w-4 h-4" /> Pago completo
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Falta</span>
+                                                    <span className="font-bold tabular-nums text-amber-600">S/ {remaining.toFixed(2)}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                            <div
+                                                className={clsx('h-full rounded-full transition-all', isComplete ? 'bg-emerald-500' : 'bg-amber-400')}
+                                                style={{ width: `${total > 0 ? Math.min(100, (selectedSum / total) * 100) : 0}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Client info section */}
@@ -166,8 +301,8 @@ const CheckoutModal = ({
 
                             {/* Confirm button */}
                             <button
-                                onClick={onConfirm}
-                                disabled={isProcessing}
+                                onClick={() => onConfirm(payments)}
+                                disabled={!canConfirm}
                                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                             >
                                 {isProcessing ? (
@@ -175,10 +310,17 @@ const CheckoutModal = ({
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                         Procesando...
                                     </span>
-                                ) : (
+                                ) : isComplete ? (
                                     `Confirmar Pago · S/ ${total.toFixed(2)}`
+                                ) : (
+                                    'Falta saldar el total'
                                 )}
                             </button>
+                            {!isComplete && payments.length > 0 && (
+                                <p className="text-xs text-center text-gray-400 -mt-3">
+                                    La suma de los métodos debe igualar al total.
+                                </p>
+                            )}
                         </div>
                     </motion.div>
                 </div>

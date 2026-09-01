@@ -1,8 +1,8 @@
 use crate::models::sales::{
-    AnulacionResult, CreateOrderPayload, ItemAnuladoExport, OrderItemExport, Sale, SaleDetail,
-    SaleItem, VentaAnuladaExport,
+    AnulacionResult, CreateOrderPayload, CreateOrderPaymentPayload, ItemAnuladoExport,
+    OrderItemExport, OrderPayment, Sale, SaleDetail, SaleItem, VentaAnuladaExport,
 };
-use crate::sync::payloads::{ItemAnuladoSync, SaleItemSync, SaleSync, VentaAnuladaSync};
+use crate::sync::payloads::{ItemAnuladoSync, PaymentSync, SaleItemSync, SaleSync, VentaAnuladaSync};
 use crate::sync::queue::SyncQueue;
 use sqlx::SqlitePool;
 
@@ -22,6 +22,26 @@ impl SalesRepository {
 
         // 1. Insert the order header (hora local Peru, CURRENT_TIMESTAMP guardaria UTC)
         let order_uuid = uuid::Uuid::new_v4().to_string();
+
+        // Si el payload no trae fracciones explicitas, deriva una sola con el total
+        // en el metodo principal (compatibilidad con clientes antiguos).
+        let payments = if payload.payments.is_empty() {
+            vec![CreateOrderPaymentPayload {
+                payment_method: payload.payment_method.clone(),
+                amount: payload.total,
+            }]
+        } else {
+            payload.payments.clone()
+        };
+
+        // Validar que las fracciones sumen el total (tolerancia de centimos).
+        let sum_payments: f64 = payments.iter().map(|p| p.amount).sum();
+        if (sum_payments - payload.total).abs() > 0.01 {
+            return Err(sqlx::Error::Protocol(
+                "la suma de los metodos de pago no coincide con el total de la venta".into(),
+            ));
+        }
+
         let order_id = sqlx::query(
             r#"
             INSERT INTO orders (uuid, user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id, created_at)
@@ -43,22 +63,42 @@ impl SalesRepository {
         .await?
         .last_insert_rowid();
 
-        // 3. Update cash session balance
-        if payload.payment_method == "cash" {
-            sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ? WHERE id = ?")
-                .bind(payload.total)
-                .bind(payload.cash_session_id)
-                .execute(&mut *tx)
-                .await?;
-        } else {
-            sqlx::query("UPDATE cash_sessions SET expected_closing_virtual = expected_closing_virtual + ? WHERE id = ?")
-                .bind(payload.total)
+        // 2. Registrar cada fraccion de pago y acumular en los esperados de caja.
+        //    Solo las fracciones en 'cash' suman al esperado en efectivo; el resto
+        //    (tarjeta/yape) suma al esperado virtual.
+        let mut total_cash = 0.0f64;
+        let mut total_virtual = 0.0f64;
+        for payment in &payments {
+            sqlx::query(
+                r#"
+                INSERT INTO order_payments (uuid, order_id, payment_method, amount)
+                VALUES (?, ?, ?, ?)
+                "#,
+            )
+            .bind(uuid::Uuid::new_v4().to_string())
+            .bind(order_id)
+            .bind(&payment.payment_method)
+            .bind(payment.amount)
+            .execute(&mut *tx)
+            .await?;
+
+            if payment.payment_method == "cash" {
+                total_cash += payment.amount;
+            } else {
+                total_virtual += payment.amount;
+            }
+        }
+
+        if payload.cash_session_id > 0 {
+            sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash + ?, expected_closing_virtual = expected_closing_virtual + ? WHERE id = ?")
+                .bind(total_cash)
+                .bind(total_virtual)
                 .bind(payload.cash_session_id)
                 .execute(&mut *tx)
                 .await?;
         }
 
-        // 2. Insert each item and decrement stock
+        // 3. Insert each item and decrement stock
         for item in &payload.items {
             // Validate stock before decrementing
             let current_stock: i64 =
@@ -99,7 +139,8 @@ impl SalesRepository {
 
         // Encolar en segundo plano (no bloquea la confirmacion de la venta).
         let pool = self.pool.clone();
-        let payload_for_sync = payload.clone();
+        let mut payload_for_sync = payload.clone();
+        payload_for_sync.payments = payments;
         tauri::async_runtime::spawn(async move {
             if let Err(e) = enqueue_sale(&pool, &payload_for_sync, order_id, &order_uuid).await {
                 log::warn!("[sync] no se pudo encolar la venta {order_id}: {e}");
@@ -186,7 +227,22 @@ impl SalesRepository {
                 .fetch_all(&self.pool)
                 .await?;
 
-                Ok(Some(SaleDetail { sale: s, items }))
+                let payments = sqlx::query_as::<_, OrderPayment>(
+                    r#"
+                    SELECT
+                        id,
+                        payment_method,
+                        CAST(amount AS REAL) AS amount
+                    FROM order_payments
+                    WHERE order_id = ?
+                    ORDER BY id ASC
+                    "#,
+                )
+                .bind(sale_id)
+                .fetch_all(&self.pool)
+                .await?;
+
+                Ok(Some(SaleDetail { sale: s, items, payments }))
             }
         }
     }
@@ -331,6 +387,32 @@ impl SalesRepository {
         .fetch_all(&mut *tx)
         .await?;
 
+        // 5b. Cargar las fracciones de pago antes de borrarlas.
+        #[derive(sqlx::FromRow)]
+        struct PaymentRow {
+            payment_method: String,
+            amount: f64,
+        }
+
+        let payments = sqlx::query_as::<_, PaymentRow>(
+            r#"SELECT payment_method, CAST(amount AS REAL) AS amount
+               FROM order_payments WHERE order_id = ? ORDER BY id ASC"#,
+        )
+        .bind(order.id)
+        .fetch_all(&mut *tx)
+        .await?;
+
+        // Si no hay fracciones (ventas creadas antes de la tabla order_payments),
+        // se deriva una sola con el metodo principal y el total.
+        let payments = if payments.is_empty() {
+            vec![PaymentRow {
+                payment_method: order.payment_method.clone(),
+                amount: order.total,
+            }]
+        } else {
+            payments
+        };
+
         // 6. Registrar la anulacion (cabecera)
         let venta_anulada_uuid = uuid::Uuid::new_v4().to_string();
         let venta_anulada_id = sqlx::query(
@@ -378,23 +460,30 @@ impl SalesRepository {
                 .await?;
         }
 
-        // 8. Revertir esperados de caja si la venta estaba asociada a una sesion
+        // 8. Revertir esperados de caja segun cada fraccion de pago
         if let Some(cash_session_id) = order.cash_session_id {
-            let col = if order.payment_method == "cash" {
-                "expected_closing_cash"
-            } else {
-                "expected_closing_virtual"
-            };
-            sqlx::query(&format!(
-                "UPDATE cash_sessions SET {col} = {col} - ? WHERE id = ?"
-            ))
-            .bind(order.total)
-            .bind(cash_session_id)
-            .execute(&mut *tx)
-            .await?;
+            let mut revert_cash = 0.0f64;
+            let mut revert_virtual = 0.0f64;
+            for payment in &payments {
+                if payment.payment_method == "cash" {
+                    revert_cash += payment.amount;
+                } else {
+                    revert_virtual += payment.amount;
+                }
+            }
+            sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash - ?, expected_closing_virtual = expected_closing_virtual - ? WHERE id = ?")
+                .bind(revert_cash)
+                .bind(revert_virtual)
+                .bind(cash_session_id)
+                .execute(&mut *tx)
+                .await?;
         }
 
-        // 9. Borrar items y la orden (FK CASCADE refuerza order_items)
+        // 9. Borrar fracciones, items y la orden (FK CASCADE refuerza order_items)
+        sqlx::query("DELETE FROM order_payments WHERE order_id = ?")
+            .bind(order.id)
+            .execute(&mut *tx)
+            .await?;
         sqlx::query("DELETE FROM order_items WHERE order_id = ?")
             .bind(order.id)
             .execute(&mut *tx)
@@ -417,6 +506,10 @@ impl SalesRepository {
         let sync_subtotal = order.subtotal;
         let sync_igv = order.igv;
         let sync_total = order.total;
+        let sync_payments: Vec<(String, f64)> = payments
+            .iter()
+            .map(|p| (p.payment_method.clone(), p.amount))
+            .collect();
         let storage_items: Vec<(i64, String, f64, i64, f64)> = items
             .iter()
             .map(|it| {
@@ -434,6 +527,7 @@ impl SalesRepository {
                 &pool,
                 sync_order_id,
                 &sync_pm,
+                sync_payments,
                 sync_subtotal,
                 sync_igv,
                 sync_total,
@@ -564,6 +658,14 @@ async fn enqueue_sale(
         client_phone: payload.client_phone.clone(),
         client_name: payload.client_name.clone(),
         payment_method: payload.payment_method.clone(),
+        payments: payload
+            .payments
+            .iter()
+            .map(|p| PaymentSync {
+                payment_method: p.payment_method.clone(),
+                amount: p.amount,
+            })
+            .collect(),
         subtotal: payload.subtotal,
         igv: payload.igv,
         total: payload.total,
@@ -585,6 +687,7 @@ async fn enqueue_anulacion(
     pool: &SqlitePool,
     order_id: i64,
     payment_method: &str,
+    payments: Vec<(String, f64)>,
     subtotal: f64,
     igv: f64,
     total: f64,
@@ -629,6 +732,13 @@ async fn enqueue_anulacion(
         seller_username,
         reason: reason.to_string(),
         payment_method: payment_method.to_string(),
+        payments: payments
+            .into_iter()
+            .map(|(pm, amount)| PaymentSync {
+                payment_method: pm,
+                amount,
+            })
+            .collect(),
         subtotal,
         igv,
         total,

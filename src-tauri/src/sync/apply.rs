@@ -253,6 +253,27 @@ async fn apply_one_sale(
         .await
         .ok_or("no se pudo leer el id de la venta")?;
 
+    // Fracciones de pago. Si el payload no las trae (version antigua),
+    // se deriva una sola con el metodo principal y el total.
+    let payments = if sale.payments.is_empty() {
+        vec![(&*sale.payment_method, sale.total)]
+    } else {
+        sale.payments
+            .iter()
+            .map(|p| (p.payment_method.as_str(), p.amount))
+            .collect()
+    };
+    for (method, amount) in payments {
+        sqlx::query("INSERT INTO order_payments (uuid, order_id, payment_method, amount) VALUES (?1, ?2, ?3, ?4)")
+            .bind(uuid::Uuid::new_v4().to_string())
+            .bind(order_id)
+            .bind(method)
+            .bind(amount)
+            .execute(&mut **tx)
+            .await
+            .map_err(|e| format!("no se pudo registrar la fraccion de pago: {e}"))?;
+    }
+
     for item in &sale.items {
         let product_id = resolve_or_create_product_id(
             tx,

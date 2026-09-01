@@ -1,11 +1,11 @@
 # Graph Report - pos-desktop  (2026-09-01)
 
 ## Corpus Check
-- 157 files · ~152,020 words
+- 157 files · ~152,531 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1487 nodes · 2554 edges · 134 communities (84 shown, 50 thin omitted)
+- 1489 nodes · 2556 edges · 133 communities (83 shown, 50 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
@@ -36,7 +36,6 @@
 - Tauri Configuration
 - Desktop Schema Definitions
 - Windows Schema Definitions
-- User Commands
 - Auth Commands
 - Checkout and POS Page
 - Desktop Schema Capabilities
@@ -165,19 +164,19 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (134 total, 50 thin omitted)
+## Communities (133 total, 50 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
-Nodes (23): an(), Be(), cn(), Cs(), dA(), ee(), FA(), fe() (+15 more)
+Nodes (29): A(), an(), Be(), cn(), Cs(), dA(), ee(), FA() (+21 more)
 
 ### Community 1 - "Sales Commands"
 Cohesion: 0.07
 Nodes (53): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+45 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.17
-Nodes (27): gr(), w(), a(), b(), Be(), C(), Ct(), d() (+19 more)
+Cohesion: 0.16
+Nodes (23): gr(), w(), b(), Be(), C(), Ct(), Dt(), Ee() (+15 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
@@ -251,10 +250,6 @@ Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, descript
 Cohesion: 0.15
 Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
-### Community 21 - "User Commands"
-Cohesion: 0.24
-Nodes (24): AnulacionesBatch, CashBatch, CashSessionSync, CatalogBatch, CategorySync, ExpenseSync, InventoryBatch, ItemAnuladoSync (+16 more)
-
 ### Community 22 - "Auth Commands"
 Cohesion: 0.04
 Nodes (45): Arquitectura General, Autenticación, auth (4 comandos), Backend — Comandos Tauri (API IPC), Base de Datos — Esquema Completo, cash (9 comandos), CashSession, Ciclo de Venta (POS) (+37 more)
@@ -320,12 +315,12 @@ Cohesion: 0.25
 Nodes (6): ConfigService, Option, Result, Self, SqlitePool, String
 
 ### Community 39 - "html2canvas Internal B"
-Cohesion: 0.33
-Nodes (5): Expense, OtherIncome, Period, Product, Sale
+Cohesion: 0.22
+Nodes (8): I(), s(), Expense, OtherIncome, Period, Product, ReportsPage(), Sale
 
 ### Community 40 - "Desktop Capability Schemas"
-Cohesion: 0.12
-Nodes (21): build_envelope_for_topic(), parse_item(), Option, Result, Self, SqlitePool, String, T (+13 more)
+Cohesion: 0.08
+Nodes (45): build_envelope_for_topic(), parse_item(), Option, Result, Self, SqlitePool, String, T (+37 more)
 
 ### Community 41 - "Desktop Description Schema"
 Cohesion: 0.50
@@ -344,8 +339,8 @@ Cohesion: 0.12
 Nodes (61): AnulacionesBatch, CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch, apply_anulaciones_batch(), apply_cash_batch() (+53 more)
 
 ### Community 49 - "PermissionEntry"
-Cohesion: 0.12
-Nodes (15): 1. Propósito, 2. Navegación visible en Réplica, 3. Tópicos de sincronización y tablas, 4.1 Ventas (POS + Ventas), 4.2 Anulados, 4.3 Inventario, 4.4 Finanzas (caja), 4.5 Tiendas y Usuarios (+7 more)
+Cohesion: 0.11
+Nodes (17): 0. Changelog, 1. Propósito, 2. Navegación visible en Réplica, 3. Tópicos de sincronización y tablas, 4.1 Ventas (POS + Ventas), 4.2 Anulados, 4.3 Inventario, 4.4 Finanzas (caja) (+9 more)
 
 ### Community 52 - "Capability"
 Cohesion: 0.50
@@ -356,8 +351,8 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 56 - "html2canvas Minified A"
-Cohesion: 0.14
-Nodes (18): A(), B(), Hn(), Kr(), l(), Lr(), mr(), sB() (+10 more)
+Cohesion: 0.25
+Nodes (16): B(), l(), sB(), SUPPORT_SVG_DRAWING(), SUPPORT_WORD_BREAKING(), a(), d(), De() (+8 more)
 
 ### Community 57 - "Identifier"
 Cohesion: 0.67
@@ -372,8 +367,8 @@ Cohesion: 0.40
 Nodes (4): anyOf, description, $schema, title
 
 ### Community 61 - "html2canvas Range Bounds"
-Cohesion: 0.22
-Nodes (10): _(), E(), I(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k() (+2 more)
+Cohesion: 0.33
+Nodes (7): _(), E(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k()
 
 ### Community 102 - "Migraciones"
 Cohesion: 0.17
@@ -444,7 +439,7 @@ Cohesion: 0.15
 Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
 
 ## Knowledge Gaps
-- **463 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+458 more)
+- **465 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+460 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -458,9 +453,9 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
   _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _466 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _468 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.033646322378716745 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03163503163503163 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
   _Cohesion score 0.06582952815829528 - nodes in this community are weakly interconnected._
 - **Should `Cargo Build Errors` be split into smaller, more focused modules?**

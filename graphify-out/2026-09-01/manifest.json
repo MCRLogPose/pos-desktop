@@ -1105,8 +1105,8 @@
     "semantic_hash": ""
   },
   "docs/SINCRONIZACION_REPLICA.md": {
-    "mtime": 1788240204.5101361,
-    "ast_hash": "60e24d0cf3540098f0882dc2c71078ca",
+    "mtime": 1788244329.5818186,
+    "ast_hash": "a4851b370bf12c184557da6a58794955",
     "semantic_hash": ""
   },
   "src-tauri/src/commands/sync.rs": {
