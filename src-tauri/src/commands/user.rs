@@ -1,5 +1,6 @@
 use crate::commands::auth::AppState;
 use crate::models::user::User;
+use crate::sync::payloads::UserSync;
 use tauri::State;
 
 #[tauri::command]
@@ -64,6 +65,7 @@ pub async fn create_staff_user(
         .await
         .map_err(|e| e.to_string())?;
 
+    enqueue_user(&state, &user, Some(&role_name)).await;
     Ok(user)
 }
 
@@ -79,7 +81,13 @@ pub async fn update_user(
     let repo = &state.auth_service.user_repo;
     repo.update_user(id, cargo.as_deref(), email.as_deref(), store_id)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+
+    let user = repo.find_user_by_id(id).await.map_err(|e| e.to_string())?;
+    if let Some(user) = user {
+        enqueue_user(&state, &user, None).await;
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -98,4 +106,71 @@ pub async fn get_users_by_store(
     repo.get_users_by_store(store_id)
         .await
         .map_err(|e| e.to_string())
+}
+
+async fn enqueue_user(state: &State<'_, AppState>, user: &User, role_name: Option<&str>) {
+    if user.username.eq_ignore_ascii_case("admin") {
+        return;
+    }
+    let pool = state.auth_service.user_repo.pool();
+
+    let Some(sync_uuid) = sqlx::query_scalar::<_, String>("SELECT uuid FROM users WHERE id = ?")
+        .bind(user.id)
+        .fetch_optional(pool)
+        .await
+        .ok()
+        .flatten()
+    else {
+        return;
+    };
+
+    let store_code: Option<String> = match user.store_id {
+        Some(store_id) => sqlx::query_scalar("SELECT code FROM stores WHERE id = ?")
+            .bind(store_id)
+            .fetch_optional(pool)
+            .await
+            .ok()
+            .flatten(),
+        None => None,
+    };
+
+    let role_name = match role_name {
+        Some(r) => Some(r.to_string()),
+        None => sqlx::query_scalar(
+            "SELECT r.role_name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = ?",
+        )
+        .bind(user.id)
+        .fetch_optional(pool)
+        .await
+        .ok()
+        .flatten(),
+    };
+
+    let created_at: Option<String> =
+        sqlx::query_scalar("SELECT created_at FROM users WHERE id = ?")
+            .bind(user.id)
+            .fetch_optional(pool)
+            .await
+            .ok()
+            .flatten();
+
+    let payload = UserSync {
+        sync_uuid,
+        local_user_id: user.id,
+        username: user.username.clone(),
+        cargo: user.cargo.clone(),
+        email: user.email.clone(),
+        store_code,
+        role_name,
+        is_active: user.is_active,
+        created_at,
+    };
+
+    if let Err(e) = state
+        .sync_queue
+        .enqueue("catalog", &payload.sync_uuid, "user", &user.id.to_string(), &payload)
+        .await
+    {
+        log::warn!("[sync] no se pudo encolar el usuario {}: {e}", user.id);
+    }
 }

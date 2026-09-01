@@ -10,6 +10,10 @@ impl UserRepository {
         Self { pool }
     }
 
+    pub fn pool(&self) -> &SqlitePool {
+        &self.pool
+    }
+
     pub async fn find_all_by_username(&self, username: &str) -> Result<Vec<User>, sqlx::Error> {
         let users = sqlx::query_as::<_, User>(
             "SELECT id, username, password_hash, cargo, email, store_id, is_active, created_at FROM users WHERE username = ? ORDER BY id"
@@ -29,8 +33,9 @@ impl UserRepository {
         email: Option<&str>,
         store_id: Option<i64>,
     ) -> Result<User, sqlx::Error> {
+        let uuid = uuid::Uuid::new_v4().to_string();
         let result = sqlx::query(
-            "INSERT INTO users (username, password_hash, cargo, email, store_id, is_active) VALUES (?, ?, ?, ?, ?, ?)"
+            "INSERT INTO users (username, password_hash, cargo, email, store_id, is_active, uuid) VALUES (?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(username)
         .bind(password_hash)
@@ -38,6 +43,7 @@ impl UserRepository {
         .bind(email)
         .bind(store_id)
         .bind(true) // is_active
+        .bind(&uuid)
         .execute(&self.pool)
         .await?;
 

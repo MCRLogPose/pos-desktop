@@ -1,5 +1,7 @@
 use crate::models::inventory::{Category, ProductWithCategory};
 use crate::models::inventory::Product;
+use crate::sync::payloads::{CategorySync, ProductUpsertSync};
+use crate::sync::queue::SyncQueue;
 use sqlx::SqlitePool;
 
 pub struct InventoryRepository {
@@ -24,8 +26,18 @@ impl InventoryRepository {
             .execute(&self.pool)
             .await?;
 
+        let id = result.last_insert_rowid();
+
+        let pool = self.pool.clone();
+        let name_owned = name.to_string();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_category(&pool, id, name_owned).await {
+                log::warn!("[sync] no se pudo encolar categoria {id}: {e}");
+            }
+        });
+
         Ok(Category {
-            id: result.last_insert_rowid(),
+            id,
             name: name.to_string(),
         })
     }
@@ -36,6 +48,14 @@ impl InventoryRepository {
             .bind(id)
             .execute(&self.pool)
             .await?;
+
+        let pool = self.pool.clone();
+        let name_owned = name.to_string();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_category(&pool, id, name_owned).await {
+                log::warn!("[sync] no se pudo encolar categoria {id}: {e}");
+            }
+        });
         Ok(())
     }
 
@@ -91,7 +111,16 @@ impl InventoryRepository {
         .execute(&self.pool)
         .await?;
 
-        Ok(result.last_insert_rowid())
+        let id = result.last_insert_rowid();
+
+        let pool = self.pool.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_product(&pool, id).await {
+                log::warn!("[sync] no se pudo encolar producto {id}: {e}");
+            }
+        });
+
+        Ok(id)
     }
 
     pub async fn update_product(
@@ -122,6 +151,13 @@ impl InventoryRepository {
         .bind(id)
         .execute(&self.pool)
         .await?;
+
+        let pool = self.pool.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_product(&pool, id).await {
+                log::warn!("[sync] no se pudo encolar producto {id}: {e}");
+            }
+        });
         Ok(())
     }
 
@@ -159,4 +195,78 @@ impl InventoryRepository {
         .fetch_optional(&self.pool)
         .await
     }
+}
+
+async fn enqueue_category(pool: &SqlitePool, id: i64, name: String) -> Result<(), sqlx::Error> {
+    let queue = SyncQueue::new(pool.clone());
+    let sync_uuid: Option<String> =
+        sqlx::query_scalar("SELECT uuid FROM categories WHERE id = ?")
+            .bind(id)
+            .fetch_optional(pool)
+            .await?;
+    let Some(sync_uuid) = sync_uuid else {
+        return Ok(());
+    };
+    queue
+        .enqueue(
+            "inventory",
+            &sync_uuid,
+            "category",
+            &id.to_string(),
+            &CategorySync {
+                sync_uuid: sync_uuid.clone(),
+                local_category_id: id,
+                name,
+            },
+        )
+        .await
+}
+
+async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> {
+    let queue = SyncQueue::new(pool.clone());
+    let row: Option<(
+        String,
+        Option<String>,
+        String,
+        Option<String>,
+        f64,
+        f64,
+        Option<i64>,
+        Option<String>,
+        Option<String>,
+        bool,
+    )> = sqlx::query_as(
+        "SELECT p.uuid, p.code, p.name, c.name, p.price, p.cost, p.min_stock, p.unit, p.image_url, p.is_active
+         FROM products p LEFT JOIN categories c ON p.category_id = c.id
+         WHERE p.id = ?",
+    )
+    .bind(id)
+    .fetch_optional(pool)
+    .await?;
+    let Some((sync_uuid, code, name, category_name, price, cost, min_stock, unit, image_url, is_active)) = row
+    else {
+        return Ok(());
+    };
+    queue
+        .enqueue(
+            "inventory",
+            &sync_uuid,
+            "product",
+            &id.to_string(),
+            &ProductUpsertSync {
+                sync_uuid: sync_uuid.clone(),
+                local_product_id: id,
+                code,
+                name,
+                category_name,
+                price,
+                cost,
+                min_stock,
+                unit,
+                image_url,
+                is_active,
+                occurred_at: chrono::Local::now().to_rfc3339(),
+            },
+        )
+        .await
 }

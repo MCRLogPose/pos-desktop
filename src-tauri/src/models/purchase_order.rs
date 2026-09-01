@@ -15,7 +15,7 @@ pub struct PurchaseOrder {
     pub created_at: Option<NaiveDateTime>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct PurchaseOrderItem {
     pub id: i64,
     pub purchase_order_id: i64,

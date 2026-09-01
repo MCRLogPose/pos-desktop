@@ -2,6 +2,8 @@ use crate::models::sales::{
     AnulacionResult, CreateOrderPayload, ItemAnuladoExport, OrderItemExport, Sale, SaleDetail,
     SaleItem, VentaAnuladaExport,
 };
+use crate::sync::payloads::{ItemAnuladoSync, SaleItemSync, SaleSync, VentaAnuladaSync};
+use crate::sync::queue::SyncQueue;
 use sqlx::SqlitePool;
 
 pub struct SalesRepository {
@@ -19,12 +21,14 @@ impl SalesRepository {
         let mut tx = self.pool.begin().await?;
 
         // 1. Insert the order header (hora local Peru, CURRENT_TIMESTAMP guardaria UTC)
+        let order_uuid = uuid::Uuid::new_v4().to_string();
         let order_id = sqlx::query(
             r#"
-            INSERT INTO orders (user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
+            INSERT INTO orders (uuid, user_id, client_document, client_phone, client_name, payment_method, subtotal, igv, total, cash_session_id, store_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))
             "#,
         )
+        .bind(&order_uuid)
         .bind(payload.user_id)
         .bind(&payload.client_document)
         .bind(&payload.client_phone)
@@ -92,6 +96,16 @@ impl SalesRepository {
         }
 
         tx.commit().await?;
+
+        // Encolar en segundo plano (no bloquea la confirmacion de la venta).
+        let pool = self.pool.clone();
+        let payload_for_sync = payload.clone();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_sale(&pool, &payload_for_sync, order_id, &order_uuid).await {
+                log::warn!("[sync] no se pudo encolar la venta {order_id}: {e}");
+            }
+        });
+
         Ok(order_id)
     }
 
@@ -318,13 +332,14 @@ impl SalesRepository {
         .await?;
 
         // 6. Registrar la anulacion (cabecera)
+        let venta_anulada_uuid = uuid::Uuid::new_v4().to_string();
         let venta_anulada_id = sqlx::query(
             r#"
             INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
             "#,
         )
-        .bind(uuid::Uuid::new_v4().to_string())
+        .bind(&venta_anulada_uuid)
         .bind(order.id)
         .bind(order.store_id)
         .bind(requester_user_id)
@@ -391,6 +406,49 @@ impl SalesRepository {
 
         tx.commit().await?;
 
+        // Encolar la anulacion en segundo plano (no bloquea la UI).
+        let pool = self.pool.clone();
+        let anulacion_uuid = venta_anulada_uuid.clone();
+        let sync_anulacion_id = venta_anulada_id;
+        let sync_order_id = order.id;
+        let sync_seller = requester_user_id;
+        let sync_reason = reason.clone();
+        let sync_pm = order.payment_method.clone();
+        let sync_subtotal = order.subtotal;
+        let sync_igv = order.igv;
+        let sync_total = order.total;
+        let storage_items: Vec<(i64, String, f64, i64, f64)> = items
+            .iter()
+            .map(|it| {
+                (
+                    it.product_id,
+                    it.product_name.clone(),
+                    it.unit_price,
+                    it.quantity,
+                    it.subtotal,
+                )
+            })
+            .collect();
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_anulacion(
+                &pool,
+                sync_order_id,
+                &sync_pm,
+                sync_subtotal,
+                sync_igv,
+                sync_total,
+                sync_seller,
+                &anulacion_uuid,
+                sync_anulacion_id,
+                &sync_reason,
+                storage_items,
+            )
+            .await
+            {
+                log::warn!("[sync] no se pudo encolar la anulacion {sync_anulacion_id}: {e}");
+            }
+        });
+
         Ok(AnulacionResult {
             id: venta_anulada_id,
             total_anulado: order.total,
@@ -455,4 +513,137 @@ impl SalesRepository {
         .fetch_all(&self.pool)
         .await
     }
+}
+
+/// Encola una venta en la outbox de sincronizacion. Se invoca en segundo plano
+/// (despues del commit) para no bloquear la confirmacion de la venta en la UI.
+async fn enqueue_sale(
+    pool: &SqlitePool,
+    payload: &CreateOrderPayload,
+    order_id: i64,
+    order_uuid: &str,
+) -> Result<(), sqlx::Error> {
+    let created_at: String = sqlx::query_scalar("SELECT created_at FROM orders WHERE id = ?")
+        .bind(order_id)
+        .fetch_one(pool)
+        .await?;
+
+    let seller_username: Option<String> =
+        sqlx::query_scalar("SELECT username FROM users WHERE id = ?")
+            .bind(payload.user_id)
+            .fetch_optional(pool)
+            .await?;
+
+    let cash_session_uuid: Option<String> =
+        sqlx::query_scalar("SELECT uuid FROM cash_sessions WHERE id = ?")
+            .bind(payload.cash_session_id)
+            .fetch_optional(pool)
+            .await?;
+
+    let mut items = Vec::with_capacity(payload.items.len());
+    for item in &payload.items {
+        let product_code: Option<String> =
+            sqlx::query_scalar("SELECT code FROM products WHERE id = ?")
+                .bind(item.product_id)
+                .fetch_optional(pool)
+                .await?;
+        items.push(SaleItemSync {
+            product_code,
+            product_name: item.product_name.clone(),
+            unit_price: item.unit_price,
+            quantity: item.quantity,
+            subtotal: item.subtotal,
+        });
+    }
+
+    let sale_sync = SaleSync {
+        sync_uuid: order_uuid.to_string(),
+        local_order_id: order_id,
+        seller_username,
+        client_document: payload.client_document.clone(),
+        client_phone: payload.client_phone.clone(),
+        client_name: payload.client_name.clone(),
+        payment_method: payload.payment_method.clone(),
+        subtotal: payload.subtotal,
+        igv: payload.igv,
+        total: payload.total,
+        cash_session_uuid,
+        created_at,
+        items,
+    };
+
+    let queue = SyncQueue::new(pool.clone());
+    queue
+        .enqueue("sales", order_uuid, "order", &order_id.to_string(), &sale_sync)
+        .await
+}
+
+/// Encola una anulacion en la outbox de sincronizacion. Se invoca en segundo
+/// plano (despues del commit) para no bloquear la UI al anular una venta.
+#[allow(clippy::too_many_arguments)]
+async fn enqueue_anulacion(
+    pool: &SqlitePool,
+    order_id: i64,
+    payment_method: &str,
+    subtotal: f64,
+    igv: f64,
+    total: f64,
+    requester_user_id: i64,
+    anulacion_uuid: &str,
+    anulacion_id: i64,
+    reason: &str,
+    items: Vec<(i64, String, f64, i64, f64)>,
+) -> Result<(), sqlx::Error> {
+    let cancelled_at: String =
+        sqlx::query_scalar("SELECT cancelled_at FROM ventas_anuladas WHERE id = ?")
+            .bind(anulacion_id)
+            .fetch_one(pool)
+            .await?;
+
+    let seller_username: Option<String> =
+        sqlx::query_scalar("SELECT username FROM users WHERE id = ?")
+            .bind(requester_user_id)
+            .fetch_optional(pool)
+            .await?;
+
+    let mut sync_items = Vec::with_capacity(items.len());
+    for (product_id, product_name, unit_price, quantity, item_subtotal) in items {
+        let product_code: Option<String> =
+            sqlx::query_scalar("SELECT code FROM products WHERE id = ?")
+                .bind(product_id)
+                .fetch_optional(pool)
+                .await?;
+        sync_items.push(ItemAnuladoSync {
+            product_code,
+            product_name,
+            unit_price,
+            quantity,
+            subtotal: item_subtotal,
+        });
+    }
+
+    let anulacion_sync = VentaAnuladaSync {
+        sync_uuid: anulacion_uuid.to_string(),
+        local_anulacion_id: anulacion_id,
+        order_id: Some(order_id),
+        seller_username,
+        reason: reason.to_string(),
+        payment_method: payment_method.to_string(),
+        subtotal,
+        igv,
+        total,
+        cancelled_at,
+        items: sync_items,
+    };
+
+    let queue = SyncQueue::new(pool.clone());
+    queue
+        .enqueue(
+            "anulaciones",
+            anulacion_uuid,
+            "venta_anulada",
+            &anulacion_id.to_string(),
+            &anulacion_sync,
+        )
+        .await
 }

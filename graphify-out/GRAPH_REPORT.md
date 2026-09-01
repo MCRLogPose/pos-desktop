@@ -1,16 +1,16 @@
-# Graph Report - pos-desktop  (2026-08-31)
+# Graph Report - pos-desktop  (2026-09-01)
 
 ## Corpus Check
-- 152 files · ~146,534 words
+- 157 files · ~152,531 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1416 nodes · 2363 edges · 132 communities (82 shown, 50 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.72)
+- 1489 nodes · 2556 edges · 133 communities (83 shown, 50 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a8cdfce4`
+- Built from commit: `49839147`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,7 +36,6 @@
 - Tauri Configuration
 - Desktop Schema Definitions
 - Windows Schema Definitions
-- User Commands
 - Auth Commands
 - Checkout and POS Page
 - Desktop Schema Capabilities
@@ -72,6 +71,8 @@
 - Graphify Agent Config
 - html2canvas Minified A
 - Identifier
+- PermissionEntry
+- windows-schema.json
 - html2canvas Range Bounds
 - Settings Page
 - Android Chrome Icon
@@ -134,16 +135,16 @@
 - GastosTable.tsx
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 64 edges
+1. `AppState` - 69 edges
 2. `SyncItemAck` - 26 edges
 3. `compilerOptions` - 25 edges
 4. `CashRepository` - 21 edges
-5. `test_pool()` - 18 edges
-6. `compilerOptions` - 18 edges
-7. `e()` - 17 edges
-8. `m()` - 17 edges
-9. `InventoryRepository` - 17 edges
-10. `UserRepository` - 17 edges
+5. `UserRepository` - 18 edges
+6. `test_pool()` - 18 edges
+7. `compilerOptions` - 18 edges
+8. `e()` - 17 edges
+9. `m()` - 17 edges
+10. `InventoryRepository` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `GastosPage()` --indirect_call--> `v()`  [INFERRED]
@@ -163,19 +164,19 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (132 total, 50 thin omitted)
+## Communities (133 total, 50 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
-Nodes (23): an(), Be(), cn(), Cs(), dA(), ee(), FA(), fe() (+15 more)
+Nodes (29): A(), an(), Be(), cn(), Cs(), dA(), ee(), FA() (+21 more)
 
 ### Community 1 - "Sales Commands"
-Cohesion: 0.08
-Nodes (36): AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, ItemAnulado, ItemAnuladoExport, Order, OrderItemExport, Option (+28 more)
+Cohesion: 0.07
+Nodes (53): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+45 more)
 
 ### Community 2 - "jsPDF Vendor Library"
-Cohesion: 0.14
-Nodes (34): gr(), l(), w(), a(), b(), Be(), C(), Ct() (+26 more)
+Cohesion: 0.16
+Nodes (23): gr(), w(), b(), Be(), C(), Ct(), Dt(), Ee() (+15 more)
 
 ### Community 3 - "Cargo Build Errors"
 Cohesion: 0.10
@@ -183,23 +184,23 @@ Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherInco
 
 ### Community 4 - "Auth and Cash Commands"
 Cohesion: 0.07
-Nodes (78): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+70 more)
+Nodes (83): AppState, change_password(), create_user(), get_users(), login(), Option, Result, State (+75 more)
 
 ### Community 5 - "Inventory Models"
-Cohesion: 0.09
-Nodes (23): Product, Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryRepository (+15 more)
+Cohesion: 0.16
+Nodes (14): Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryService, Category (+6 more)
 
 ### Community 6 - "Package Dependencies"
 Cohesion: 0.05
 Nodes (35): dependencies, clsx, lottie-react, lucide-react, motion, react, react-dom, react-hook-form (+27 more)
 
 ### Community 7 - "Main App Core"
-Cohesion: 0.11
-Nodes (18): Error, Option, Result, Self, SqlitePool, Store, Vec, StoreRepository (+10 more)
+Cohesion: 0.12
+Nodes (20): enqueue_store(), enqueue_store_by_id(), Error, Option, Result, Self, SqlitePool, Store (+12 more)
 
 ### Community 8 - "Cash Session Models"
-Cohesion: 0.07
-Nodes (32): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UpdateExpensePayload (+24 more)
+Cohesion: 0.13
+Nodes (20): CashSession, CloseCashPayload, Expense, OpenCashPayload, OtherIncome, Option, String, UpdateExpensePayload (+12 more)
 
 ### Community 9 - "Dev Dependencies"
 Cohesion: 0.07
@@ -210,7 +211,7 @@ Cohesion: 0.07
 Nodes (15): PasswordConfirmationModalProps, Store, StoreCard(), StoreCardProps, Store, StoreDetailModalProps, StoreModalProps, Store (+7 more)
 
 ### Community 11 - "User Models"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (15): Role, NaiveDateTime, Option, String, Vec, User, UserWithRoles, Error (+7 more)
 
 ### Community 12 - "App Root and Auth Context"
@@ -226,8 +227,8 @@ Cohesion: 0.07
 Nodes (33): AnularVentaModalProps, ExportFormat, ExportModalProps, formatDateTime(), paymentMethodColor(), paymentMethodLabel(), Sale, SaleDetailModal() (+25 more)
 
 ### Community 15 - "Cash Repository"
-Cohesion: 0.10
-Nodes (31): create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String, Vec (+23 more)
+Cohesion: 0.07
+Nodes (45): Product, create_purchase_order(), get_purchase_order_detail(), get_purchase_orders(), Option, Result, State, String (+37 more)
 
 ### Community 16 - "TypeScript Node Config"
 Cohesion: 0.10
@@ -248,10 +249,6 @@ Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, descript
 ### Community 20 - "Windows Schema Definitions"
 Cohesion: 0.15
 Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
-
-### Community 21 - "User Commands"
-Cohesion: 0.24
-Nodes (24): AnulacionesBatch, CashBatch, CashSessionSync, CatalogBatch, CategorySync, ExpenseSync, InventoryBatch, ItemAnuladoSync (+16 more)
 
 ### Community 22 - "Auth Commands"
 Cohesion: 0.04
@@ -294,7 +291,7 @@ Cohesion: 0.25
 Nodes (8): description, properties, required, type, CapabilityRemote, urls, description, type
 
 ### Community 32 - "Database Initialization"
-Cohesion: 0.50
+Cohesion: 0.46
 Nodes (7): AppHandle, ensure_user_identity_v2(), init_db(), Box, Error, Result, SqlitePool
 
 ### Community 33 - "Dashboard Page"
@@ -318,12 +315,12 @@ Cohesion: 0.25
 Nodes (6): ConfigService, Option, Result, Self, SqlitePool, String
 
 ### Community 39 - "html2canvas Internal B"
-Cohesion: 0.33
-Nodes (5): Expense, OtherIncome, Period, Product, Sale
+Cohesion: 0.22
+Nodes (8): I(), s(), Expense, OtherIncome, Period, Product, ReportsPage(), Sale
 
 ### Community 40 - "Desktop Capability Schemas"
-Cohesion: 0.40
-Nodes (4): anyOf, description, $schema, title
+Cohesion: 0.08
+Nodes (45): build_envelope_for_topic(), parse_item(), Option, Result, Self, SqlitePool, String, T (+37 more)
 
 ### Community 41 - "Desktop Description Schema"
 Cohesion: 0.50
@@ -342,8 +339,8 @@ Cohesion: 0.12
 Nodes (61): AnulacionesBatch, CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch, apply_anulaciones_batch(), apply_cash_batch() (+53 more)
 
 ### Community 49 - "PermissionEntry"
-Cohesion: 0.33
-Nodes (15): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+7 more)
+Cohesion: 0.11
+Nodes (17): 0. Changelog, 1. Propósito, 2. Navegación visible en Réplica, 3. Tópicos de sincronización y tablas, 4.1 Ventas (POS + Ventas), 4.2 Anulados, 4.3 Inventario, 4.4 Finanzas (caja) (+9 more)
 
 ### Community 52 - "Capability"
 Cohesion: 0.50
@@ -354,16 +351,24 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 56 - "html2canvas Minified A"
-Cohesion: 0.18
-Nodes (11): A(), B(), Hn(), Kr(), Lr(), mr(), sB(), SUPPORT_FOREIGNOBJECT_DRAWING() (+3 more)
+Cohesion: 0.25
+Nodes (16): B(), l(), sB(), SUPPORT_SVG_DRAWING(), SUPPORT_WORD_BREAKING(), a(), d(), De() (+8 more)
 
 ### Community 57 - "Identifier"
 Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
+### Community 58 - "PermissionEntry"
+Cohesion: 0.19
+Nodes (17): CashRepository, enqueue_cash_session_close(), enqueue_cash_session_open(), enqueue_expense(), enqueue_expense_standalone(), enqueue_other_income(), CashSession, Error (+9 more)
+
+### Community 59 - "windows-schema.json"
+Cohesion: 0.40
+Nodes (4): anyOf, description, $schema, title
+
 ### Community 61 - "html2canvas Range Bounds"
-Cohesion: 0.22
-Nodes (10): _(), E(), I(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k() (+2 more)
+Cohesion: 0.33
+Nodes (7): _(), E(), p(), SUPPORT_RANGE_BOUNDS(), t(), wA(), k()
 
 ### Community 102 - "Migraciones"
 Cohesion: 0.17
@@ -434,24 +439,24 @@ Cohesion: 0.15
 Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
 
 ## Knowledge Gaps
-- **450 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+445 more)
+- **465 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+460 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `PermissionEntry`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Why does `PurchaseOrderService` connect `Cash Repository` to `Cash Session Models`, `Auth and Cash Commands`, `Inventory Models`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Desktop Capability Schemas`, `Cash Repository`?**
+  _High betweenness centrality (0.098) - this node is a cross-community bridge._
+- **Why does `SyncClient` connect `Desktop Capability Schemas` to `Auth and Cash Commands`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _453 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _468 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.033646322378716745 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.03163503163503163 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
-  _Cohesion score 0.07676767676767676 - nodes in this community are weakly interconnected._
-- **Should `jsPDF Vendor Library` be split into smaller, more focused modules?**
-  _Cohesion score 0.14444444444444443 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06582952815829528 - nodes in this community are weakly interconnected._
+- **Should `Cargo Build Errors` be split into smaller, more focused modules?**
+  _Cohesion score 0.09956709956709957 - nodes in this community are weakly interconnected._

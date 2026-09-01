@@ -4,6 +4,7 @@ use sqlx::FromRow;
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct CashSession {
     pub id: i64,
+    pub uuid: String,
     pub opened_by: i64,
     pub opened_at: String,
     pub closed_by: Option<i64>,

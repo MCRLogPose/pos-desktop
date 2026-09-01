@@ -32,4 +32,5 @@ thiserror = "1.0"
 anyhow = "1.0"
 tauri-plugin-process = "2"
 axum = "0.8"
-tokio = { version = "1", features = ["net", "rt", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["net", "rt", "macros", "time"] }

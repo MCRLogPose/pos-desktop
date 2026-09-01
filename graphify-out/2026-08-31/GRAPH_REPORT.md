@@ -1,16 +1,16 @@
-# Graph Report - pos-desktop  (2026-08-30)
+# Graph Report - pos-desktop  (2026-08-31)
 
 ## Corpus Check
-- 152 files · ~146,311 words
+- 152 files · ~146,534 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1416 nodes · 2360 edges · 130 communities (80 shown, 50 thin omitted)
+- 1416 nodes · 2363 edges · 132 communities (82 shown, 50 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 84 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `628eaae1`
+- Built from commit: `a8cdfce4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -66,10 +66,12 @@
 - PermissionEntry
 - Login Card UI
 - User Service
+- Capability
 - Windows Identifier Schema
 - TypeScript Root Config
 - Graphify Agent Config
 - html2canvas Minified A
+- Identifier
 - html2canvas Range Bounds
 - Settings Page
 - Android Chrome Icon
@@ -161,15 +163,15 @@
 ## Hyperedges (group relationships)
 - **Rust Compilation Blockers** — cargo_output_tauri_app, src_tauri_check_error_tokio, src_tauri_check_error_user_model, src_tauri_check_error_naive_date_time, cargo_output_sqlite_row_get [INFERRED 0.85]
 
-## Communities (130 total, 50 thin omitted)
+## Communities (132 total, 50 thin omitted)
 
 ### Community 0 - "html2canvas Vendor Library"
 Cohesion: 0.03
 Nodes (23): an(), Be(), cn(), Cs(), dA(), ee(), FA(), fe() (+15 more)
 
 ### Community 1 - "Sales Commands"
-Cohesion: 0.06
-Nodes (51): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+43 more)
+Cohesion: 0.08
+Nodes (36): AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, ItemAnulado, ItemAnuladoExport, Order, OrderItemExport, Option (+28 more)
 
 ### Community 2 - "jsPDF Vendor Library"
 Cohesion: 0.14
@@ -240,8 +242,8 @@ Cohesion: 0.11
 Nodes (17): app, security, windows, build, beforeBuildCommand, beforeDevCommand, devUrl, frontendDist (+9 more)
 
 ### Community 19 - "Desktop Schema Definitions"
-Cohesion: 0.13
-Nodes (15): definitions, Identifier, Number, PermissionEntry, Target, Value, oneOf, anyOf (+7 more)
+Cohesion: 0.15
+Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
 ### Community 20 - "Windows Schema Definitions"
 Cohesion: 0.15
@@ -260,8 +262,8 @@ Cohesion: 0.20
 Nodes (6): CheckoutModalProps, PaymentMethod, CartItem, Category, PaymentMethod, Product
 
 ### Community 24 - "Desktop Schema Capabilities"
-Cohesion: 0.18
-Nodes (11): description, properties, required, type, Capability, description, type, identifier (+3 more)
+Cohesion: 0.20
+Nodes (10): properties, type, default, description, type, identifier, local, remote (+2 more)
 
 ### Community 25 - "Desktop Schema Permissions"
 Cohesion: 0.20
@@ -340,8 +342,12 @@ Cohesion: 0.12
 Nodes (61): AnulacionesBatch, CashBatch, CatalogBatch, InventoryBatch, PurchasesBatch, SalesBatch, apply_anulaciones_batch(), apply_cash_batch() (+53 more)
 
 ### Community 49 - "PermissionEntry"
+Cohesion: 0.33
+Nodes (15): anular_venta(), create_sale(), get_all_items_anulados(), get_all_order_items(), get_anulaciones(), get_sale_detail(), get_sales(), ItemAnuladoExport (+7 more)
+
+### Community 52 - "Capability"
 Cohesion: 0.50
-Nodes (4): default, description, type, local
+Nodes (4): description, required, type, Capability
 
 ### Community 53 - "Windows Identifier Schema"
 Cohesion: 0.67
@@ -350,6 +356,10 @@ Nodes (3): Identifier, description, oneOf
 ### Community 56 - "html2canvas Minified A"
 Cohesion: 0.18
 Nodes (11): A(), B(), Hn(), Kr(), Lr(), mr(), sB(), SUPPORT_FOREIGNOBJECT_DRAWING() (+3 more)
+
+### Community 57 - "Identifier"
+Cohesion: 0.67
+Nodes (3): Identifier, description, oneOf
 
 ### Community 61 - "html2canvas Range Bounds"
 Cohesion: 0.22
@@ -431,7 +441,7 @@ Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, form
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`?**
+- **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Cash Repository`, `PermissionEntry`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Why does `PurchaseOrderService` connect `Cash Repository` to `Cash Session Models`, `Auth and Cash Commands`, `Inventory Models`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
@@ -442,6 +452,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.033646322378716745 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
-  _Cohesion score 0.06237424547283702 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07676767676767676 - nodes in this community are weakly interconnected._
 - **Should `jsPDF Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.14444444444444443 - nodes in this community are weakly interconnected._

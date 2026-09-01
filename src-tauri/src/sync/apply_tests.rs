@@ -485,7 +485,7 @@ async fn anulacion_borra_y_registra_justificacion() {
     let repo = SalesRepository::new(pool.clone());
 
     // El vendedor que creo la venta puede anularla
-    let res = repo.anular_venta(order_id, seller_id, "cliente se retracto".into()).await.unwrap();
+    let res = repo.anular_venta(order_id, seller_id, "cliente se retracto".into(), None).await.unwrap();
     assert_eq!(res.total_anulado, 50.0);
     assert_eq!(res.items_count, 1);
 
@@ -564,22 +564,22 @@ async fn anulacion_valida_permisos_y_sync() {
 
     // Vendedor sin permisos (no fue quien creo la venta) -> rechazado
     let o1 = make_order(&pool, seller_id, 0).await;
-    let err = repo.anular_venta(o1, otro_id, "sin motivo".into()).await.unwrap_err();
+    let err = repo.anular_venta(o1, otro_id, "sin motivo".into(), None).await.unwrap_err();
     assert!(err.to_string().contains("ADMIN") || err.to_string().contains("creó"));
 
     // Venta ya sincronizada -> rechazada
     let o2 = make_order(&pool, seller_id, 1).await;
-    let err = repo.anular_venta(o2, seller_id, "motivo".into()).await.unwrap_err();
+    let err = repo.anular_venta(o2, seller_id, "motivo".into(), None).await.unwrap_err();
     assert!(err.to_string().contains("sincronizada"));
 
     // ADMIN puede anular
     let o3 = make_order(&pool, seller_id, 0).await;
-    repo.anular_venta(o3, admin_id, "motivo admin".into()).await.unwrap();
+    repo.anular_venta(o3, admin_id, "motivo admin".into(), None).await.unwrap();
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM ventas_anuladas").await, 1);
 
     // Justificacion obligatoria
     let o4 = make_order(&pool, seller_id, 0).await;
-    let err = repo.anular_venta(o4, admin_id, "   ".into()).await.unwrap_err();
+    let err = repo.anular_venta(o4, admin_id, "   ".into(), None).await.unwrap_err();
     assert!(err.to_string().contains("justificacion"));
 }
 
@@ -621,7 +621,7 @@ async fn anulaciones_se_listan_y_exportan() {
     .unwrap();
 
     let repo = SalesRepository::new(pool.clone());
-    repo.anular_venta(order_id, admin_id, "error de digitacion".into()).await.unwrap();
+    repo.anular_venta(order_id, admin_id, "error de digitacion".into(), None).await.unwrap();
 
     // Listado de cabeceras
     let list = repo.get_anulaciones(1).await.unwrap();

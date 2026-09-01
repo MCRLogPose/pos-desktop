@@ -1,5 +1,6 @@
-use sqlx::sqlite::SqlitePool;
+use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions, SqlitePool};
 use std::fs;
+use std::str::FromStr;
 use tauri::AppHandle;
 use tauri::Manager;
 
@@ -15,7 +16,18 @@ pub async fn init_db(app_handle: &AppHandle) -> Result<SqlitePool, Box<dyn std::
         std::fs::File::create(&db_path)?;
     }
 
-    let pool = SqlitePool::connect(&db_url).await?;
+    // WAL permite lectores concurrentes con un escritor, y busy_timeout evita
+    // errores SQLITE_BUSY cuando la sincronizacion escribe en segundo plano
+    // mientras la UI escribe en primer plano.
+    let options = SqliteConnectOptions::from_str(&db_url)?
+        .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)
+        .foreign_keys(true)
+        .busy_timeout(std::time::Duration::from_secs(5));
+
+    let pool = SqlitePoolOptions::new()
+        .max_connections(10)
+        .connect_with(options)
+        .await?;
 
     // Run migrations
     sqlx::migrate!("./migrations").run(&pool).await?;

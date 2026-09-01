@@ -135,6 +135,46 @@ impl PurchaseOrderService {
             .await
             .map_err(|e| e.to_string())?;
 
+        let pool = self.purchase_order_repo.pool().clone();
+        let sync_order = PurchaseOrder {
+            id: order.id,
+            uuid: order.uuid.clone(),
+            store_id: order.store_id,
+            supplier_name: order.supplier_name.clone(),
+            batch_date: order.batch_date.clone(),
+            alias: order.alias.clone(),
+            total_cost: order.total_cost,
+            created_by: order.created_by,
+            created_at: order.created_at,
+        };
+        let sync_items: Vec<crate::models::purchase_order::PurchaseOrderItem> =
+            created_items.clone();
+        let sync_expense = Some((
+            expense_uuid,
+            payload
+                .alias
+                .clone()
+                .unwrap_or_else(|| format!("Lote #{}", order.id)),
+            total_cost,
+            payload.payment_method.clone(),
+            Some("Mercadería".to_string()),
+            payload.supplier_name.clone(),
+        ));
+
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) =
+                crate::repositories::purchase_order_repo::enqueue_purchase_sync(
+                    &pool,
+                    &sync_order,
+                    &sync_items,
+                    sync_expense,
+                )
+                .await
+            {
+                log::warn!("[sync] no se pudo encolar el lote {}: {e}", sync_order.id);
+            }
+        });
+
         Ok(PurchaseOrderWithItems {
             id: order.id,
             uuid: order.uuid,

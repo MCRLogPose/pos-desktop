@@ -15,6 +15,8 @@ pub struct AppState {
     pub cash_service: crate::services::cash_service::CashService,
     pub purchase_order_service: crate::services::purchase_order_service::PurchaseOrderService,
     pub config_service: crate::services::config_service::ConfigService,
+    pub sync_queue: crate::sync::queue::SyncQueue,
+    pub sync_client: crate::sync::client::SyncClient,
 }
 
 #[tauri::command]

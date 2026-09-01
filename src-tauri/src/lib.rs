@@ -30,7 +30,9 @@ pub fn run() {
             let purchase_order_service =
                 services::purchase_order_service::PurchaseOrderService::new(pool.clone());
             let sync_pool_for_server = pool.clone();
-            let config_service = ConfigService::new(pool);
+            let config_service = ConfigService::new(pool.clone());
+            let sync_queue = sync::queue::SyncQueue::new(pool.clone());
+            let sync_client = sync::client::SyncClient::new(pool);
 
                 // Initialize Admin if needed
                 auth_service
@@ -102,6 +104,8 @@ pub fn run() {
                     cash_service,
                     purchase_order_service,
                     config_service,
+                    sync_queue,
+                    sync_client,
                 });
             });
 
@@ -170,6 +174,7 @@ pub fn run() {
             commands::config::set_operating_mode,
             commands::config::get_app_config,
             commands::config::set_app_config,
+            commands::sync::force_sync_now,
         ])
         .plugin(tauri_plugin_process::init())
         .run(tauri::generate_context!())

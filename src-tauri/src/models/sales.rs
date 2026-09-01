@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 /// Represents a single item when creating a sale from the frontend.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateOrderItemPayload {
     pub product_id: i64,
     pub product_name: String,
@@ -12,7 +12,7 @@ pub struct CreateOrderItemPayload {
 }
 
 /// Full payload received from the frontend to create a sale.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreateOrderPayload {
     pub user_id: i64,
     pub client_document: Option<String>,

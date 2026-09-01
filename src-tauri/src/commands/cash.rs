@@ -42,7 +42,18 @@ pub async fn close_cash_session(
     payload: CloseCashPayload,
 ) -> Result<(), String> {
     state.config_service.reject_in_primary().await?;
-    state.cash_service.close_session(session_id, payload).await
+    state.cash_service.close_session(session_id, payload).await?;
+
+    // En Replica, al cerrar caja se envia lo acumulado en la outbox a la Primary.
+    // Si la sincronizacion falla (sin red, Primary caida), las filas quedan
+    // pendientes (synced=0) y se reintentaran con el proximo sync manual.
+    if state.sync_queue.is_replica().await {
+        match state.sync_client.sync_all().await {
+            Ok(summary) => log::info!("[sync] {} ", summary),
+            Err(e) => log::warn!("[sync] no se pudo sincronizar al cerrar caja: {e}"),
+        }
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -123,7 +134,7 @@ pub async fn add_expense_standalone(
     supplier: Option<String>,
     store_id: i64,
 ) -> Result<i64, String> {
-    state.config_service.reject_in_replica().await?;
+    state.config_service.reject_in_primary().await?;
     let expense_uuid = uuid::Uuid::new_v4().to_string();
     state
         .cash_service

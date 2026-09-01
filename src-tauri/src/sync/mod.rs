@@ -1,7 +1,9 @@
 pub mod apply;
 #[cfg(test)]
 mod apply_tests;
+pub mod client;
 pub mod payloads;
+pub mod queue;
 pub mod server;
 
 use serde::{Deserialize, Serialize};
