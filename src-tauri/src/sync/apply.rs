@@ -144,15 +144,17 @@ async fn resolve_or_create_product_id(
     store_id: i64,
     code: Option<&str>,
     name: &str,
+    display_name: Option<&str>,
     price: f64,
     cost: f64,
 ) -> Result<i64, String> {
     if let Some(id) = resolve_product_id(tx, store_id, code, name).await {
         return Ok(id);
     }
-    sqlx::query("INSERT INTO products (code, name, price, cost, stock, min_stock, unit, is_active, store_id, created_at) VALUES (?1, ?2, ?3, ?4, 0, 5, 'Unidades', 1, ?5, datetime('now','localtime'))")
+    sqlx::query("INSERT INTO products (code, name, display_name, price, cost, stock, min_stock, unit, is_active, store_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5, 0, 5, 'Unidades', 1, ?6, datetime('now','localtime'))")
         .bind(code)
         .bind(name)
+        .bind(display_name)
         .bind(price)
         .bind(cost)
         .bind(store_id)
@@ -280,17 +282,21 @@ async fn apply_one_sale(
             store_id,
             item.product_code.as_deref(),
             &item.product_name,
+            None,
             item.unit_price,
             0.0,
         )
         .await?;
-        sqlx::query("INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")
+        sqlx::query("INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, cash_amount, card_amount, yape_amount) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)")
             .bind(order_id)
             .bind(product_id)
             .bind(&item.product_name)
             .bind(item.unit_price)
             .bind(item.quantity)
             .bind(item.subtotal)
+            .bind(item.cash_amount)
+            .bind(item.card_amount)
+            .bind(item.yape_amount)
             .execute(&mut **tx)
             .await
             .map_err(|e| {
@@ -400,8 +406,9 @@ async fn upsert_product(
     let existing = existing.or(resolve_product_id(tx, store_id, None, &p.name).await);
 
     if let Some(id) = existing {
-        sqlx::query("UPDATE products SET name = ?1, category_id = ?2, price = ?3, cost = ?4, min_stock = ?5, unit = ?6, image_url = ?7, is_active = ?8, uuid = COALESCE(uuid, ?9), supplier_name = COALESCE(?10, supplier_name), created_by = COALESCE(?11, created_by) WHERE id = ?12")
+        sqlx::query("UPDATE products SET name = ?1, display_name = COALESCE(?2, display_name), category_id = ?3, price = ?4, cost = ?5, min_stock = ?6, unit = ?7, image_url = ?8, is_active = ?9, uuid = COALESCE(uuid, ?10), supplier_name = COALESCE(?11, supplier_name), created_by = COALESCE(?12, created_by) WHERE id = ?13")
             .bind(&p.name)
+            .bind(&p.display_name)
             .bind(category_id)
             .bind(p.price)
             .bind(p.cost)
@@ -419,9 +426,10 @@ async fn upsert_product(
         return Ok(SyncItemAck::accepted(&p.sync_uuid, Some(id)));
     }
 
-    sqlx::query("INSERT INTO products (code, name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)")
+    sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)")
         .bind(&p.code)
         .bind(&p.name)
+        .bind(&p.display_name)
         .bind(category_id)
         .bind(p.price)
         .bind(p.cost)
@@ -533,6 +541,7 @@ async fn apply_one_purchase(
                     store_id,
                     item.product_code.as_deref(),
                     &item.product_name,
+                    item.display_name.as_deref(),
                     item.unit_price,
                     item.unit_cost,
                 )
@@ -953,6 +962,7 @@ async fn apply_one_anulacion(
             store_id,
             item.product_code.as_deref(),
             &item.product_name,
+            item.display_name.as_deref(),
             item.unit_price,
             0.0,
         )

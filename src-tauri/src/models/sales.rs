@@ -9,6 +9,15 @@ pub struct CreateOrderItemPayload {
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,
+    /// Monto de esta prenda pagado en efectivo (waterfall o ajuste manual).
+    #[serde(default)]
+    pub cash_amount: f64,
+    /// Monto de esta prenda pagado con tarjeta (waterfall o ajuste manual).
+    #[serde(default)]
+    pub card_amount: f64,
+    /// Monto de esta prenda pagado con yape (waterfall o ajuste manual).
+    #[serde(default)]
+    pub yape_amount: f64,
 }
 
 /// Represents a single payment fraction when creating a sale from the frontend.
@@ -65,6 +74,8 @@ pub struct SaleItem {
     pub id: i64,
     pub product_id: i64,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,
@@ -95,6 +106,9 @@ pub struct SaleDetail {
 }
 
 /// Flat row used for the "export all items" CSV.
+/// `cash_amount`/`card_amount`/`yape_amount` son los montos de cada metodo de
+/// pago asignados a esta prenda mediante waterfall/FIFO (el primer metodo de
+/// pago cubre el primer item y el excedente pasa al siguiente).
 #[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct OrderItemExport {
     pub order_id: i64,
@@ -103,10 +117,21 @@ pub struct OrderItemExport {
     pub client_document: Option<String>,
     pub payment_method: String,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,
     pub store_id: Option<i64>,
+    #[serde(default)]
+    #[sqlx(default)]
+    pub cash_amount: f64,
+    #[serde(default)]
+    #[sqlx(default)]
+    pub card_amount: f64,
+    #[serde(default)]
+    #[sqlx(default)]
+    pub yape_amount: f64,
 }
 
 /// Resultado de una anulacion de venta.
@@ -168,6 +193,8 @@ pub struct ItemAnuladoExport {
     pub cancelled_at: String,
     pub reason: String,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,

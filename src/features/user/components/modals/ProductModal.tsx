@@ -13,6 +13,7 @@ interface Product {
     id: number;
     code: string | null;
     name: string;
+    display_name?: string | null;
     category_id: number | null;
     price: number;
     cost: number;
@@ -24,6 +25,7 @@ interface Product {
 interface BatchItem {
     id: string;
     name: string;
+    displayName: string;
     sku: string;
     categoryId: number | null;
     categoryName: string;
@@ -52,6 +54,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
 
     // Form states for current item
     const [name, setName] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [sku, setSku] = useState('');
     const [categoryId, setCategoryId] = useState<number | null>(null);
     const [price, setPrice] = useState('0');
@@ -110,6 +113,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
             if (initialData) {
                 // Edit mode: fill form with existing product
                 setName(initialData.name);
+                setDisplayName(initialData.display_name || '');
                 setSku(initialData.code || '');
                 setCategoryId(initialData.category_id);
                 setPrice(initialData.price.toString());
@@ -130,6 +134,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
 
     const resetForm = () => {
         setName('');
+        setDisplayName('');
         setSku('');
         setCategoryId(null);
         setPrice('0');
@@ -152,10 +157,28 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
             return;
         }
 
+        const trimmedSku = sku.trim();
+        if (!trimmedSku) {
+            showNotification('warning', 'Faltan datos', 'El SKU es obligatorio');
+            return;
+        }
+        if (!/^\d{7}$/.test(trimmedSku)) {
+            showNotification('warning', 'SKU inválido', 'El SKU debe ser un código numérico de 7 dígitos');
+            return;
+        }
+        const skuExists = batchItems.some(
+            item => item.id !== editingItemId && item.sku === trimmedSku
+        );
+        if (skuExists) {
+            showNotification('warning', 'SKU duplicado', 'Ya existe un producto en el lote con ese SKU');
+            return;
+        }
+
         const newItem: BatchItem = {
             id: editingItemId || crypto.randomUUID(),
             name: name.trim(),
-            sku: sku.trim(),
+            displayName: displayName.trim(),
+            sku: trimmedSku,
             categoryId,
             categoryName: getCategoryName(categoryId),
             price,
@@ -184,6 +207,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
 
     const handleDoubleClickItem = (item: BatchItem) => {
         setName(item.name);
+        setDisplayName(item.displayName);
         setSku(item.sku);
         setCategoryId(item.categoryId);
         setPrice(item.price);
@@ -210,12 +234,24 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
 
         // If editing a single product (initialData mode), use old behavior
         if (initialData) {
+            const trimmedSku = sku.trim();
+            if (!trimmedSku) {
+                showNotification('warning', 'Faltan datos', 'El SKU es obligatorio');
+                setIsSubmitting(false);
+                return;
+            }
+            if (!/^\d{7}$/.test(trimmedSku)) {
+                showNotification('warning', 'SKU inválido', 'El SKU debe ser un código numérico de 7 dígitos');
+                setIsSubmitting(false);
+                return;
+            }
             setIsSubmitting(true);
             try {
                 await invoke('update_product', {
                     id: initialData.id,
-                    code: sku || null,
+                    code: trimmedSku,
                     name,
+                    displayName: displayName.trim() || null,
                     categoryId: categoryId || null,
                     price: parseFloat(price) || 0,
                     cost: parseFloat(cost) || 0,
@@ -258,6 +294,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                 paymentMethod: lotePaymentMethod,
                 items: batchItems.map(item => ({
                     productName: item.name,
+                    displayName: item.displayName || null,
                     sku: item.sku || null,
                     categoryId: item.categoryId,
                     quantity: parseInt(item.stock) || 1,
@@ -417,7 +454,7 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                         {/* Left: Basic Info */}
                                         <div className="space-y-4">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-gray-700">Nombre del Producto</label>
+                                                <label className="text-sm font-medium text-gray-700">Product Name</label>
                                                 <div className="relative">
                                                     <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                                                     <input
@@ -431,16 +468,32 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-gray-700">SKU (Opcional)</label>
+                                                <label className="text-sm font-medium text-gray-700">Garment Name</label>
+                                                <div className="relative">
+                                                    <Package className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                    <input
+                                                        type="text"
+                                                        value={displayName}
+                                                        onChange={(e) => setDisplayName(e.target.value)}
+                                                        placeholder="Ej. Café"
+                                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-gray-700">SKU (Obligatorio)</label>
                                                 <div className="relative">
                                                     <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                                                     <input
                                                         type="text"
                                                         value={sku}
                                                         onChange={(e) => setSku(e.target.value)}
-                                                        placeholder="Ej. PROD-001"
+                                                        placeholder="Ej. 2601231"
+                                                        maxLength={7}
                                                         className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                                     />
+                                                    <span className="text-[11px] text-gray-400 mt-1 block">Código numérico de 7 dígitos</span>
                                                 </div>
                                             </div>
 
@@ -560,7 +613,8 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                                 <thead className="bg-gray-50 sticky top-0">
                                                     <tr className="text-left text-gray-500 text-xs uppercase">
                                                         <th className="px-4 py-2">#</th>
-                                                        <th className="px-4 py-2">Producto</th>
+                                                        <th className="px-4 py-2">Product Name</th>
+                                                        <th className="px-4 py-2">Garment Name</th>
                                                         <th className="px-4 py-2">SKU</th>
                                                         <th className="px-4 py-2 text-right">Stock</th>
                                                         <th className="px-4 py-2 text-right">Costo</th>
@@ -576,8 +630,9 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                                             className={`cursor-pointer hover:bg-blue-50 transition-colors ${editingItemId === item.id ? 'bg-blue-100' : ''}`}
                                                         >
                                                             <td className="px-4 py-2 text-gray-400">{index + 1}</td>
-                                                            <td className="px-4 py-2 font-medium text-gray-900">{item.name}</td>
-                                                            <td className="px-4 py-2 text-gray-500">{item.sku || '-'}</td>
+<td className="px-4 py-2 font-medium text-gray-900">{item.name}</td>
+                                                             <td className="px-4 py-2 text-gray-500">{item.displayName || '-'}</td>
+                                                             <td className="px-4 py-2 text-gray-500 font-mono text-xs">{item.sku}</td>
                                                             <td className="px-4 py-2 text-right">{item.stock}</td>
                                                             <td className="px-4 py-2 text-right font-mono">S/ {parseFloat(item.cost).toFixed(2)}</td>
                                                             <td className="px-4 py-2 text-right font-mono text-blue-600 font-bold">S/ {parseFloat(item.price).toFixed(2)}</td>

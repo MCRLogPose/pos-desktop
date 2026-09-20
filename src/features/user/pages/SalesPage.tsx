@@ -21,9 +21,13 @@ interface OrderItemExport {
   client_document?: string | null;
   payment_method: string;
   product_name: string;
+  display_name?: string | null;
   unit_price: number;
   quantity: number;
   subtotal: number;
+  cash_amount: number;
+  card_amount: number;
+  yape_amount: number;
 }
 
 type SortField = 'id' | 'total' | 'created_at' | 'payment_method';
@@ -173,17 +177,20 @@ const SalesPage = () => {
         const to = dateTo ? new Date(dateTo + 'T23:59:59') : null;
         return (!from || d >= from) && (!to || d <= to);
       });
-      const headers = ['N° Orden', 'Fecha', 'Cliente', 'Documento', 'Método de Pago', 'Prenda', 'Precio Unit.', 'Cantidad', 'Subtotal'];
+      const headers = ['N° Orden', 'Fecha', 'Cliente', 'Documento', 'Prenda', 'Nombre', 'Precio Unit.', 'Cantidad', 'Subtotal', 'Efectivo (S/)', 'Tarjeta (S/)', 'Yape (S/)'];
       const rows = filtered.map(item => [
         item.order_id,
         formatDateTime(item.created_at),
         item.client_name || '',
         item.client_document || '',
-        paymentMethodLabel(item.payment_method),
         item.product_name,
+        item.display_name || '',
         item.unit_price.toFixed(2),
         item.quantity,
         item.subtotal.toFixed(2),
+        item.cash_amount.toFixed(2),
+        item.card_amount.toFixed(2),
+        item.yape_amount.toFixed(2),
       ]);
       const csv = [headers, ...rows]
         .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))

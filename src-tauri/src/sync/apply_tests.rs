@@ -64,9 +64,13 @@ async fn sales_apply_once_and_link_items() {
             items: vec![SaleItemSync {
                 product_code: Some("SHO-001".into()),
                 product_name: "Short M".into(),
+                display_name: None,
                 unit_price: 50.0,
                 quantity: 2,
                 subtotal: 100.0,
+                cash_amount: 100.0,
+                card_amount: 0.0,
+                yape_amount: 0.0,
             }],
         }],
     };
@@ -356,6 +360,7 @@ async fn purchase_order_with_generated_expense_applies_once() {
             items: vec![PurchaseItemSync {
                 product_code: Some("SHO-001".into()),
                 product_name: "Short M".into(),
+                display_name: None,
                 sku: None,
                 category_name: Some("Short".into()),
                 quantity: 10,

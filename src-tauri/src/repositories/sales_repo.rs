@@ -1,6 +1,6 @@
 use crate::models::sales::{
-    AnulacionResult, CreateOrderPayload, CreateOrderPaymentPayload, ItemAnuladoExport,
-    OrderItemExport, OrderPayment, PaymentMethodTotal, Sale, SaleDetail, SaleItem,
+    AnulacionResult, CreateOrderItemPayload, CreateOrderPayload, CreateOrderPaymentPayload,
+    ItemAnuladoExport, OrderItemExport, OrderPayment, PaymentMethodTotal, Sale, SaleDetail, SaleItem,
     VentaAnuladaExport,
 };
 use crate::sync::payloads::{ItemAnuladoSync, PaymentSync, SaleItemSync, SaleSync, VentaAnuladaSync};
@@ -100,7 +100,26 @@ impl SalesRepository {
         }
 
         // 3. Insert each item and decrement stock
-        for item in &payload.items {
+        // Asignacion por prenda: si el payload trae montos explicitos (ajuste
+        // manual del cajero) se persisten tal cual; de lo contrario se calcula
+        // waterfall/FIFO repartiendo el total proporcional al subtotal de cada
+        // item (incluye la parte proporcional de IGV).
+        let has_explicit = !payload.items.is_empty()
+            && payload
+                .items
+                .iter()
+                .all(|i| i.cash_amount + i.card_amount + i.yape_amount > 0.0);
+        let allocations = if has_explicit {
+            payload
+                .items
+                .iter()
+                .map(|i| (i.cash_amount, i.card_amount, i.yape_amount))
+                .collect::<Vec<_>>()
+        } else {
+            waterfall_allocations(&payload.items, &payments, payload.total)
+        };
+
+        for (i, item) in payload.items.iter().enumerate() {
             // Validate stock before decrementing
             let current_stock: i64 =
                 sqlx::query_scalar("SELECT stock FROM products WHERE id = ? AND is_active = 1")
@@ -112,11 +131,13 @@ impl SalesRepository {
                 return Err(sqlx::Error::RowNotFound);
             }
 
+            let (cash_amount, card_amount, yape_amount) = allocations[i];
+
             // Insert order item
             sqlx::query(
                 r#"
-                INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, cash_amount, card_amount, yape_amount)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 "#,
             )
             .bind(order_id)
@@ -125,6 +146,9 @@ impl SalesRepository {
             .bind(item.unit_price)
             .bind(item.quantity)
             .bind(item.subtotal)
+            .bind(cash_amount)
+            .bind(card_amount)
+            .bind(yape_amount)
             .execute(&mut *tx)
             .await?;
 
@@ -213,15 +237,17 @@ impl SalesRepository {
                 let items = sqlx::query_as::<_, SaleItem>(
                     r#"
                     SELECT
-                        id,
-                        product_id,
-                        product_name,
-                        CAST(unit_price AS REAL) AS unit_price,
-                        quantity,
-                        CAST(subtotal AS REAL) AS subtotal
-                    FROM order_items
-                    WHERE order_id = ?
-                    ORDER BY id ASC
+                        oi.id,
+                        oi.product_id,
+                        oi.product_name,
+                        p.display_name,
+                        CAST(oi.unit_price AS REAL) AS unit_price,
+                        oi.quantity,
+                        CAST(oi.subtotal AS REAL) AS subtotal
+                    FROM order_items oi
+                    LEFT JOIN products p ON p.id = oi.product_id
+                    WHERE oi.order_id = ?
+                    ORDER BY oi.id ASC
                     "#,
                 )
                 .bind(sale_id)
@@ -249,8 +275,10 @@ impl SalesRepository {
     }
 
     /// Returns all order items joined with order info for the detailed items CSV export.
+    /// Usa la asignacion de pagos persistida por item (waterfall o ajuste manual).
+    /// Para ventas historicas sin persistencia (columnas en 0) recalcula waterfall.
     pub async fn get_all_order_items(&self, store_id: i64) -> Result<Vec<OrderItemExport>, sqlx::Error> {
-        sqlx::query_as::<_, OrderItemExport>(
+        let mut items = sqlx::query_as::<_, OrderItemExport>(
             r#"
             SELECT
                 o.id AS order_id,
@@ -259,19 +287,121 @@ impl SalesRepository {
                 o.client_document,
                 o.payment_method,
                 oi.product_name,
+                p.display_name,
                 CAST(oi.unit_price AS REAL) AS unit_price,
                 oi.quantity,
                 CAST(oi.subtotal AS REAL) AS subtotal,
-                o.store_id
+                o.store_id,
+                CAST(oi.cash_amount AS REAL) AS cash_amount,
+                CAST(oi.card_amount AS REAL) AS card_amount,
+                CAST(oi.yape_amount AS REAL) AS yape_amount
             FROM order_items oi
             INNER JOIN orders o ON o.id = oi.order_id
+            LEFT JOIN products p ON p.id = oi.product_id
             WHERE o.store_id = ?
             ORDER BY o.created_at DESC, oi.id ASC
             "#,
         )
         .bind(store_id)
         .fetch_all(&self.pool)
-        .await
+        .await?;
+
+        // Fracciones de pago por orden (en el orden en que el cajero las eligio: op.id ASC).
+        #[derive(sqlx::FromRow)]
+        struct PaymentRow {
+            order_id: i64,
+            payment_method: String,
+            amount: f64,
+        }
+        let payments: Vec<PaymentRow> = sqlx::query_as::<_, PaymentRow>(
+            r#"
+            SELECT
+                op.order_id,
+                op.payment_method,
+                CAST(op.amount AS REAL) AS amount
+            FROM order_payments op
+            INNER JOIN orders o ON o.id = op.order_id
+            WHERE o.store_id = ?
+            ORDER BY op.order_id ASC, op.id ASC
+            "#,
+        )
+        .bind(store_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        // Indexar factores de pago e items por orden conservando su orden de insercion.
+        let mut pay_by_order: std::collections::HashMap<i64, Vec<(String, f64)>> =
+            std::collections::HashMap::new();
+        for p in payments {
+            pay_by_order
+                .entry(p.order_id)
+                .or_default()
+                .push((p.payment_method, p.amount));
+        }
+        let mut item_idx_by_order: std::collections::HashMap<i64, Vec<usize>> =
+            std::collections::HashMap::new();
+        for (i, item) in items.iter().enumerate() {
+            item_idx_by_order.entry(item.order_id).or_default().push(i);
+        }
+
+        // Recalcular waterfall solo para ordenes sin persistencia (legacy).
+        // Cada item absorbe su parte proporcional del total (subtotal * total/suma_subtotales)
+        // de modo que la suma de las partes del reporte coincida con el total de la orden.
+        let round2 = |n: f64| (n * 100.0).round() / 100.0;
+        for (order_id, indices) in &item_idx_by_order {
+            let Some(fractions) = pay_by_order.get(order_id) else {
+                continue;
+            };
+
+            let stored_sum: f64 = indices
+                .iter()
+                .map(|&i| items[i].cash_amount + items[i].card_amount + items[i].yape_amount)
+                .sum();
+            if stored_sum > 0.001 {
+                continue;
+            }
+
+            let subtotals_sum: f64 = indices.iter().map(|&i| items[i].subtotal).sum();
+            let payments_total: f64 = fractions.iter().map(|(_, a)| a).sum();
+            let ratio = if subtotals_sum > 0.0 {
+                payments_total / subtotals_sum
+            } else {
+                1.0
+            };
+
+            let mut pi = 0usize;
+            let mut consumed = 0.0f64;
+            for &i in indices {
+                let mut remaining = items[i].subtotal * ratio;
+                while remaining > 0.001 {
+                    let Some((method, amount)) = fractions.get(pi) else {
+                        break;
+                    };
+                    let available = amount - consumed;
+                    let take = available.min(remaining);
+                    match method.as_str() {
+                        "cash" => items[i].cash_amount += take,
+                        "card" => items[i].card_amount += take,
+                        "yape" => items[i].yape_amount += take,
+                        _ => {}
+                    }
+                    consumed += take;
+                    remaining -= take;
+                    if amount - consumed <= 0.001 {
+                        pi += 1;
+                        consumed = 0.0;
+                    }
+                }
+            }
+        }
+
+        for item in &mut items {
+            item.cash_amount = round2(item.cash_amount);
+            item.card_amount = round2(item.card_amount);
+            item.yape_amount = round2(item.yape_amount);
+        }
+
+        Ok(items)
     }
 
     /// Totales por método de pago de las ventas de una sesión de caja.
@@ -617,12 +747,14 @@ impl SalesRepository {
                 va.cancelled_at,
                 va.reason,
                 ia.product_name,
+                p.display_name,
                 CAST(ia.unit_price AS REAL) AS unit_price,
                 ia.quantity,
                 CAST(ia.subtotal AS REAL) AS subtotal,
                 va.store_id
             FROM items_anulados ia
             INNER JOIN ventas_anuladas va ON va.id = ia.venta_anulada_id
+            LEFT JOIN products p ON p.id = ia.product_id
             WHERE va.store_id = ?
             ORDER BY va.cancelled_at DESC, ia.id ASC
             "#,
@@ -631,6 +763,52 @@ impl SalesRepository {
         .fetch_all(&self.pool)
         .await
     }
+}
+
+/// Distribuye las fracciones de pago sobre los items con rule waterfall/FIFO:
+/// el primer metodo de pago cubre el primer item y el excedente fluye al
+/// siguiente. Cada item absorbe una parte proporcional del total (subtotal *
+/// total/suma_subtotales), de modo que la suma de las partes sea el total.
+/// Devuelve (cash, card, yape) por item, redondeado a 2 decimales.
+pub fn waterfall_allocations(
+    items: &[CreateOrderItemPayload],
+    payments: &[CreateOrderPaymentPayload],
+    total: f64,
+) -> Vec<(f64, f64, f64)> {
+    let items_sum: f64 = items.iter().map(|i| i.subtotal).sum();
+    let ratio = if items_sum > 0.0 { total / items_sum } else { 1.0 };
+
+    let mut allocations = vec![(0.0f64, 0.0f64, 0.0f64); items.len()];
+    let mut pi = 0usize;
+    let mut consumed = 0.0f64;
+
+    for (i, item) in items.iter().enumerate() {
+        let mut remaining = item.subtotal * ratio;
+        while remaining > 0.001 {
+            let Some(p) = payments.get(pi) else { break };
+            let available = p.amount - consumed;
+            let take = available.min(remaining);
+            match p.payment_method.as_str() {
+                "cash" => allocations[i].0 += take,
+                "card" => allocations[i].1 += take,
+                "yape" => allocations[i].2 += take,
+                _ => {}
+            }
+            consumed += take;
+            remaining -= take;
+            if p.amount - consumed <= 0.001 {
+                pi += 1;
+                consumed = 0.0;
+            }
+        }
+    }
+
+    for a in &mut allocations {
+        a.0 = (a.0 * 100.0).round() / 100.0;
+        a.1 = (a.1 * 100.0).round() / 100.0;
+        a.2 = (a.2 * 100.0).round() / 100.0;
+    }
+    allocations
 }
 
 /// Encola una venta en la outbox de sincronizacion. Se invoca en segundo plano
@@ -665,12 +843,21 @@ async fn enqueue_sale(
                 .bind(item.product_id)
                 .fetch_optional(pool)
                 .await?;
+        let product_display_name: Option<String> =
+            sqlx::query_scalar("SELECT display_name FROM products WHERE id = ?")
+                .bind(item.product_id)
+                .fetch_optional(pool)
+                .await?;
         items.push(SaleItemSync {
             product_code,
             product_name: item.product_name.clone(),
+            display_name: product_display_name,
             unit_price: item.unit_price,
             quantity: item.quantity,
             subtotal: item.subtotal,
+            cash_amount: item.cash_amount,
+            card_amount: item.card_amount,
+            yape_amount: item.yape_amount,
         });
     }
 
@@ -740,9 +927,15 @@ async fn enqueue_anulacion(
                 .bind(product_id)
                 .fetch_optional(pool)
                 .await?;
+        let product_display_name: Option<String> =
+            sqlx::query_scalar("SELECT display_name FROM products WHERE id = ?")
+                .bind(product_id)
+                .fetch_optional(pool)
+                .await?;
         sync_items.push(ItemAnuladoSync {
             product_code,
             product_name,
+            display_name: product_display_name,
             unit_price,
             quantity,
             subtotal: item_subtotal,

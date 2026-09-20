@@ -14,6 +14,7 @@ interface ItemAnuladoExport {
   cancelled_at: string;
   reason: string;
   product_name: string;
+  display_name?: string | null;
   unit_price: number;
   quantity: number;
   subtotal: number;
@@ -142,12 +143,13 @@ const AnuladosPage = () => {
         const to = dateTo ? new Date(dateTo + 'T23:59:59') : null;
         return (!from || d >= from) && (!to || d <= to);
       });
-      const headers = ['N° Anulación', 'Fecha', 'Motivo', 'Producto', 'Precio Unit.', 'Cantidad', 'Subtotal'];
+      const headers = ['N° Anulación', 'Fecha', 'Motivo', 'Producto', 'Nombre', 'Precio Unit.', 'Cantidad', 'Subtotal'];
       const rows = filtered.map(item => [
         item.anulacion_id,
         formatDateTime(item.cancelled_at),
         item.reason,
         item.product_name,
+        item.display_name || '',
         item.unit_price.toFixed(2),
         item.quantity,
         item.subtotal.toFixed(2),

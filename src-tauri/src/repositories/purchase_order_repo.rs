@@ -60,6 +60,7 @@ impl PurchaseOrderRepository {
         purchase_order_id: i64,
         product_id: Option<i64>,
         product_name: &str,
+        display_name: Option<&str>,
         sku: Option<&str>,
         category_id: Option<i64>,
         quantity: i64,
@@ -67,12 +68,13 @@ impl PurchaseOrderRepository {
         unit_price: f64,
     ) -> Result<PurchaseOrderItem, sqlx::Error> {
         let result = sqlx::query(
-            "INSERT INTO purchase_order_items (purchase_order_id, product_id, product_name, sku, category_id, quantity, unit_cost, unit_price)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO purchase_order_items (purchase_order_id, product_id, product_name, display_name, sku, category_id, quantity, unit_cost, unit_price)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         )
         .bind(purchase_order_id)
         .bind(product_id)
         .bind(product_name)
+        .bind(display_name)
         .bind(sku)
         .bind(category_id)
         .bind(quantity)
@@ -88,6 +90,7 @@ impl PurchaseOrderRepository {
             purchase_order_id,
             product_id,
             product_name: product_name.to_string(),
+            display_name: display_name.map(|s| s.to_string()),
             sku: sku.map(|s| s.to_string()),
             category_id,
             quantity,
@@ -190,6 +193,14 @@ pub async fn enqueue_purchase_sync(
                 .flatten(),
             None => None,
         };
+        let product_display_name: Option<String> = match item.product_id {
+            Some(pid) => sqlx::query_scalar("SELECT display_name FROM products WHERE id = ?")
+                .bind(pid)
+                .fetch_optional(pool)
+                .await?
+                .flatten(),
+            None => None,
+        };
         let category_name: Option<String> = match item.category_id {
             Some(cid) => sqlx::query_scalar("SELECT name FROM categories WHERE id = ?")
                 .bind(cid)
@@ -201,6 +212,7 @@ pub async fn enqueue_purchase_sync(
         sync_items.push(PurchaseItemSync {
             product_code,
             product_name: item.product_name.clone(),
+            display_name: product_display_name,
             sku: item.sku.clone(),
             category_name,
             quantity: item.quantity,

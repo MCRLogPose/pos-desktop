@@ -5,6 +5,7 @@ interface SaleItem {
   id: number;
   product_id: number;
   product_name: string;
+  display_name?: string | null;
   unit_price: number;
   quantity: number;
   subtotal: number;
@@ -149,7 +150,10 @@ const SaleDetailModal = ({ sale, onClose }: SaleDetailModalProps) => {
                   <tbody className="divide-y divide-gray-100">
                     {sale.items.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50/50">
-                        <td className="px-4 py-3 font-medium text-gray-900">{item.product_name}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900">
+                          {item.product_name}
+                          {item.display_name && <span className="block text-xs text-gray-500 font-normal">Nombre: {item.display_name}</span>}
+                        </td>
                         <td className="px-4 py-3 text-right text-gray-600">{item.quantity}</td>
                         <td className="px-4 py-3 text-right text-gray-600">S/ {item.unit_price.toFixed(2)}</td>
                         <td className="px-4 py-3 text-right font-semibold text-gray-900">S/ {item.subtotal.toFixed(2)}</td>

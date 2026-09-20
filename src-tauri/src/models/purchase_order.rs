@@ -21,6 +21,8 @@ pub struct PurchaseOrderItem {
     pub purchase_order_id: i64,
     pub product_id: Option<i64>,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub sku: Option<String>,
     pub category_id: Option<i64>,
     pub quantity: i64,
@@ -45,6 +47,7 @@ pub struct CreatePurchaseOrderPayload {
 #[serde(rename_all = "camelCase")]
 pub struct CreatePurchaseOrderItemPayload {
     pub product_name: String,
+    pub display_name: Option<String>,
     pub sku: Option<String>,
     pub category_id: Option<i64>,
     pub quantity: i64,

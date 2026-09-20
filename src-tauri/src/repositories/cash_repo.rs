@@ -157,6 +157,28 @@ impl CashRepository {
         let mut tx = self.pool.begin().await?;
         let expense_uuid = uuid::Uuid::new_v4().to_string();
 
+        let (expected_cash, expected_virtual) = sqlx::query_as::<_, (f64, f64)>(
+            "SELECT expected_closing_cash, expected_closing_virtual FROM cash_sessions WHERE id = ?",
+        )
+        .bind(session_id)
+        .fetch_optional(&mut *tx)
+        .await?
+        .ok_or(sqlx::Error::Protocol(
+            "la sesión de caja no existe".into(),
+        ))?;
+
+        let available = if payment_method == "cash" {
+            expected_cash
+        } else {
+            expected_virtual
+        };
+        if amount > available + 0.001 {
+            let label = if payment_method == "cash" { "efectivo" } else { "virtual" };
+            return Err(sqlx::Error::Protocol(format!(
+                "el gasto de S/ {amount:.2} excede el saldo {label} disponible en la caja (S/ {available:.2})"
+            )));
+        }
+
         let id = sqlx::query(
             "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, store_id, source, created_at) VALUES (?, ?, ?, ?, ?, ?, 'cash_session', datetime('now', 'localtime'))"
         )
@@ -247,6 +269,36 @@ impl CashRepository {
         .bind(payload.id)
         .execute(&mut *tx)
         .await?;
+
+        // Validar que el nuevo monto no exceda el saldo disponible de la caja (el viejo ya fue revertido)
+        if let Some(session_id) = old.cash_session_id {
+            let (expected_cash, expected_virtual) = sqlx::query_as::<_, (f64, f64)>(
+                "SELECT expected_closing_cash, expected_closing_virtual FROM cash_sessions WHERE id = ?",
+            )
+            .bind(session_id)
+            .fetch_optional(&mut *tx)
+            .await?
+            .ok_or(sqlx::Error::Protocol(
+                "la sesión de caja no existe".into(),
+            ))?;
+
+            let available = if payload.payment_method == "cash" {
+                expected_cash
+            } else {
+                expected_virtual
+            };
+            if payload.amount > available + 0.001 {
+                let label = if payload.payment_method == "cash" {
+                    "efectivo"
+                } else {
+                    "virtual"
+                };
+                return Err(sqlx::Error::Protocol(format!(
+                    "el gasto de S/ {:.2} excede el saldo {label} disponible en la caja (S/ {available:.2})",
+                    payload.amount
+                )));
+            }
+        }
 
         // Apply new balance if linked to a session
         if let Some(session_id) = old.cash_session_id {

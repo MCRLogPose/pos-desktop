@@ -4,6 +4,7 @@ interface Product {
   id: number;
   code: string | null;
   name: string;
+  display_name?: string | null;
   category_id: number | null;
   category_name: string | null;
   price: number;
@@ -51,6 +52,7 @@ const InventoryTable = ({ products, onView, onEdit, onDelete }: InventoryTablePr
         <thead className="bg-gray-50/50">
           <tr>
             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</th>
+            <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Categoría</th>
             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio / Costo</th>
             <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Stock</th>
@@ -78,6 +80,13 @@ const InventoryTable = ({ products, onView, onEdit, onDelete }: InventoryTablePr
                       {product.code && <div className="text-sm text-gray-500">Cod: {product.code}</div>}
                     </div>
                   </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {product.display_name ? (
+                    <div className="text-sm font-medium text-gray-700">{product.display_name}</div>
+                  ) : (
+                    <span className="text-gray-400 text-xs">-</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {product.category_name ? (
@@ -140,7 +149,7 @@ const InventoryTable = ({ products, onView, onEdit, onDelete }: InventoryTablePr
             ))
           ) : (
             <tr>
-              <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+              <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                 No se encontraron productos
               </td>
             </tr>

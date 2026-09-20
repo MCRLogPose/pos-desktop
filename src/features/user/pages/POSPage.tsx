@@ -7,6 +7,7 @@ import { useNotification } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCash } from '@/context/CashContext';
 import CheckoutModal, { type PaymentAllocation } from '../components/modals/CheckoutModal';
+import type { AllocationLineItem, ItemAllocation } from '../components/payment/paymentAllocation';
 
 // ─── Types ───────────────────────────────────────────────────
 interface Category {
@@ -18,6 +19,7 @@ interface Product {
     id: number;
     code: string | null;
     name: string;
+    display_name?: string | null;
     category_id: number | null;
     category_name: string | null;
     price: number;
@@ -150,6 +152,7 @@ const POSPage = () => {
         return products.filter(product => {
             const matchesCategory = selectedCategory === 'all' || product.category_id === selectedCategory;
             const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (product.display_name && product.display_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
                 (product.code && product.code.toLowerCase().includes(searchQuery.toLowerCase()));
             return matchesCategory && matchesSearch;
         });
@@ -162,7 +165,13 @@ const POSPage = () => {
     const igv = total - base;
 
     // ─── Checkout ─────────────────────────────────────────────
-    const handleCheckout = async (checkoutPayments: PaymentAllocation[]) => {
+    const checkoutItems: AllocationLineItem[] = cart.map(item => ({
+        id: item.id,
+        name: item.product.name,
+        subtotal: (item.customPrice ?? item.product.price) * item.quantity,
+    }));
+
+    const handleCheckout = async (checkoutPayments: PaymentAllocation[], allocations: ItemAllocation[]) => {
         if (cart.length === 0) return;
         if (!user) {
             showNotification('error', 'Error', 'Debes iniciar sesión para realizar ventas');
@@ -178,13 +187,21 @@ const POSPage = () => {
 
         setIsProcessing(true);
         try {
-            const items = cart.map(item => ({
-                product_id: item.product.id,
-                product_name: item.product.name,
-                unit_price: item.customPrice ?? item.product.price,
-                quantity: item.quantity,
-                subtotal: (item.customPrice ?? item.product.price) * item.quantity,
-            }));
+            const allocByItem = new Map(allocations.map(a => [a.itemId, a.amounts]));
+
+            const items = cart.map(item => {
+                const amounts = allocByItem.get(item.id) ?? { cash: 0, card: 0, yape: 0 };
+                return {
+                    product_id: item.product.id,
+                    product_name: item.product.name,
+                    unit_price: item.customPrice ?? item.product.price,
+                    quantity: item.quantity,
+                    subtotal: (item.customPrice ?? item.product.price) * item.quantity,
+                    cash_amount: amounts.cash,
+                    card_amount: amounts.card,
+                    yape_amount: amounts.yape,
+                };
+            });
 
             const paymentsPayload = checkoutPayments.map(p => ({
                 payment_method: p.method,
@@ -331,6 +348,7 @@ const POSPage = () => {
                                         </div>
                                         <div className="p-3">
                                             <h3 className="font-semibold text-gray-900 truncate text-sm">{product.name}</h3>
+                                            {product.display_name && <p className="text-xs text-gray-500 truncate">{product.display_name}</p>}
                                             <article className="flex items-center gap-2">
                                                 {product.category_name && (
                                                     <p className="text-xs text-gray-600 truncate">{product.category_name}</p>
@@ -377,7 +395,10 @@ const POSPage = () => {
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-between">
                                     <div className="flex justify-between items-start">
-                                        <h4 className="font-medium text-sm truncate pr-2">{item.product.name}</h4>
+                                        <div className="min-w-0">
+                                            <h4 className="font-medium text-sm truncate pr-2">{item.product.name}</h4>
+                                            {item.product.display_name && <p className="text-xs text-gray-400 truncate">{item.product.display_name}</p>}
+                                        </div>
                                         <button onClick={() => removeFromCart(item.id)} className="text-gray-400 hover:text-red-500 shrink-0">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -455,6 +476,7 @@ const POSPage = () => {
                 igv={igv}
                 itemCount={cart.length}
                 payments={payments}
+                items={checkoutItems}
                 clientDocument={clientDocument}
                 clientPhone={clientPhone}
                 clientName={clientName}

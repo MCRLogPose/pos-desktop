@@ -71,7 +71,7 @@ impl InventoryRepository {
     pub async fn get_products(&self, store_id: i64) -> Result<Vec<ProductWithCategory>, sqlx::Error> {
         let sql = r#"
             SELECT 
-                p.id, p.code, p.name, p.category_id, c.name as category_name,
+                p.id, p.code, p.name, p.display_name, p.category_id, c.name as category_name,
                 p.price, p.cost, p.stock, p.min_stock, p.unit, p.image_url, p.is_active, p.store_id, p.created_at,
                 p.supplier_name, u.username as created_by_name
             FROM products p
@@ -90,6 +90,7 @@ impl InventoryRepository {
         &self,
         code: Option<&str>,
         name: &str,
+        display_name: Option<&str>,
         category_id: Option<i64>,
         price: f64,
         cost: f64,
@@ -101,10 +102,11 @@ impl InventoryRepository {
         created_by: Option<i64>,
     ) -> Result<i64, sqlx::Error> {
         let result = sqlx::query(
-            "INSERT INTO products (code, name, category_id, price, cost, stock, unit, image_url, store_id, supplier_name, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO products (code, name, display_name, category_id, price, cost, stock, unit, image_url, store_id, supplier_name, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
         .bind(code)
         .bind(name)
+        .bind(display_name)
         .bind(category_id)
         .bind(price)
         .bind(cost)
@@ -134,6 +136,7 @@ impl InventoryRepository {
         id: i64,
         code: Option<&str>,
         name: &str,
+        display_name: Option<&str>,
         category_id: Option<i64>,
         price: f64,
         cost: f64,
@@ -145,10 +148,11 @@ impl InventoryRepository {
         created_by: Option<i64>,
     ) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "UPDATE products SET code=?, name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=?, supplier_name=COALESCE(?, supplier_name), created_by=COALESCE(?, created_by) WHERE id=?"
+            "UPDATE products SET code=?, name=?, display_name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=?, supplier_name=COALESCE(?, supplier_name), created_by=COALESCE(?, created_by) WHERE id=?"
         )
         .bind(code)
         .bind(name)
+        .bind(display_name)
         .bind(category_id)
         .bind(price)
         .bind(cost)
@@ -239,6 +243,7 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
         Option<String>,
         String,
         Option<String>,
+        Option<String>,
         f64,
         f64,
         Option<i64>,
@@ -248,7 +253,7 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
         Option<String>,
         Option<String>,
     )> = sqlx::query_as(
-        "SELECT p.uuid, p.code, p.name, c.name, p.price, p.cost, p.min_stock, p.unit, p.image_url, p.is_active,
+        "SELECT p.uuid, p.code, p.name, p.display_name, c.name, p.price, p.cost, p.min_stock, p.unit, p.image_url, p.is_active,
                 p.supplier_name, u.username
          FROM products p LEFT JOIN categories c ON p.category_id = c.id
          LEFT JOIN users u ON p.created_by = u.id
@@ -261,6 +266,7 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
         sync_uuid,
         code,
         name,
+        display_name,
         category_name,
         price,
         cost,
@@ -285,6 +291,7 @@ async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> 
                 local_product_id: id,
                 code,
                 name,
+                display_name,
                 category_name,
                 price,
                 cost,

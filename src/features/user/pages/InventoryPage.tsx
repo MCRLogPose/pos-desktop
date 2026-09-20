@@ -107,6 +107,7 @@ const InventoryPage = () => {
   // Filter & Pagination Logic
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
+    (p.display_name && p.display_name.toLowerCase().includes(search.toLowerCase())) ||
     (p.code && p.code.toLowerCase().includes(search.toLowerCase()))
   );
 

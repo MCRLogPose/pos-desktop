@@ -44,6 +44,7 @@ const ProductDetailModal = ({ product, onClose }: ProductDetailModalProps) => {
             <div>
               <h2 className="text-lg font-bold text-gray-900">{product.name}</h2>
               <p className="text-xs text-gray-500">{product.code ? `Código: ${product.code}` : 'Sin código'}</p>
+              {product.display_name && <p className="text-sm text-gray-600 font-medium mt-0.5">Nombre: {product.display_name}</p>}
             </div>
           </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">

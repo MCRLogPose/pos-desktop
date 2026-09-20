@@ -45,9 +45,18 @@ pub struct SaleSync {
 pub struct SaleItemSync {
     pub product_code: Option<String>,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,
+    /// Asignacion de pago por item (waterfall o ajuste manual del cajero).
+    #[serde(default)]
+    pub cash_amount: f64,
+    #[serde(default)]
+    pub card_amount: f64,
+    #[serde(default)]
+    pub yape_amount: f64,
 }
 
 // ───────────────────────── INVENTORY ─────────────────────────
@@ -72,6 +81,8 @@ pub struct ProductUpsertSync {
     pub local_product_id: i64,
     pub code: Option<String>,
     pub name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub category_name: Option<String>,
     pub price: f64,
     pub cost: f64,
@@ -121,6 +132,8 @@ pub struct PurchaseOrderSync {
 pub struct PurchaseItemSync {
     pub product_code: Option<String>,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub sku: Option<String>,
     pub category_name: Option<String>,
     pub quantity: i64,
@@ -238,6 +251,8 @@ pub struct VentaAnuladaSync {
 pub struct ItemAnuladoSync {
     pub product_code: Option<String>,
     pub product_name: String,
+    #[serde(default)]
+    pub display_name: Option<String>,
     pub unit_price: f64,
     pub quantity: i64,
     pub subtotal: f64,

@@ -8,6 +8,7 @@ interface Product {
     id: number;
     code: string | null;
     name: string;
+    display_name?: string | null;
     category_id: number | null;
     price: number;
     cost: number;
@@ -35,6 +36,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
 
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.display_name && p.display_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (p.code && p.code.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
@@ -79,6 +81,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
                 id: selectedProduct.id,
                 code: selectedProduct.code || null,
                 name: selectedProduct.name,
+                displayName: selectedProduct.display_name || null,
                 categoryId: selectedProduct.category_id || null,
                 price: selectedProduct.price,
                 cost: selectedProduct.cost,

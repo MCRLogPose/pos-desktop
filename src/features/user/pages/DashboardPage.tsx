@@ -24,6 +24,15 @@ interface OrderItem {
   quantity: number;
   subtotal: number;
   product_id?: i64;
+  order_id: number;
+  created_at: string;
+  client_name?: string | null;
+  client_document?: string | null;
+  payment_method: string;
+  unit_price: number;
+  cash_amount: number;
+  card_amount: number;
+  yape_amount: number;
 }
 
 interface Expense {
@@ -145,17 +154,19 @@ const DashboardPage = () => {
   const handleExportCSV = () => {
     if (orderItems.length === 0) return;
     
-    const headers = ['ID Orden', 'Fecha', 'Cliente', 'Doc', 'Metodo', 'Producto', 'P. Unit', 'Cant', 'Subtotal'];
+const headers = ['ID Orden', 'Fecha', 'Cliente', 'Doc', 'Producto', 'P. Unit', 'Cant', 'Subtotal', 'Efectivo (S/)', 'Tarjeta (S/)', 'Yape (S/)'];
     const rows = orderItems.map((item: any) => [
       item.order_id,
       item.created_at,
       item.client_name || '',
       item.client_document || '',
-      item.payment_method,
       item.product_name,
       item.unit_price,
       item.quantity,
-      item.subtotal
+      item.subtotal,
+      item.cash_amount,
+      item.card_amount,
+      item.yape_amount,
     ]);
 
     const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");

@@ -53,8 +53,12 @@ impl PurchaseOrderService {
         let mut created_items = Vec::new();
 
         for item in &payload.items {
+            // Normalizar SKU manualmente (validacion principal en la UI). Un
+            // SKU vacio se trata como ausente para no chocar con UNIQUE.
+            let sku = item.sku.as_deref().map(str::trim).filter(|s| !s.is_empty());
+
             // Try to find existing product by SKU
-            let existing_product = if let Some(ref sku) = item.sku {
+            let existing_product = if let Some(ref sku) = sku {
                 self.inventory_repo
                     .find_by_code(sku, payload.store_id)
                     .await
@@ -68,8 +72,9 @@ impl PurchaseOrderService {
                 self.inventory_repo
                     .update_product(
                         product.id,
-                        item.sku.as_deref(),
+                        sku,
                         &item.product_name,
+                        item.display_name.as_deref(),
                         item.category_id,
                         item.unit_price,
                         item.unit_cost,
@@ -88,8 +93,9 @@ impl PurchaseOrderService {
                 let new_id = self
                     .inventory_repo
                     .create_product(
-                        item.sku.as_deref(),
+                        sku,
                         &item.product_name,
+                        item.display_name.as_deref(),
                         item.category_id,
                         item.unit_price,
                         item.unit_cost,
@@ -112,6 +118,7 @@ impl PurchaseOrderService {
                     order.id,
                     product_id,
                     &item.product_name,
+                    item.display_name.as_deref(),
                     item.sku.as_deref(),
                     item.category_id,
                     item.quantity,

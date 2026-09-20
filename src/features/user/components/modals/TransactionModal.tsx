@@ -32,6 +32,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, ty
 
     if (!isOpen || !activeSession) return null;
 
+    const available =
+        paymentMethod === 'cash'
+            ? activeSession.expected_closing_cash
+            : activeSession.expected_closing_virtual;
+
+    const exceedsBalance = type === 'expense' && amount > available + 0.001;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (amount <= 0) return;
@@ -96,10 +103,27 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, ty
                                 autoFocus
                                 value={amount || ''}
                                 onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                                className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none transition-all font-bold text-lg"
+                                className={clsx(
+                                    "w-full pl-9 pr-4 py-3 bg-gray-50 border rounded-xl focus:ring-2 outline-none transition-all font-bold text-lg",
+                                    exceedsBalance
+                                        ? "border-red-300 text-red-600 focus:ring-red-200"
+                                        : "border-gray-200 focus:ring-slate-900"
+                                )}
                                 placeholder="0.00"
                             />
                         </div>
+                        {type === 'expense' && (
+                            <p className={clsx(
+                                "text-xs flex items-center gap-1",
+                                exceedsBalance ? "text-red-600 font-semibold" : "text-gray-500"
+                            )}>
+                                {exceedsBalance ? (
+                                    <>El monto excede el saldo de caja disponible</>
+                                ) : (
+                                    <>Disponible en caja ({paymentMethod === 'cash' ? 'Efectivo' : 'Virtual'}): S/ {available.toFixed(2)}</>
+                                )}
+                            </p>
+                        )}
                     </div>
 
                     <div className="space-y-1.5">
@@ -158,13 +182,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, ty
                         </button>
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || exceedsBalance}
                             className={clsx(
                                 "flex-1 py-3 text-white font-bold rounded-2xl transition-all shadow-lg active:scale-[0.98] disabled:opacity-50",
                                 type === 'income' ? "bg-green-600 hover:bg-green-700 shadow-green-600/20" : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
                             )}
                         >
-                            {isLoading ? 'Registrando...' : 'Confirmar'}
+                            {isLoading ? 'Registrando...' : exceedsBalance ? 'Saldo insuficiente' : 'Confirmar'}
                         </button>
                     </div>
                 </form>

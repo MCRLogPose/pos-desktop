@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx } from 'clsx';
-import { X, Banknote, CreditCard, Smartphone, User, Phone, Check } from 'lucide-react';
+import { X, Banknote, CreditCard, Smartphone, User, Phone, Check, SlidersHorizontal } from 'lucide-react';
+import PaymentAllocationModal from '../payment/PaymentAllocationModal';
+import { allocWaterfall } from '../payment/paymentAllocation';
+import type { AllocationLineItem, ItemAllocation, PaymentFraction } from '../payment/paymentAllocation';
 
 export type PaymentMethod = 'cash' | 'card' | 'yape';
 
@@ -17,11 +21,12 @@ interface CheckoutModalProps {
     igv: number;
     itemCount: number;
     payments: PaymentAllocation[];
+    items: AllocationLineItem[];
     clientDocument: string;
     clientPhone: string;
     clientName: string;
     onClose: () => void;
-    onConfirm: (payments: PaymentAllocation[]) => void;
+    onConfirm: (payments: PaymentAllocation[], allocations: ItemAllocation[]) => void;
     onPaymentsChange: (payments: PaymentAllocation[]) => void;
     onClientDocumentChange: (value: string) => void;
     onClientPhoneChange: (value: string) => void;
@@ -47,6 +52,7 @@ const CheckoutModal = ({
     igv,
     itemCount,
     payments,
+    items,
     clientDocument,
     clientPhone,
     clientName,
@@ -62,7 +68,23 @@ const CheckoutModal = ({
     const isComplete = payments.length > 0 && remaining <= 0.001;
     const canConfirm = payments.length > 0 && remaining <= 0.001 && !isProcessing;
 
+    // Ajuste manual por prenda. Se invalida al cambiar los metodos/fracciones
+    // de pago (en togglePayment/updateAmount) para no dejar una distribucion
+    // desalineada con el total.
+    const [alloc, setAlloc] = useState<ItemAllocation[] | null>(null);
+    const [isAdjusterOpen, setIsAdjusterOpen] = useState(false);
+    const resetAlloc = () => setAlloc(null);
+
+    const paymentsAsFractions: PaymentFraction[] = payments.map(p => ({ method: p.method, amount: p.amount }));
+
+    const openAdjuster = () => setIsAdjusterOpen(true);
+
+    const handleConfirm = () => {
+        onConfirm(payments, alloc ?? allocWaterfall(items, paymentsAsFractions, total));
+    };
+
     const togglePayment = (method: PaymentMethod, currentEntry?: PaymentAllocation) => {
+        resetAlloc();
         if (currentEntry) {
             // Al deseleccionar, si queda un solo metodo su monto vuelve al total.
             const rest = payments.filter(p => p.method !== method);
@@ -88,6 +110,7 @@ const CheckoutModal = ({
     };
 
     const updateAmount = (method: PaymentMethod, value: string) => {
+        resetAlloc();
         const parsed = parseFloat(value);
         const amount = isNaN(parsed) || parsed < 0 ? 0 : round2(parsed);
 
@@ -108,7 +131,8 @@ const CheckoutModal = ({
     };
 
     return (
-        <AnimatePresence>
+        <>
+            <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     {/* Backdrop */}
@@ -301,7 +325,7 @@ const CheckoutModal = ({
 
                             {/* Confirm button */}
                             <button
-                                onClick={() => onConfirm(payments)}
+                                onClick={handleConfirm}
                                 disabled={!canConfirm}
                                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/20 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                             >
@@ -315,7 +339,22 @@ const CheckoutModal = ({
                                 ) : (
                                     'Falta saldar el total'
                                 )}
+
                             </button>
+                            {isComplete && !isProcessing && (
+                                <button
+                                    onClick={openAdjuster}
+                                    className="w-full flex items-center justify-center gap-2 py-2.5 border border-indigo-200 rounded-xl text-indigo-600 font-medium text-sm hover:bg-indigo-50 transition-colors"
+                                >
+                                    <SlidersHorizontal className="w-4 h-4" />
+                                    Ajustar pago por prenda
+                                    {alloc && isComplete && (
+                                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                                            <Check className="w-3 h-3" /> Personalizado
+                                        </span>
+                                    )}
+                                </button>
+                            )}
                             {!isComplete && payments.length > 0 && (
                                 <p className="text-xs text-center text-gray-400 -mt-3">
                                     La suma de los métodos debe igualar al total.
@@ -326,6 +365,20 @@ const CheckoutModal = ({
                 </div>
             )}
         </AnimatePresence>
+
+        <PaymentAllocationModal
+            isOpen={isAdjusterOpen}
+            total={total}
+            items={items}
+            payments={paymentsAsFractions}
+            initial={alloc}
+            onClose={() => setIsAdjusterOpen(false)}
+            onConfirm={(next) => {
+                setAlloc(next);
+                setIsAdjusterOpen(false);
+            }}
+        />
+        </>
     );
 };
 

@@ -134,9 +134,13 @@ mod tests {
             items: vec![SaleItemSync {
                 product_code: Some("SHO-001".to_string()),
                 product_name: "Short Talla M".to_string(),
+                display_name: None,
                 unit_price: 50.0,
                 quantity: 2,
                 subtotal: 100.0,
+                cash_amount: 0.0,
+                card_amount: 0.0,
+                yape_amount: 100.0,
             }],
         };
         let batch = SalesBatch { sales: vec![sale] };
