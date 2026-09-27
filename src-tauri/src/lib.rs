@@ -31,8 +31,11 @@ pub fn run() {
                 services::purchase_order_service::PurchaseOrderService::new(pool.clone());
             let sync_pool_for_server = pool.clone();
             let config_service = ConfigService::new(pool.clone());
-            let sync_queue = sync::queue::SyncQueue::new(pool.clone());
+                let sync_queue = sync::queue::SyncQueue::new(pool.clone());
             let sync_client = sync::client::SyncClient::new(pool);
+            let sync_server_running =
+                std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            let sync_server_running_for_task = sync_server_running.clone();
 
                 // Initialize Admin if needed
                 auth_service
@@ -67,7 +70,7 @@ pub fn run() {
                         .ok()
                         .flatten()
                         .and_then(|v| v.parse::<u16>().ok())
-                        .unwrap_or(8787);
+                        .unwrap_or(sync::DEFAULT_SYNC_PORT);
 
                     // Token compartido que las replicas presentan como Authorization: Bearer
                     let sync_token = match config_service.get_config("sync_token").await {
@@ -88,6 +91,7 @@ pub fn run() {
                             sync_pool_for_server,
                             sync_port,
                             sync_token,
+                            sync_server_running_for_task,
                         )
                         .await
                         {
@@ -106,6 +110,7 @@ pub fn run() {
                     config_service,
                     sync_queue,
                     sync_client,
+                    sync_server_running,
                 });
             });
 
@@ -175,6 +180,11 @@ pub fn run() {
             commands::config::set_operating_mode,
             commands::config::get_app_config,
             commands::config::set_app_config,
+            // Sync
+            commands::sync::get_sync_info,
+            commands::sync::get_sync_token,
+            commands::sync::save_sync_settings,
+            commands::sync::test_sync_connection,
             commands::sync::force_sync_now,
         ])
         .plugin(tauri_plugin_process::init())

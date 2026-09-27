@@ -8,6 +8,7 @@ import CloseCashModal from '../components/modals/CloseCashModal';
 import TransactionModal from '../components/modals/TransactionModal';
 import SummaryCard from '../components/finance/SummaryCard';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 
 interface Transaction {
     id: string;
@@ -40,6 +41,8 @@ const formatTime = (dateStr: string) => {
 const FinancePage = () => {
     const { activeStoreId } = useAuth();
     const { activeSession } = useCash();
+    // En Primary la caja es solo lectura: abrir/cerrar turno se hace en la terminal.
+    const { isPrimary } = useConfig();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [sessions, setSessions] = useState<CashSession[]>([]);
     const [viewIndex, setViewIndex] = useState(0);
@@ -167,7 +170,11 @@ const FinancePage = () => {
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
-                    {!activeSession ? (
+                    {isPrimary ? (
+                        <span className="px-4 py-2.5 rounded-xl bg-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                            Solo lectura
+                        </span>
+                    ) : !activeSession ? (
                         <button
                             onClick={() => setIsOpenModalOpen(true)}
                             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-green-600/20 active:scale-95 transition-all"

@@ -101,6 +101,14 @@ impl SyncQueue {
         Ok(())
     }
 
+    /// Cantidad de filas que todavia no han sido aceptadas por la Primary.
+    pub async fn pending_count(&self) -> Result<i64, sqlx::Error> {
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE synced = 0")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(count)
+    }
+
     /// Fila pendiente, ordenadas por topic y fecha.
     pub async fn pending(&self) -> Result<Vec<PendingItem>, sqlx::Error> {
         let rows = sqlx::query_as::<_, (i64, String, String, String)>(

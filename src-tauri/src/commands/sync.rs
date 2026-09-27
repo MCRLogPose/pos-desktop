@@ -1,5 +1,184 @@
 use crate::commands::auth::AppState;
+use crate::sync::net::{local_ipv4_addresses, normalize_primary_url};
+use crate::sync::DEFAULT_SYNC_PORT;
+use serde::{Deserialize, Serialize};
 use tauri::State;
+
+/// Estado de la sincronizacion que la UI de Configuracion necesita para mostrar
+/// el panel correcto segun el modo de la maquina.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncInfo {
+    pub operating_mode: String,
+    pub device_id: Option<String>,
+    pub sync_port: u16,
+    pub primary_url: Option<String>,
+    pub store_code: Option<String>,
+    /// Nunca se envia el token aqui: se pide explicitamente con `get_sync_token`.
+    pub has_token: bool,
+    pub pending_count: i64,
+    pub local_ips: Vec<String>,
+    /// false cuando la app no levantó el servidor (p. ej. se eligió Primary
+    /// después del arranque): hay que reiniciar para que las réplicas conecten.
+    pub server_running: bool,
+}
+
+/// Campos editables desde la UI. `None` = no tocar ese campo.
+#[derive(Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncSettingsInput {
+    pub primary_url: Option<String>,
+    pub sync_token: Option<String>,
+    pub store_code: Option<String>,
+    pub sync_port: Option<u16>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncSaveResult {
+    /// El puerto y el token solo los lee el servidor de sync al arrancar la app.
+    pub restart_required: bool,
+    pub message: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncTestResult {
+    pub ok: bool,
+    pub message: String,
+}
+
+/// Configuracion de sincronizacion de esta maquina (solo lectura).
+#[tauri::command]
+pub async fn get_sync_info(state: State<'_, AppState>) -> Result<SyncInfo, String> {
+    let config = &state.config_service;
+    let pending_count = state
+        .sync_queue
+        .pending_count()
+        .await
+        .map_err(|e| format!("no se pudo leer la cola de sincronizacion: {e}"))?;
+    // `ipconfig` es un proceso bloqueante: se ejecuta fuera del runtime async.
+    let local_ips = tauri::async_runtime::spawn_blocking(local_ipv4_addresses)
+        .await
+        .unwrap_or_default();
+    let server_running = state
+        .sync_server_running
+        .load(std::sync::atomic::Ordering::SeqCst);
+
+    Ok(SyncInfo {
+        operating_mode: config.get_operating_mode().await?,
+        device_id: config.get_config_non_empty("device_id").await?,
+        sync_port: config
+            .get_config_non_empty("sync_port")
+            .await?
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(DEFAULT_SYNC_PORT),
+        primary_url: config.get_config_non_empty("primary_url").await?,
+        store_code: config.get_config_non_empty("store_code").await?,
+        has_token: config
+            .get_config_non_empty("sync_token")
+            .await?
+            .is_some(),
+        pending_count,
+        local_ips,
+        server_running,
+    })
+}
+
+/// Token de sincronizacion de esta maquina, para compartirlo con las Replicas.
+///
+/// En modo Primary se genera en el primer arranque; si se perdiera, se regenera
+/// aqui y se persiste para que el servidor del proximo arranque lo use.
+#[tauri::command]
+pub async fn get_sync_token(state: State<'_, AppState>) -> Result<Option<String>, String> {
+    let config = &state.config_service;
+    if let Some(token) = config.get_config_non_empty("sync_token").await? {
+        return Ok(Some(token));
+    }
+
+    if config.get_operating_mode().await? != "primary" {
+        return Ok(None);
+    }
+
+    let token = uuid::Uuid::new_v4().to_string();
+    config.set_config("sync_token", &token).await?;
+    Ok(Some(token))
+}
+
+/// Guarda la configuracion elegida por el administrador.
+///
+/// Los valores en blanco se borran (quedan "sin configurar"), de modo que la UI
+/// puede limpiar un dato sin abrir la base de datos.
+#[tauri::command]
+pub async fn save_sync_settings(
+    state: State<'_, AppState>,
+    settings: SyncSettingsInput,
+) -> Result<SyncSaveResult, String> {
+    let config = &state.config_service;
+    let mut saved: Vec<&str> = Vec::new();
+    let mut restart_required = false;
+
+    if let Some(input) = settings.primary_url {
+        let value = input.trim();
+        if value.is_empty() {
+            config.delete_config("primary_url").await?;
+        } else {
+            let url = normalize_primary_url(value, DEFAULT_SYNC_PORT)?;
+            config.set_config("primary_url", &url).await?;
+        }
+        saved.push("Dirección de la Primary");
+    }
+
+    if let Some(input) = settings.sync_token {
+        let value = input.trim();
+        if value.is_empty() {
+            config.delete_config("sync_token").await?;
+        } else {
+            config.set_config("sync_token", value).await?;
+        }
+        saved.push("Token");
+        restart_required = true;
+    }
+
+    if let Some(input) = settings.store_code {
+        let value = input.trim();
+        if value.is_empty() {
+            config.delete_config("store_code").await?;
+        } else {
+            config.set_config("store_code", value).await?;
+        }
+        saved.push("Código de tienda");
+    }
+
+    if let Some(port) = settings.sync_port {
+        if port == 0 {
+            return Err("El puerto debe ser un número mayor que 0".to_string());
+        }
+        config.set_config("sync_port", &port.to_string()).await?;
+        saved.push("Puerto");
+        restart_required = true;
+    }
+
+    let message = if saved.is_empty() {
+        "No hubo cambios que guardar".to_string()
+    } else {
+        format!("Guardado: {}", saved.join(", "))
+    };
+
+    Ok(SyncSaveResult {
+        restart_required,
+        message,
+    })
+}
+
+/// Verifica que la Primary configurada responde, sin enviar datos de la outbox.
+#[tauri::command]
+pub async fn test_sync_connection(state: State<'_, AppState>) -> Result<SyncTestResult, String> {
+    match state.sync_client.test_connection().await {
+        Ok(message) => Ok(SyncTestResult { ok: true, message }),
+        Err(message) => Ok(SyncTestResult { ok: false, message }),
+    }
+}
 
 /// Fuerza la sincronizacion manual Replica -> Primary.
 ///

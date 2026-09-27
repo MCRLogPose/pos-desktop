@@ -33,6 +33,25 @@ impl ConfigService {
         Ok(())
     }
 
+    /// Borra una clave de configuracion (dejarla sin valor equivale a no estar configurada).
+    pub async fn delete_config(&self, key: &str) -> Result<(), String> {
+        sqlx::query("DELETE FROM app_config WHERE key = ?")
+            .bind(key)
+            .execute(&self.pool)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    /// Valor no vacio de una clave, o `None` si no existe o esta en blanco.
+    pub async fn get_config_non_empty(&self, key: &str) -> Result<Option<String>, String> {
+        Ok(self
+            .get_config(key)
+            .await?
+            .filter(|value| !value.trim().is_empty()))
+    }
+
     pub async fn get_operating_mode(&self) -> Result<String, String> {
         match self.get_config("operating_mode").await? {
             Some(mode) => Ok(mode),

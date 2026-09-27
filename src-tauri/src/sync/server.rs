@@ -232,7 +232,12 @@ sync_endpoint!(sync_cash, CashBatch, SyncTopic::Cash, apply::apply_cash_batch);
 sync_endpoint!(sync_catalog, CatalogBatch, SyncTopic::Catalog, apply::apply_catalog_batch);
 sync_endpoint!(sync_anulaciones, AnulacionesBatch, SyncTopic::Anulaciones, apply::apply_anulaciones_batch);
 
-pub async fn run_server(pool: SqlitePool, port: u16, sync_token: String) -> Result<(), String> {
+pub async fn run_server(
+    pool: SqlitePool,
+    port: u16,
+    sync_token: String,
+    running: Arc<std::sync::atomic::AtomicBool>,
+) -> Result<(), String> {
     let app = Router::new()
         .route("/health", get(health))
         .route("/sync/sales", post(sync_sales))
@@ -253,8 +258,12 @@ pub async fn run_server(pool: SqlitePool, port: u16, sync_token: String) -> Resu
         .map_err(|e| format!("no se pudo vincular el puerto {port}: {e}"))?;
 
     log::info!("[sync] servidor HTTP activo en 0.0.0.0:{port}");
+    running.store(true, std::sync::atomic::Ordering::SeqCst);
 
-    axum::serve(listener, app)
+    let result = axum::serve(listener, app)
         .await
-        .map_err(|e| format!("servidor sync finalizado con error: {e}"))
+        .map_err(|e| format!("servidor sync finalizado con error: {e}"));
+
+    running.store(false, std::sync::atomic::Ordering::SeqCst);
+    result
 }

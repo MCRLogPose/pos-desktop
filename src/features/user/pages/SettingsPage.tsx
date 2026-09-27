@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Save, Pencil, User, Mail, Briefcase, Lock, Server, Monitor, Store } from 'lucide-react';
+import { Save, Pencil, User, Mail, Briefcase, Lock, Server, Monitor, Store, RefreshCw, KeyRound, Network } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useConfig } from '@/context/ConfigContext';
 import { useNotification } from '@/context/NotificationContext';
 import { userService } from '@/services/userService';
+import { syncService } from '@/services/syncService';
+import SyncSettingsModal from '../components/modals/SyncSettingsModal';
 
 const MODE_CONFIG = {
     primary: {
@@ -46,6 +48,24 @@ const SettingsPage = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+    // Sincronizacion (solo ADMIN)
+    const isAdmin = user?.username === 'admin' || user?.cargo === 'ADMIN';
+    const [isSyncOpen, setIsSyncOpen] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    const handleSyncNow = async () => {
+        setIsSyncing(true);
+        try {
+            const summary = await syncService.forceSyncNow();
+            showNotification('success', 'Sincronización ejecutada', summary);
+        } catch (error) {
+            console.error(error);
+            showNotification('error', 'Error de sincronización', (error as string) || 'No se pudo sincronizar');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     const handleSave = async () => {
         if (!user) return;
@@ -110,6 +130,52 @@ const SettingsPage = () => {
                     <p className="text-sm opacity-75">{modeConfig.description}</p>
                 </div>
             </div>
+
+            {/* Sincronizacion - solo ADMIN */}
+            {isAdmin && (
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                        <div className="flex-1 flex items-start gap-3">
+                            <div className={`p-3 rounded-xl border ${modeConfig.color}`}>
+                                {operatingMode === 'replica' ? (
+                                    <Monitor className="w-5 h-5" />
+                                ) : (
+                                    <Network className="w-5 h-5" />
+                                )}
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Sincronización</h3>
+                                <p className="text-sm text-gray-500">
+                                    {operatingMode === 'primary'
+                                        ? 'Copia el token de esta máquina y la IP para conectarla con sus terminales Replica.'
+                                        : operatingMode === 'replica'
+                                          ? 'Pega aquí el token y la IP de la máquina Primary para enviar los datos de esta terminal.'
+                                          : 'El modo Hybrid no envía datos a otras máquinas.'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            {operatingMode === 'replica' && (
+                                <button
+                                    onClick={handleSyncNow}
+                                    disabled={isSyncing}
+                                    className="flex items-center gap-2 border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                                    Sincronizar ahora
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setIsSyncOpen(true)}
+                                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-medium transition-all"
+                            >
+                                <KeyRound className="w-4 h-4" />
+                                {operatingMode === 'primary' ? 'Ver token' : 'Configurar conexión'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="flex flex-col xl:flex-row gap-6">
                 {/* Left Column: Business & Billing */}
@@ -309,6 +375,8 @@ const SettingsPage = () => {
                     </div>
                 </div>
             </div>
+
+            <SyncSettingsModal isOpen={isSyncOpen} onClose={() => setIsSyncOpen(false)} />
         </div>
     );
 }

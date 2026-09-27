@@ -1,7 +1,7 @@
 # Graph Report - pos-desktop  (2026-09-26)
 
 ## Corpus Check
-- 170 files · ~163,652 words
+- 170 files · ~163,557 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -248,8 +248,8 @@ Cohesion: 0.11
 Nodes (17): app, security, windows, build, beforeBuildCommand, beforeDevCommand, devUrl, frontendDist (+9 more)
 
 ### Community 19 - "Desktop Schema Definitions"
-Cohesion: 0.13
-Nodes (14): anyOf, definitions, Number, Target, Value, description, anyOf, description (+6 more)
+Cohesion: 0.15
+Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
 
 ### Community 20 - "Windows Schema Definitions"
 Cohesion: 0.15
@@ -312,8 +312,8 @@ Cohesion: 0.09
 Nodes (30): HeaderMap, Json, Next, Request, Response, AnulacionesBatch, authorize(), CashBatch (+22 more)
 
 ### Community 36 - "Windows Schema Root"
-Cohesion: 0.67
-Nodes (3): PermissionEntry, anyOf, description
+Cohesion: 0.40
+Nodes (4): anyOf, description, $schema, title
 
 ### Community 37 - "Store Models"
 Cohesion: 0.50

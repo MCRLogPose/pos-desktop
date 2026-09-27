@@ -124,8 +124,51 @@ impl SyncClient {
         Ok(summary.join("\n"))
     }
 
-    async fn read_config(&self) -> Result<(String, String, String, Option<String>), String> {
-        async fn get(pool: &SqlitePool, key: &str) -> String {
+    /// Comprueba que la Primary configurada responde en `/health`.
+    ///
+    /// Se usa desde la UI de Configuracion para que el administrador confirme la
+    /// IP y el token antes de operar, sin tener que sincronizar datos reales.
+    pub async fn test_connection(&self) -> Result<String, String> {
+        let base = self.read_primary_url().await?;
+        let endpoint = format!("{base}/health");
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(5))
+            .build()
+            .map_err(|e| e.to_string())?;
+        let resp = client
+            .get(&endpoint)
+            .send()
+            .await
+            .map_err(|e| format!("No se pudo conectar con {endpoint}: {e}"))?;
+        let status = resp.status();
+        if !status.is_success() {
+            return Err(format!("{endpoint} respondio {status}"));
+        }
+        let body: serde_json::Value = resp
+            .json()
+            .await
+            .map_err(|e| format!("Respuesta inesperada de {endpoint}: {e}"))?;
+        let service = body
+            .get("service")
+            .and_then(|v| v.as_str())
+            .unwrap_or("vestikpos-sync");
+        Ok(format!("Conexion correcta con {service} en {base}"))
+    }
+
+    async fn read_primary_url(&self) -> Result<String, String> {
+        let pool = self.pool.clone();
+        let url: Option<String> = sqlx::query_scalar("SELECT value FROM app_config WHERE key = 'primary_url'")
+            .fetch_optional(&pool)
+            .await
+            .ok()
+            .flatten();
+        match url {
+            Some(url) if !url.trim().is_empty() => Ok(url),
+            _ => Err("falta configuracion primary_url en la Replica".to_string()),
+        }
+    }
+
+    async fn read_config(&self) -> Result<(String, String, String, Option<String>), String> {        async fn get(pool: &SqlitePool, key: &str) -> String {
             sqlx::query_scalar::<_, String>("SELECT value FROM app_config WHERE key = ?")
                 .bind(key)
                 .fetch_optional(pool)

@@ -17,6 +17,8 @@ pub struct AppState {
     pub config_service: crate::services::config_service::ConfigService,
     pub sync_queue: crate::sync::queue::SyncQueue,
     pub sync_client: crate::sync::client::SyncClient,
+    /// true mientras el servidor HTTP de la Primary escucha en `sync_port`.
+    pub sync_server_running: std::sync::Arc<std::sync::atomic::AtomicBool>,
 }
 
 #[tauri::command]

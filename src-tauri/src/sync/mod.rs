@@ -2,6 +2,7 @@ pub mod apply;
 #[cfg(test)]
 mod apply_tests;
 pub mod client;
+pub mod net;
 pub mod payloads;
 pub mod queue;
 pub mod server;
@@ -9,6 +10,9 @@ pub mod server;
 use serde::{Deserialize, Serialize};
 
 pub const SYNC_SCHEMA_VERSION: u32 = 2;
+
+/// Puerto por defecto del servidor de sincronizacion de la Primary.
+pub const DEFAULT_SYNC_PORT: u16 = 8787;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
