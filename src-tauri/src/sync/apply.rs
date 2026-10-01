@@ -43,18 +43,58 @@ async fn last_insert_rowid(tx: &mut Tx) -> Option<i64> {
         .ok()
 }
 
-pub async fn resolve_store_id_tx(tx: &mut Tx, store_code: Option<&str>) -> Option<i64> {
-    match store_code {
-        Some(code) => scalar_opt(tx, "SELECT id FROM stores WHERE code = ?1 LIMIT 1", code).await,
-        None => {
-            let row = sqlx::query("SELECT id FROM stores ORDER BY id LIMIT 1")
-                .fetch_optional(&mut **tx)
-                .await
-                .ok()?;
-            let row = row?;
-            row.try_get::<i64, _>(0).ok()
-        }
+/// Codigo de sede que la Primary asigna a una replica, derivado de su `device_id`.
+///
+/// La identidad de la sede NO puede venir del `store_code` del envelope: cada
+/// replica arranca con una sede local llamada "Tienda Principal" y, si el
+/// administrador escribe el mismo texto en dos maquinas, ambas colisionarian
+/// sobre la misma fila. El `device_id` es un UUID unico por instalacion, asi que
+/// `MAIN-<8 hex>` no puede repetirse entre sedes.
+///
+/// El nombre sigue siendo libre y referencial: es el `store_code` que el
+/// administrador escribe en la replica (visible en la UI de Tiendas).
+pub fn device_store_code(device_id: &str) -> String {
+    let short: String = device_id
+        .chars()
+        .filter(|c| c.is_ascii_alphanumeric())
+        .take(8)
+        .collect();
+    format!("MAIN-{short}")
+}
+
+/// Resuelve la sede de una replica por su `device_id`, creandola si no existe.
+///
+/// Se resuelve por codigo derivado y nunca por nombre: asi la Primary mantiene
+/// una sede por replica aunque dos maquinas usen el mismo nombre. Si la sede no
+/// existe todavia se crea aqui, de modo que una replica puede sincronizar
+/// aunque su topic `catalog` llegue vacio o despues que las ventas.
+pub async fn resolve_store_id_tx(
+    tx: &mut Tx,
+    device_id: &str,
+    store_label: Option<&str>,
+) -> Option<i64> {
+    let code = device_store_code(device_id);
+    if let Some(id) = scalar_opt(tx, "SELECT id FROM stores WHERE code = ?1 LIMIT 1", &code).await {
+        return Some(id);
     }
+
+    let name = store_label
+        .map(str::trim)
+        .filter(|v| !v.is_empty())
+        .map(str::to_string)
+        .unwrap_or_else(|| format!("Tienda {}", &code[5..]));
+
+    sqlx::query(
+        "INSERT INTO stores (code, name, is_active, uuid) VALUES (?1, ?2, 1, ?3)",
+    )
+    .bind(&code)
+    .bind(&name)
+    .bind(uuid::Uuid::new_v4().to_string())
+    .execute(&mut **tx)
+    .await
+    .ok()?;
+
+    last_insert_rowid(tx).await
 }
 
 async fn resolve_user_id(tx: &mut Tx, username: &str, store_id: Option<i64>) -> Option<i64> {
@@ -218,9 +258,9 @@ async fn apply_one_sale(
         return Ok(SyncItemAck::duplicate(sale.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     let seller_username = sale
         .seller_username
@@ -328,6 +368,7 @@ pub async fn apply_inventory_batch(
         let ack = with_txn!(pool, p.sync_uuid, |tx| upsert_product(
             tx,
             p,
+            device_id,
             sc.as_deref()
         ));
         acks.push(ack);
@@ -375,11 +416,12 @@ async fn upsert_category(
 async fn upsert_product(
     tx: &mut Tx,
     p: &ProductUpsertSync,
+    device_id: &str,
     store_code: Option<&str>,
 ) -> Result<SyncItemAck, String> {
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     let category_id = match p.category_name.as_deref() {
         Some(name) => Some(ensure_category_id(tx, name).await?),
@@ -406,7 +448,9 @@ async fn upsert_product(
     let existing = existing.or(resolve_product_id(tx, store_id, None, &p.name).await);
 
     if let Some(id) = existing {
-        sqlx::query("UPDATE products SET name = ?1, display_name = COALESCE(?2, display_name), category_id = ?3, price = ?4, cost = ?5, min_stock = ?6, unit = ?7, image_url = ?8, is_active = ?9, uuid = COALESCE(uuid, ?10), supplier_name = COALESCE(?11, supplier_name), created_by = COALESCE(?12, created_by) WHERE id = ?13")
+        // El origen solo se escribe la primera vez: una edicion posterior del
+        // producto en la Primary no debe reescribir quien lo creo originalmente.
+        sqlx::query("UPDATE products SET name = ?1, display_name = COALESCE(?2, display_name), category_id = ?3, price = ?4, cost = ?5, min_stock = ?6, unit = ?7, image_url = ?8, is_active = ?9, uuid = COALESCE(uuid, ?10), supplier_name = COALESCE(?11, supplier_name), created_by = COALESCE(?12, created_by), origin_device_id = COALESCE(origin_device_id, ?13), origin_username = COALESCE(origin_username, ?14) WHERE id = ?15")
             .bind(&p.name)
             .bind(&p.display_name)
             .bind(category_id)
@@ -419,6 +463,8 @@ async fn upsert_product(
             .bind(&p.sync_uuid)
             .bind(&p.supplier_name)
             .bind(created_by)
+            .bind(&p.origin_device_id)
+            .bind(&p.origin_username)
             .bind(id)
             .execute(&mut **tx)
             .await
@@ -426,13 +472,12 @@ async fn upsert_product(
         return Ok(SyncItemAck::accepted(&p.sync_uuid, Some(id)));
     }
 
-    sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)")
+sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by, origin_device_id, origin_username) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)")
         .bind(&p.code)
         .bind(&p.name)
         .bind(&p.display_name)
         .bind(category_id)
         .bind(p.price)
-        .bind(p.cost)
         .bind(p.min_stock)
         .bind(&p.unit)
         .bind(&p.image_url)
@@ -442,6 +487,8 @@ async fn upsert_product(
         .bind(&p.sync_uuid)
         .bind(&p.supplier_name)
         .bind(created_by)
+        .bind(&p.origin_device_id)
+        .bind(&p.origin_username)
         .execute(&mut **tx)
         .await
         .map_err(|e| format!("no se pudo crear el producto '{}': {e}", p.name))?;
@@ -456,9 +503,9 @@ async fn apply_stock_movement(
     device_id: &str,
     store_code: Option<&str>,
 ) -> Result<SyncItemAck, String> {
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     if !claim_append_item(tx, &m.sync_uuid, "inventory", device_id).await? {
         return Ok(SyncItemAck::duplicate(m.sync_uuid.clone()));
@@ -510,9 +557,9 @@ async fn apply_one_purchase(
         return Ok(SyncItemAck::duplicate(po.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     let created_by = match po.created_by_username.as_deref() {
         Some(u) => resolve_user_id(tx, u, Some(store_id)).await,
@@ -625,9 +672,9 @@ async fn apply_one_session(
         return Ok(SyncItemAck::duplicate(s.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     let fallback_admin = s.opened_by_username.is_none();
     let opened_by = s.opened_by_username.as_deref().unwrap_or("admin");
@@ -677,9 +724,9 @@ async fn apply_one_expense(
         return Ok(SyncItemAck::duplicate(e.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     insert_expense_if_new(tx, e, store_id).await?;
     Ok(SyncItemAck::accepted(&e.sync_uuid, None))
@@ -733,9 +780,9 @@ async fn apply_one_income(
         return Ok(SyncItemAck::duplicate(i.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     let by_uuid = match i.cash_session_uuid.as_deref() {
         Some(u) => resolve_cash_session_id(tx, u).await,
@@ -769,39 +816,64 @@ pub async fn apply_catalog_batch(
     _device_id: &str,
     _store_code: Option<&str>,
 ) -> Vec<SyncItemAck> {
+    // `_device_id` / `_store_code` no se usan para resolver la sede del catalogo:
+    // cada sede sincronizada se identifica por su propio device_id.
     let mut acks = Vec::new();
 
     for st in &batch.stores {
-        let ack = with_txn!(pool, st.sync_uuid, |tx| upsert_store(tx, st));
+        // La identidad de la sede la fija el device_id, no el nombre que trae la
+        // replica: `upsert_store` reutiliza el codigo derivado para no crear una
+        // fila nueva por cada actualizacion de la sede local.
+        let sc = _store_code.map(str::to_string);
+        let ack = with_txn!(pool, st.sync_uuid, |tx| upsert_store(
+            tx,
+            st,
+            _device_id,
+            sc.as_deref()
+        ));
         acks.push(ack);
     }
 
     for u in &batch.users {
-        let ack = with_txn!(pool, u.sync_uuid, |tx| upsert_user(tx, u));
+        let sc = _store_code.map(str::to_string);
+        let ack = with_txn!(pool, u.sync_uuid, |tx| upsert_user(
+            tx,
+            u,
+            _device_id,
+            sc.as_deref()
+        ));
         acks.push(ack);
     }
 
     acks
 }
 
-async fn upsert_store(tx: &mut Tx, s: &StoreSync) -> Result<SyncItemAck, String> {
-    let existing = match s.code.as_deref() {
-        Some(code) => sqlx::query("SELECT id FROM stores WHERE code = ?1")
-            .bind(code)
-            .fetch_optional(&mut **tx)
-            .await
-            .map_err(|e| format!("error buscando sede: {e}"))?,
-        None => sqlx::query("SELECT id FROM stores WHERE name = ?1")
-            .bind(&s.name)
-            .fetch_optional(&mut **tx)
-            .await
-            .map_err(|e| format!("error buscando sede: {e}"))?,
-    };
+/// Alta o actualizacion de la sede de una replica.
+///
+/// Se identifica por el codigo derivado del `device_id` (`MAIN-<8 hex>`), nunca
+/// por el `code` local de la replica: cada maquina arranca con su propia sede
+/// local y esos codigos se repetirian entre equipos. El fallback por nombre se
+/// elimino a proposito, porque hacia que dos replicas con "Tienda Principal"
+/// colapsaran en la misma fila y sus ventas se mezclaran.
+async fn upsert_store(
+    tx: &mut Tx,
+    s: &StoreSync,
+    device_id: &str,
+    store_label: Option<&str>,
+) -> Result<SyncItemAck, String> {
+    let code = device_store_code(device_id);
+    let name = store_label
+        .map(str::trim)
+        .filter(|v| !v.is_empty())
+        .unwrap_or(&s.name);
 
-    if let Some(row) = existing {
-        let id = row.try_get::<i64, _>(0).map_err(|e| e.to_string())?;
-        sqlx::query("UPDATE stores SET name = ?1, address = ?2, is_active = ?3, uuid = COALESCE(uuid, ?4) WHERE id = ?5")
-            .bind(&s.name)
+    let existing: Option<i64> = scalar_opt(tx, "SELECT id FROM stores WHERE code = ?1", &code).await;
+
+    if let Some(id) = existing {
+        // El nombre se actualiza solo si la replica tiene uno configurado: si no,
+        // se conserva el que ya muestra la UI en la Primary.
+        sqlx::query("UPDATE stores SET name = COALESCE(?1, name), address = COALESCE(?2, address), is_active = ?3, uuid = COALESCE(uuid, ?4) WHERE id = ?5")
+            .bind(Some(name))
             .bind(&s.address)
             .bind(s.is_active)
             .bind(&s.sync_uuid)
@@ -813,15 +885,15 @@ async fn upsert_store(tx: &mut Tx, s: &StoreSync) -> Result<SyncItemAck, String>
     }
 
     sqlx::query("INSERT INTO stores (code, name, address, is_active, created_at, uuid) VALUES (?1, ?2, ?3, ?4, COALESCE(?5, datetime('now','localtime')), ?6)")
-        .bind(&s.code)
-        .bind(&s.name)
+        .bind(&code)
+        .bind(name)
         .bind(&s.address)
         .bind(s.is_active)
         .bind(&s.created_at)
         .bind(&s.sync_uuid)
         .execute(&mut **tx)
         .await
-        .map_err(|e| format!("no se pudo crear la sede '{}': {e}", s.name))?;
+        .map_err(|e| format!("no se pudo crear la sede '{}': {e}", name))?;
     let id = last_insert_rowid(tx).await.ok_or("sin id de sede")?;
     Ok(SyncItemAck::accepted(&s.sync_uuid, Some(id)))
 }
@@ -830,7 +902,12 @@ async fn upsert_store(tx: &mut Tx, s: &StoreSync) -> Result<SyncItemAck, String>
 /// bcrypt nunca lo verifica, asi que estos usuarios no pueden iniciar sesion.
 const SYNC_NO_LOGIN_HASH: &str = "!sync-no-login";
 
-async fn upsert_user(tx: &mut Tx, u: &UserSync) -> Result<SyncItemAck, String> {
+async fn upsert_user(
+    tx: &mut Tx,
+    u: &UserSync,
+    device_id: &str,
+    store_label: Option<&str>,
+) -> Result<SyncItemAck, String> {
     // La cuenta admin es bootstrap local de cada dispositivo: nunca se sincroniza.
     if u.username.eq_ignore_ascii_case("admin") {
         return Ok(SyncItemAck::rejected(
@@ -839,9 +916,13 @@ async fn upsert_user(tx: &mut Tx, u: &UserSync) -> Result<SyncItemAck, String> {
         ));
     }
 
-    let store_id = match u.store_code.as_deref() {
-        Some(code) => scalar_opt(tx, "SELECT id FROM stores WHERE code = ?1", code).await,
-        None => None,
+    // El usuario se ancla a la sede de SU replica (codigo derivado del
+    // device_id). Usar el `store_code` local del payload lo resolveria contra la
+    // sede homonima de la Primary, que es la Tienda Principal de esta maquina.
+    let store_id = if u.store_code.is_some() {
+        resolve_store_id_tx(tx, device_id, store_label).await
+    } else {
+        None
     };
 
     // Identidad compuesta (sede, username): replicas distintas pueden tener el mismo username.
@@ -925,9 +1006,9 @@ async fn apply_one_anulacion(
         return Ok(SyncItemAck::duplicate(a.sync_uuid.clone()));
     }
 
-    let store_id = resolve_store_id_tx(tx, store_code)
+    let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
-        .ok_or_else(|| format!("sede desconocida '{store_code:?}'"))?;
+        .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
     // La anulacion la ejecuto un usuario en la replica; se vincula por username
     // si existe, si no queda sin usuario (no es bloqueante).

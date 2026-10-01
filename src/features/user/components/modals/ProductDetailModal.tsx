@@ -1,4 +1,4 @@
-import { Package, X, Truck, User } from 'lucide-react';
+import { Package, X, Truck, User, Store } from 'lucide-react';
 import type { Product } from '../tables/InventoryTable';
 
 interface ProductDetailModalProps {
@@ -72,7 +72,23 @@ const ProductDetailModal = ({ product, onClose }: ProductDetailModalProps) => {
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" /> Agregado por
               </p>
-              <p className="font-medium text-gray-900">{product.created_by_name || 'No registrado'}</p>
+              <p className="font-medium text-gray-900">
+                {product.origin_username || product.created_by_name || 'No registrado'}
+              </p>
+            </div>
+          </div>
+
+          {/* Procedencia */}
+          <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-4 space-y-3">
+            <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Store className="w-3.5 h-3.5" /> Procedencia
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <DetailRow label="Tienda" value={product.store_name || '-'} />
+              <DetailRow
+                label="Creado en el equipo"
+                value={product.origin_device_id ? product.origin_device_id.slice(0, 8) : 'Origen desconocido'}
+              />
             </div>
           </div>
 

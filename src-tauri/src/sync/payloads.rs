@@ -94,6 +94,12 @@ pub struct ProductUpsertSync {
     pub supplier_name: Option<String>,
     #[serde(default)]
     pub created_by_username: Option<String>,
+    /// Maquina donde se creo el producto. `store_id` local no identifica nada en
+    /// la Primary, asi que la procedencia se transporta explicitamente.
+    #[serde(default)]
+    pub origin_device_id: Option<String>,
+    #[serde(default)]
+    pub origin_username: Option<String>,
     pub occurred_at: String,
 }
 

@@ -402,7 +402,11 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
 
                                         <div className="space-y-2">
                                             <label className="block text-sm font-medium text-gray-700">
-                                                Código de tienda <span className="text-gray-400 font-normal">(opcional)</span>
+                                                Nombre de esta tienda en la Primary
+                                                <span className="block text-xs font-normal text-gray-400">
+                                                    Referencial: con qué nombre se verá tu sede en la Primary. No
+                                                    afecta la identidad técnica, que se deriva del ID de este equipo.
+                                                </span>
                                             </label>
                                             <input
                                                 type="text"
@@ -412,7 +416,7 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
                                                 className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                             />
                                             <p className="text-xs text-gray-400">
-                                                Déjalo vacío si esta máquina es la única tienda.
+                                                Si lo dejas vacío, la Primary usará un nombre genérico con tu ID de equipo.
                                             </p>
                                         </div>
 

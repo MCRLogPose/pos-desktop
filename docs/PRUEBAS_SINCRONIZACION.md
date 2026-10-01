@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-09-20
 **Estado:** Configuración de sync disponible **desde la UI** (solo ADMIN). Pendiente: publicar build y ejecutar las pruebas en 2 máquinas.
-**Última sesión:** se agregó la UI de Sincronización en Configuración (token con copiar en Primary, token + IP en Replica).
+**Última sesión:** identidad de sede por `device_id`, "Probar conexión" corregido, procedencia de producto y descarga CSV.
 
 ---
 
@@ -12,13 +12,16 @@
 |---|---|
 | `pnpm build` (frontend ts + vite) | ✅ OK (dist/ generado) |
 | `cargo check` (Rust) | ✅ OK |
-| `cargo test` | ✅ 22/22 OK (incl. tests sync/apply + normalización de URL) |
+| `cargo test` | ✅ 23/23 OK (incl. tests sync/apply + normalización de URL) |
 | Servidor Axum sync en Primary (puerto 8787, Bearer token) | ✅ implementado |
 | Cliente Réplica (outbox → POST a Primary) | ✅ implementado |
 | Encolado de outbox en todas las escrituras | ✅ implementado |
 | **UI para configurar `primary_url` / `sync_token` / `store_code`** | ✅ **Configuración → Sincronización (solo ADMIN)** |
 | Botón `force_sync_now` ("Sincronizar ahora") | ✅ en Configuración (solo Replica) |
 | Workflow CI para Release en GitHub | ❌ NO existe (se sube a mano) |
+| Identidad de sede por `device_id` (`MAIN-<8 hex>`) | ✅ implemented (una sede por réplica, sin colisión por nombre) |
+| Procedencia de producto (tienda / equipo / usuario) | ✅ en el detalle y en el CSV de inventario |
+| Descarga de inventario en CSV | ✅ botón en Inventario |
 | Pruebas reales Primary ↔ Réplica | ❌ Pendientes |
 
 **Conclusión:** la configuración ya no se hace por SQL. Ver §4.
@@ -51,7 +54,7 @@ C:\Users\<usuario>\AppData\Roaming\com.cruzr.vestikPOS\pos.db
 | `sync_port` | UI (Primary), default 8787 | Puerto del servidor; requiere reiniciar |
 | `sync_token` | Primary: auto al arrancar, se **copia** desde la UI · Replica: se **pega** en la UI | Bearer token compartido |
 | `primary_url` | Réplica: se escribe en la UI (basta con la IP) | A dónde envía la Réplica |
-| `store_code` | Réplica: opcional, en la UI | Código de tienda asignada |
+| `store_code` | Réplica: opcional, en la UI | **Nombre referencial** de la sede en la Primary. No es la identidad: esta se deriva de `device_id` (`MAIN-<8 hex>`) |
 
 > La Réplica falla con "falta configuracion primary_url en la Replica" si no tiene `primary_url` y `sync_token`.
 
@@ -88,9 +91,12 @@ En **ambas** máquinas, iniciar sesión como `admin` y abrir **Configuración**.
    - **IP o dirección de la Primary**: se puede escribir solo `100.100.162.18`; la app agrega
      `http://` y `:8787` automáticamente.
    - **Token de sincronización**: pegar el copiado.
-   - **Código de tienda**: opcional.
-3. **Probar conexión** → debe responder "Conexión correcta con vestikpos-sync". Si falla, el
-   mensaje indica si es IP/puerto (no responde) o firewall.
+   - **Nombre de esta tienda en la Primary**: opcional pero recomendado (ej: `Gamarra`). Es el
+     nombre con el que la sede aparecerá en la Primary. La identidad técnica de la sede se
+     deriva sola del `device_id` de este equipo (`MAIN-<8 hex>`), así que dos réplicas nunca
+     colisionan aunque ambas se llamen "Tienda Principal".
+3. **Probar conexión** → debe responder "Conexión correcta con vestikpos-sync". Si falla con 401,
+   el token no coincide con el de la Primary; si no responde, es IP/puerto o firewall.
 4. **Guardar**. A partir de ahí, la Réplica envía al cerrar caja o con **Sincronizar ahora**.
 
 ### 4.3 Firewall (Primary, una sola vez)
@@ -138,8 +144,12 @@ set("store_code", "<codigo-de-tienda>")   # opcional
 4. Prueba mínima:
    - En la Réplica: abrir caja → registrar venta(s) → **Sincronizar ahora** (o cerrar caja).
    - En la Primary: revisar que llegó (`SELECT * FROM sync_log;` ordenado por id desc) y que la venta apareció en `orders`.
-5. "Probar conexión" en la Réplica debe responder correcto; `curl http://<primary-ip>:8787/health`
-   debe responder `{"status":"ok"...}` (sin token: `/sync/*` responde 401 — es correcto).
+5. "Probar conexión" en la Réplica debe responder correcto. Para verificar a mano por consola,
+   `/health` **también exige token**:
+   `curl -H "Authorization: Bearer <token>" http://<primary-ip>:8787/health` → `{"status":"ok"...}`.
+   Sin token responde 401 tanto en `/health` como en `/sync/*` (correcto).
+6. En la Primary, **Configuración → Tiendas** debe listar la Tienda Principal local más una sede
+   por cada réplica que haya sincronizado. Las ventas de la réplica aparecen solo en su sede.
 
 ---
 
@@ -181,7 +191,6 @@ Otros pendientes conocidos (no bloquean la prueba básica):
   frontend puede invocar `get_sync_token`. Si se requiere, hay que agregar verificación en Rust.
 - Crear/eliminar tiendas sigue restringido en Primary (`reject_in_primary` en `commands/store.rs`).
 - Restringir en Réplica el alta/eliminación de tiendas (solo la asignada).
-- Derivar `store_code` del envelope desde la tienda asignada en `client.rs` (hoy puede llegar vacío).
 - Worker de reintento automático en background en Réplica (hoy la sync depende del cierre de caja o
   del botón "Sincronizar ahora").
 - `sync_all` usa `reqwest::Client::new()` sin timeout: si la Primary no responde, el cierre de caja

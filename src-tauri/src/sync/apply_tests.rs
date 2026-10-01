@@ -22,14 +22,35 @@ async fn test_pool() -> SqlitePool {
     pool
 }
 
+/// Sede que la Primary asigna a la replica `DEV_ONE`.
+///
+/// Desde que la identidad de sede se deriva del `device_id`, los datos de la
+/// replica NO viven en la Tienda Principal local (id=1): viven en esta fila.
+/// Por eso el seed coloca aqui al vendedor y al producto.
+const DEV_ONE: &str = "dev-one-0001";
+
 async fn seed(pool: &SqlitePool) {
-    // vendedor1 pertenece a la sede MAIN (id=1, sembrada por migracion 005):
-    // asi la identidad compuesta (sede, username) resuelve al usuario local.
-    sqlx::query("INSERT INTO users (username, password_hash, cargo, store_id, is_active, created_at) VALUES ('vendedor1', 'hash', 'VENDEDOR', 1, 1, datetime('now','localtime'))")
+    let store_code = device_store_code(DEV_ONE);
+    sqlx::query("INSERT INTO stores (code, name, is_active, uuid) VALUES (?, 'Sucursal Uno', 1, 'store-dev-one')")
+        .bind(&store_code)
         .execute(pool)
         .await
         .unwrap();
-    sqlx::query("INSERT INTO products (code, name, category_id, price, cost, stock, min_stock, is_active, store_id, created_at) VALUES ('SHO-001', 'Short M', 1, 50.0, 30.0, 10, 5, 1, 1, datetime('now','localtime'))")
+
+    let store_id: i64 =
+        sqlx::query_scalar("SELECT id FROM stores WHERE code = ?")
+            .bind(&store_code)
+            .fetch_one(pool)
+            .await
+            .unwrap();
+
+    sqlx::query("INSERT INTO users (username, password_hash, cargo, store_id, is_active, created_at) VALUES ('vendedor1', 'hash', 'VENDEDOR', ?1, 1, datetime('now','localtime'))")
+        .bind(store_id)
+        .execute(pool)
+        .await
+        .unwrap();
+    sqlx::query("INSERT INTO products (code, name, category_id, price, cost, stock, min_stock, is_active, store_id, created_at) VALUES ('SHO-001', 'Short M', 1, 50.0, 30.0, 10, 5, 1, ?1, datetime('now','localtime'))")
+        .bind(store_id)
         .execute(pool)
         .await
         .unwrap();
@@ -75,11 +96,11 @@ async fn sales_apply_once_and_link_items() {
         }],
     };
 
-    let acks = apply_sales_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let acks = apply_sales_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(acks[0].status, SyncItemStatus::Accepted);
     assert!(acks[0].primary_id.is_some());
 
-    let replay = apply_sales_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let replay = apply_sales_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(replay[0].status, SyncItemStatus::Duplicate);
 
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 1);
@@ -112,7 +133,7 @@ async fn unknown_seller_is_rejected_and_not_persisted() {
         }],
     };
 
-    let acks = apply_sales_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let acks = apply_sales_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(acks[0].status, SyncItemStatus::Rejected);
     assert!(acks[0].message.as_deref().unwrap().contains("fantasma"));
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 0);
@@ -140,14 +161,14 @@ async fn stock_movements_apply_exactly_once() {
         }],
     };
 
-    let acks = apply_inventory_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let acks = apply_inventory_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(acks[0].status, SyncItemStatus::Accepted);
     assert_eq!(
         count(&pool, "SELECT stock FROM products WHERE code = 'SHO-001'").await,
         7
     );
 
-    let replay = apply_inventory_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let replay = apply_inventory_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(replay[0].status, SyncItemStatus::Duplicate);
     assert_eq!(
         count(&pool, "SELECT stock FROM products WHERE code = 'SHO-001'").await,
@@ -174,14 +195,15 @@ async fn catalog_upsert_updates_existing_rows() {
             username: "vendedor1".into(),
             cargo: Some("ADMIN".into()),
             email: None,
-            store_code: Some("MAIN".into()),
+            store_code: Some("SANJUAN".into()),
             role_name: None,
             is_active: true,
             created_at: None,
         }],
     };
 
-    let acks = apply_catalog_batch(&pool, &batch, "dev-1", None).await;
+    // Misma replica que la del seed: el catalogo debe actualizar su sede, no crear otra.
+    let acks = apply_catalog_batch(&pool, &batch, DEV_ONE, Some("San Juan")).await;
     assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
 
     let cargo: String =
@@ -190,12 +212,63 @@ async fn catalog_upsert_updates_existing_rows() {
             .await
             .unwrap();
     assert_eq!(cargo, "ADMIN");
+    // MAIN (sede local de la Primary) + la sede de DEV_ONE. Ninguna mas.
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM stores").await, 2);
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM users").await, 1);
 
-    let replay = apply_catalog_batch(&pool, &batch, "dev-1", None).await;
+    let name: String = sqlx::query_scalar("SELECT name FROM stores WHERE code = ?")
+        .bind(device_store_code(DEV_ONE))
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(name, "San Juan");
+
+    let replay = apply_catalog_batch(&pool, &batch, DEV_ONE, Some("San Juan")).await;
     assert!(replay.iter().all(|a| a.status == SyncItemStatus::Accepted));
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM stores").await, 2);
+}
+
+/// Dos replicas distintas crean dos sedes aunque ambas se llamen "Tienda Principal".
+#[tokio::test]
+async fn cada_replica_crea_su_propia_sede_aunque_compartan_nombre() {
+    let pool = test_pool().await;
+    let mk_store = |uuid: &str| StoreSync {
+        sync_uuid: uuid.into(),
+        local_store_id: 1,
+        code: Some("MAIN".into()),
+        name: "Tienda Principal".into(),
+        address: None,
+        is_active: true,
+        created_at: None,
+    };
+
+    let a = CatalogBatch {
+        stores: vec![mk_store("store-A")],
+        users: vec![],
+    };
+    let b = CatalogBatch {
+        stores: vec![mk_store("store-B")],
+        users: vec![],
+    };
+
+    apply_catalog_batch(&pool, &a, "replica-aaaa", Some("Gamarra")).await;
+    apply_catalog_batch(&pool, &b, "replica-bbbb", Some("Mañanitas")).await;
+
+    // MAIN local + la sede de DEV_ONE (seed) + una por cada replica nueva.
+    // Las tres replican el mismo nombre y aun asi no se fusionan.
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM stores").await, 4);
+    assert_eq!(
+        count(
+            &pool,
+            "SELECT COUNT(*) FROM stores WHERE code IN ('MAIN-replicaa', 'MAIN-replicab')"
+        )
+        .await,
+        2
+    );
+    assert_eq!(
+        count(&pool, "SELECT COUNT(*) FROM stores WHERE code = 'MAIN'").await,
+        1
+    );
 }
 
 #[tokio::test]
@@ -216,7 +289,7 @@ async fn user_sync_preserves_local_password() {
         }],
     };
 
-    let acks = apply_catalog_batch(&pool, &batch, "dev-1", None).await;
+    let acks = apply_catalog_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
 
     // El hash local ('hash') debe sobrevivir al sync: las credenciales nunca viajan.
@@ -299,44 +372,48 @@ async fn admin_account_is_never_synced() {
     );
 }
 
+/// Dos replicas pueden tener un usuario con el MISMO username: la identidad
+/// compuesta (sede, username) los mantiene separados en vez de fusionarlos.
 #[tokio::test]
 async fn same_username_in_different_stores_coexist() {
     let pool = test_pool().await;
-    let mk_store = |uuid: &str, code: &str| StoreSync {
-        sync_uuid: uuid.into(),
-        local_store_id: 0,
-        code: Some(code.into()),
-        name: format!("Sede {code}"),
-        address: None,
-        is_active: true,
-        created_at: None,
+    let mk_batch = |store_uuid: &str, user_uuid: &str| CatalogBatch {
+        stores: vec![StoreSync {
+            sync_uuid: store_uuid.into(),
+            local_store_id: 1,
+            code: Some("MAIN".into()),
+            name: "Tienda Principal".into(),
+            address: None,
+            is_active: true,
+            created_at: None,
+        }],
+        users: vec![UserSync {
+            sync_uuid: user_uuid.into(),
+            local_user_id: 7,
+            username: "cajero01".into(),
+            cargo: Some("VENDEDOR".into()),
+            email: None,
+            store_code: Some("MAIN".into()),
+            role_name: None,
+            is_active: true,
+            created_at: None,
+        }],
     };
-    let mk_user = |uuid: &str, store_code: &str| UserSync {
-        sync_uuid: uuid.into(),
-        local_user_id: 0,
-        username: "cajero01".into(),
-        cargo: Some("VENDEDOR".into()),
-        email: None,
-        store_code: Some(store_code.into()),
-        role_name: None,
-        is_active: true,
-        created_at: None,
-    };
+    let a = mk_batch("store-A", "user-A");
+    let b = mk_batch("store-B", "user-B");
 
-    let batch = CatalogBatch {
-        stores: vec![mk_store("store-A", "SANJUAN"), mk_store("store-B", "MIRAFLORES")],
-        users: vec![mk_user("user-A", "SANJUAN"), mk_user("user-B", "MIRAFLORES")],
-    };
-
-    let acks = apply_catalog_batch(&pool, &batch, "multi-dev", None).await;
+    let acks = apply_catalog_batch(&pool, &a, "replica-aaaa", Some("Gamarra")).await;
     assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+    let acks = apply_catalog_batch(&pool, &b, "replica-bbbb", Some("Mañanitas")).await;
+    assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+
     assert_eq!(
         count(&pool, "SELECT COUNT(*) FROM users WHERE username = 'cajero01'").await,
         2
     );
 
     // Reenvio del mismo lote: upserts idempotentes, sin duplicar filas.
-    let replay = apply_catalog_batch(&pool, &batch, "multi-dev", None).await;
+    let replay = apply_catalog_batch(&pool, &a, "replica-aaaa", Some("Gamarra")).await;
     assert!(replay.iter().all(|a| a.status == SyncItemStatus::Accepted));
     assert_eq!(
         count(&pool, "SELECT COUNT(*) FROM users WHERE username = 'cajero01'").await,
@@ -381,7 +458,7 @@ async fn purchase_order_with_generated_expense_applies_once() {
         }],
     };
 
-    let acks = apply_purchases_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let acks = apply_purchases_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     eprintln!("ACK: {acks:?}");
     assert_eq!(acks[0].status, SyncItemStatus::Accepted);
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM purchase_orders").await, 1);
@@ -391,7 +468,7 @@ async fn purchase_order_with_generated_expense_applies_once() {
     );
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM expenses").await, 1);
 
-    let replay = apply_purchases_batch(&pool, &batch, "dev-1", Some("MAIN")).await;
+    let replay = apply_purchases_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
     assert_eq!(replay[0].status, SyncItemStatus::Duplicate);
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM expenses").await, 1);
 }
@@ -428,7 +505,7 @@ async fn income_without_session_links_to_latest() {
         }],
     };
 
-    let acks = apply_cash_batch(&pool, &sessions, "dev-1", Some("MAIN")).await;
+    let acks = apply_cash_batch(&pool, &sessions, DEV_ONE, Some("Sucursal Uno")).await;
     assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM cash_sessions").await, 1);
     assert_eq!(count(&pool, "SELECT COUNT(*) FROM other_income").await, 1);

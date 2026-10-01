@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Filter, ArrowUpDown, Layers, PackagePlus } from 'lucide-react';
+import { Search, Plus, Filter, ArrowUpDown, Layers, PackagePlus, Download } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
 import ProductModal from '../components/modals/ProductModal';
@@ -104,6 +104,41 @@ const InventoryPage = () => {
     setIsProductModalOpen(true);
   };
 
+  const handleExportCSV = () => {
+    if (filteredProducts.length === 0) {
+      showNotification('warning', 'Sin datos', 'No hay productos para exportar con los filtros actuales.');
+      return;
+    }
+    const headers = ['Codigo', 'Nombre', 'Nombre Comercial', 'Categoria', 'Tienda', 'Precio', 'Costo', 'Stock', 'Stock Minimo', 'Unidad', 'Proveedor', 'Creado Por', 'Equipo Origen'];
+    const rows = filteredProducts.map(p => [
+      p.code || '',
+      p.name,
+      p.display_name || '',
+      p.category_name || '',
+      p.store_name || '',
+      p.price.toFixed(2),
+      p.cost.toFixed(2),
+      p.stock,
+      p.min_stock ?? '',
+      p.unit || '',
+      p.supplier_name || '',
+      p.origin_username || p.created_by_name || '',
+      p.origin_device_id ? p.origin_device_id.slice(0, 8) : '',
+    ]);
+    const csv = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    // BOM para que Excel respete el UTF-8 y no rompa los acentos.
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `inventario_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showNotification('success', 'Exportación exitosa', `${filteredProducts.length} productos exportados correctamente.`);
+  };
+
   // Filter & Pagination Logic
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -129,6 +164,13 @@ const InventoryPage = () => {
           <p className="text-gray-500">Gestión de productos y existencias</p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2.5 rounded-xl font-medium shadow-sm transition-all active:scale-95"
+          >
+            <Download className="w-5 h-5" />
+            Descargar CSV
+          </button>
           <button
             onClick={() => setIsCategoryModalOpen(true)}
             className="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2.5 rounded-xl font-medium shadow-sm transition-all active:scale-95"

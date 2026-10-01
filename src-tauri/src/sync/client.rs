@@ -129,18 +129,26 @@ impl SyncClient {
     /// Se usa desde la UI de Configuracion para que el administrador confirme la
     /// IP y el token antes de operar, sin tener que sincronizar datos reales.
     pub async fn test_connection(&self) -> Result<String, String> {
-        let base = self.read_primary_url().await?;
+        let (base, token) = self.read_url_and_token().await?;
         let endpoint = format!("{base}/health");
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(5))
             .build()
             .map_err(|e| e.to_string())?;
+        // `/health` esta detras del mismo middleware que `/sync/*`: sin el token
+        // la Primary responde 401 aunque la IP y el puerto sean correctos.
         let resp = client
             .get(&endpoint)
+            .bearer_auth(&token)
             .send()
             .await
             .map_err(|e| format!("No se pudo conectar con {endpoint}: {e}"))?;
         let status = resp.status();
+        if status == reqwest::StatusCode::UNAUTHORIZED {
+            return Err(format!(
+                "{endpoint} respondio 401: el token de sincronizacion no coincide con el de la Primary"
+            ));
+        }
         if !status.is_success() {
             return Err(format!("{endpoint} respondio {status}"));
         }
@@ -155,42 +163,27 @@ impl SyncClient {
         Ok(format!("Conexion correcta con {service} en {base}"))
     }
 
-    async fn read_primary_url(&self) -> Result<String, String> {
-        let pool = self.pool.clone();
-        let url: Option<String> = sqlx::query_scalar("SELECT value FROM app_config WHERE key = 'primary_url'")
-            .fetch_optional(&pool)
-            .await
-            .ok()
-            .flatten();
-        match url {
-            Some(url) if !url.trim().is_empty() => Ok(url),
-            _ => Err("falta configuracion primary_url en la Replica".to_string()),
-        }
-    }
-
-    async fn read_config(&self) -> Result<(String, String, String, Option<String>), String> {        async fn get(pool: &SqlitePool, key: &str) -> String {
-            sqlx::query_scalar::<_, String>("SELECT value FROM app_config WHERE key = ?")
-                .bind(key)
-                .fetch_optional(pool)
-                .await
-                .ok()
-                .flatten()
-                .unwrap_or_default()
-        }
-        let primary_url = get(&self.pool, "primary_url").await;
-        if primary_url.is_empty() {
+    /// URL de la Primary y token compartido, ambos obligatorios para hablar con ella.
+    async fn read_url_and_token(&self) -> Result<(String, String), String> {
+        let primary_url = self.get_config("primary_url").await;
+        if primary_url.trim().is_empty() {
             return Err("falta configuracion primary_url en la Replica".to_string());
         }
-        let token = get(&self.pool, "sync_token").await;
-        if token.is_empty() {
+        let token = self.get_config("sync_token").await;
+        if token.trim().is_empty() {
             return Err("falta configuracion sync_token en la Replica".to_string());
         }
-        let device_id = get(&self.pool, "device_id").await;
+        Ok((primary_url, token))
+    }
+
+    async fn read_config(&self) -> Result<(String, String, String, Option<String>), String> {
+        let (primary_url, token) = self.read_url_and_token().await?;
+        let device_id = self.get_config("device_id").await;
         if device_id.is_empty() {
             return Err("falta configuracion device_id".to_string());
         }
         let store_code = {
-            let v = get(&self.pool, "store_code").await;
+            let v = self.get_config("store_code").await;
             if v.is_empty() {
                 None
             } else {
@@ -199,15 +192,30 @@ impl SyncClient {
         };
         Ok((primary_url, token, device_id, store_code))
     }
+
+    async fn get_config(&self, key: &str) -> String {
+        let pool = self.pool.clone();
+        sqlx::query_scalar::<_, String>("SELECT value FROM app_config WHERE key = ?")
+            .bind(key)
+            .fetch_optional(&pool)
+            .await
+            .ok()
+            .flatten()
+            .unwrap_or_default()
+    }
 }
 
+/// Orden de envio. `Catalog` va primero a proposito: es el topic que da de alta
+/// la sede del administrador y el resto de topics la resuelven por `store_code`
+/// (ver `apply::upsert_store`). Si las ventas llegaran antes, la Primary no
+/// tendria donde colgarlas.
 const ALL_TOPICS: [SyncTopic; 6] = [
+    SyncTopic::Catalog,
     SyncTopic::Sales,
     SyncTopic::Anulaciones,
     SyncTopic::Inventory,
     SyncTopic::Purchases,
     SyncTopic::Cash,
-    SyncTopic::Catalog,
 ];
 
 fn topic_str(t: SyncTopic) -> &'static str {

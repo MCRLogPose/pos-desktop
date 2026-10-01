@@ -47,4 +47,11 @@ pub struct ProductWithCategory {
     pub created_at: Option<NaiveDateTime>,
     pub supplier_name: Option<String>,
     pub created_by_name: Option<String>,
+    /// Sede a la que pertenece el producto (referencia para la UI).
+    pub store_name: Option<String>,
+    /// Maquina donde se creo: NULL en productos anteriores a la migracion 021.
+    pub origin_device_id: Option<String>,
+    /// Username del creador en su maquina de origen. Se guarda en texto porque el
+    /// usuario puede no existir en la Primary (el admin local no se sincroniza).
+    pub origin_username: Option<String>,
 }

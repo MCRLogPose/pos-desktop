@@ -17,6 +17,9 @@ interface Product {
   created_at: string | null;
   supplier_name?: string | null;
   created_by_name?: string | null;
+  store_name?: string | null;
+  origin_device_id?: string | null;
+  origin_username?: string | null;
   status?: 'active' | 'low_stock' | 'out_of_stock';
 }
 
