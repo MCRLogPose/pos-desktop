@@ -111,6 +111,62 @@ async fn sales_apply_once_and_link_items() {
     );
 }
 
+/// Un producto que llega del catalogo de una replica debe guardarse con TODOS
+/// sus campos. Regresion: el INSERT dejaba `cost` en 0 y corria los binds, asi
+/// que unit/imagen/is_active/store_id/created_at llegaban a columnas ajenas.
+#[tokio::test]
+async fn alta_de_producto_por_catalogo_conserva_campos() {
+    let pool = test_pool().await;
+    let batch = InventoryBatch {
+        categories: vec![],
+        product_upserts: vec![ProductUpsertSync {
+            sync_uuid: "prod-0001".into(),
+            local_product_id: 31,
+            code: Some("NEW-777".into()),
+            name: "Camisa Polar".into(),
+            display_name: Some("Camisa".into()),
+            category_name: None,
+            price: 89.9,
+            cost: 42.75,
+            min_stock: Some(3),
+            unit: Some("UND".into()),
+            image_url: Some("http://x/img.png".into()),
+            is_active: true,
+            supplier_name: Some("Acme".into()),
+            created_by_username: Some("vendedor1".into()),
+            origin_device_id: Some(DEV_ONE.into()),
+            origin_username: Some("vendedor1".into()),
+            occurred_at: "2026-09-20 10:00:00".into(),
+        }],
+        stock_movements: vec![],
+    };
+
+    let acks = apply_inventory_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
+    assert!(
+        acks.iter().all(|a| a.status == SyncItemStatus::Accepted),
+        "ack: {:?}",
+        acks
+    );
+
+    let row: (String, f64, f64, i64, i64, String, Option<String>, String, i64) = sqlx::query_as(
+        "SELECT name, price, cost, stock, min_stock, unit, image_url, created_at, is_active
+         FROM products WHERE code = 'NEW-777'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+
+    assert_eq!(row.0, "Camisa Polar");
+    assert_eq!(row.1, 89.9);
+    assert_eq!(row.2, 42.75, "el costo no debe perderse en el alta");
+    assert_eq!(row.3, 0, "el stock llega por movimientos, no por el catalogo");
+    assert_eq!(row.4, 3);
+    assert_eq!(row.5, "UND");
+    assert_eq!(row.6.as_deref(), Some("http://x/img.png"));
+    assert!(row.7.contains("2026-09-20"), "created_at: {}", row.7);
+    assert_eq!(row.8, 1);
+}
+
 #[tokio::test]
 async fn unknown_seller_is_rejected_and_not_persisted() {
     let pool = test_pool().await;

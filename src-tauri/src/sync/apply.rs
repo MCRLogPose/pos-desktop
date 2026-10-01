@@ -472,12 +472,16 @@ async fn upsert_product(
         return Ok(SyncItemAck::accepted(&p.sync_uuid, Some(id)));
     }
 
-sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by, origin_device_id, origin_username) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)")
+// El stock se inicializa en 0 a proposito: el inventario real llega por los
+    // movimientos de stock, que son idempotentes y replay-seguros. Sumar el stock
+    // del catalogo aqui lo duplicaria en cuanto se reprocesara la fila.
+    sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, image_url, is_active, store_id, created_at, uuid, supplier_name, created_by, origin_device_id, origin_username) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)")
         .bind(&p.code)
         .bind(&p.name)
         .bind(&p.display_name)
         .bind(category_id)
         .bind(p.price)
+        .bind(p.cost)
         .bind(p.min_stock)
         .bind(&p.unit)
         .bind(&p.image_url)

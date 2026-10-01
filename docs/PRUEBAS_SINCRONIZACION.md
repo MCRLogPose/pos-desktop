@@ -12,7 +12,7 @@
 |---|---|
 | `pnpm build` (frontend ts + vite) | ✅ OK (dist/ generado) |
 | `cargo check` (Rust) | ✅ OK |
-| `cargo test` | ✅ 23/23 OK (incl. tests sync/apply + normalización de URL) |
+| `cargo test` | ✅ 24/24 OK (incl. tests sync/apply + normalización de URL) |
 | Servidor Axum sync en Primary (puerto 8787, Bearer token) | ✅ implementado |
 | Cliente Réplica (outbox → POST a Primary) | ✅ implementado |
 | Encolado de outbox en todas las escrituras | ✅ implementado |
