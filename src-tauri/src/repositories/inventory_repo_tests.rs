@@ -29,6 +29,176 @@ async fn test_pool() -> SqlitePool {
     pool
 }
 
+/// Un producto recien creado nace con `uuid`.
+///
+/// Regresion: `create_product` no escribia esa columna, y como
+/// `enqueue_product` la lee, el decode de NULL fallaba y el producto nunca se
+/// encolaba. La Primary se quedaba sin nombre, categoria, costo ni cantidad.
+#[tokio::test]
+async fn producto_nuevo_nace_con_uuid_y_se_encola() {
+    let pool = test_pool().await;
+    // La outbox solo acumula si el equipo es Replica.
+    sqlx::query("INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'replica')")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let repo = InventoryRepository::new(pool.clone());
+    let id = repo
+        .create_product(
+            Some("NEW-900"),
+            "CamisaNueva",
+            None,
+            None,
+            50.0,
+            20.0,
+            3,
+            Some("UND"),
+            None,
+            STORE_ID,
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+
+    let uuid: Option<String> = sqlx::query_scalar("SELECT uuid FROM products WHERE id = ?")
+        .bind(id)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    let uuid = uuid.expect("el producto debe nacer con uuid");
+
+    // El spawn del encolado es background: hay que darle tiempo.
+    for _ in 0..50 {
+        let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE entity = 'product'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        if n > 0 {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+
+    let row: Option<(String, String)> =
+        sqlx::query_as("SELECT item_uuid, payload FROM sync_outbox WHERE entity = 'product' LIMIT 1")
+            .fetch_optional(&pool)
+            .await
+            .unwrap();
+    let (item_uuid, payload) = row.expect("el producto debe quedar en la outbox");
+
+    assert_eq!(item_uuid, uuid, "el item_uuid debe ser el uuid del producto, no ''");
+    assert!(!item_uuid.is_empty(), "un item_uuid vacio no identifica nada");
+
+    let v: serde_json::Value = serde_json::from_str(&payload).unwrap();
+    assert_eq!(v["sync_uuid"], uuid.as_str());
+    assert_eq!(v["name"], "CamisaNueva");
+    assert_eq!(v["code"], "NEW-900");
+    assert_eq!(v["cost"], 20.0);
+    assert_eq!(v["price"], 50.0);
+}
+
+/// Un producto con `uuid` NULL (creado antes de la 022) se recuperaba: se le
+/// asigna identidad y se encola igual.
+#[tokio::test]
+async fn producto_sin_uuid_se_recupera_al_encolar() {
+    let pool = test_pool().await;
+    sqlx::query("INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'replica')")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    // Producto legacy: existe pero sin uuid, y sin fila en la outbox.
+    let id: i64 = sqlx::query_scalar(
+        "INSERT INTO products (code, name, price, cost, stock, min_stock, is_active, store_id, created_at)
+         VALUES ('LEGACY-1', 'ProductoLegacy', 30.0, 15.0, 4, 2, 1, ?1, datetime('now','localtime'))
+         RETURNING id",
+    )
+    .bind(STORE_ID)
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+
+    let repo = InventoryRepository::new(pool.clone());
+    repo.update_product(
+        id,
+        Some("LEGACY-1"),
+        "ProductoLegacy",
+        None,
+        None,
+        30.0,
+        15.0,
+        4,
+        None,
+        None,
+        STORE_ID,
+        None,
+        None,
+    )
+    .await
+    .unwrap();
+
+    for _ in 0..50 {
+        let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE entity = 'product'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        if n > 0 {
+            break;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+
+    let uuid: Option<String> = sqlx::query_scalar("SELECT uuid FROM products WHERE id = ?")
+        .bind(id)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert!(uuid.is_some(), "update_product debe rellenar el uuid faltante");
+
+    let item_uuid: Option<String> =
+        sqlx::query_scalar("SELECT item_uuid FROM sync_outbox WHERE entity = 'product' LIMIT 1")
+            .fetch_optional(&pool)
+            .await
+            .unwrap();
+    assert!(item_uuid.is_some(), "el legacy tambien debe encolarse");
+    assert!(!item_uuid.unwrap().is_empty());
+}
+
+/// `update_product` no debe cambiar el uuid de un producto que ya lo tiene: si
+/// lo hiciera, la Primary lo veria como un producto distinto.
+#[tokio::test]
+async fn update_product_conserva_el_uuid_existente() {
+    let pool = test_pool().await;
+    sqlx::query("INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'replica')")
+        .execute(&pool)
+        .await
+        .unwrap();
+    let repo = InventoryRepository::new(pool.clone());
+
+    let id = repo
+        .create_product(Some("KEEP-1"), "ConUuid", None, None, 10.0, 5.0, 1, None, None, STORE_ID, None, None)
+        .await
+        .unwrap();
+    let before: String = sqlx::query_scalar("SELECT uuid FROM products WHERE id = ?")
+        .bind(id)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+
+    repo.update_product(id, Some("KEEP-1"), "ConUuid", None, None, 12.0, 6.0, 2, None, None, STORE_ID, None, None)
+        .await
+        .unwrap();
+
+    let after: String = sqlx::query_scalar("SELECT uuid FROM products WHERE id = ?")
+        .bind(id)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(before, after, "el uuid no debe rotar en una edicion normal");
+}
+
 /// Producto con stock 10 y costo 30.
 ///
 /// La sede `id=1` (MAIN) ya la crea la migracion 005, asi que aqui no se vuelve

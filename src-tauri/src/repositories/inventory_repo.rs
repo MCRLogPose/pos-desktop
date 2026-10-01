@@ -114,9 +114,13 @@ impl InventoryRepository {
         supplier_name: Option<&str>,
         created_by: Option<i64>,
     ) -> Result<i64, sqlx::Error> {
+        // El `uuid` es la identidad que la Primary usa para deduplicar el catalogo.
+// Sin el, `enqueue_product` no puede leer la fila y el producto nunca se
+// sincroniza: por eso se genera aqui y no se deja en NULL.
+let product_uuid = uuid::Uuid::new_v4().to_string();
         let result = sqlx::query(
-            "INSERT INTO products (code, name, display_name, category_id, price, cost, stock, unit, image_url, store_id, supplier_name, created_by, origin_device_id, origin_username)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT value FROM app_config WHERE key = 'device_id'), (SELECT u.username FROM users u WHERE u.id = ?))"
+            "INSERT INTO products (code, name, display_name, category_id, price, cost, stock, unit, image_url, store_id, supplier_name, created_by, uuid, origin_device_id, origin_username)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT value FROM app_config WHERE key = 'device_id'), (SELECT u.username FROM users u WHERE u.id = ?))"
         )
         .bind(code)
         .bind(name)
@@ -130,6 +134,7 @@ impl InventoryRepository {
         .bind(store_id)
         .bind(supplier_name)
         .bind(created_by)
+        .bind(&product_uuid)
         .bind(created_by)
         .execute(&self.pool)
         .await?;
@@ -162,8 +167,11 @@ impl InventoryRepository {
         supplier_name: Option<&str>,
         created_by: Option<i64>,
     ) -> Result<(), sqlx::Error> {
+        // `uuid = COALESCE(uuid, ?)` en vez de pisarlo: el uuid ya encolado en la
+        // outbox debe seguir coincidiendo con el de la fila, o la Primary lo
+        // trataria como un producto distinto. Solo se rellena si falta.
         sqlx::query(
-            "UPDATE products SET code=?, name=?, display_name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=?, supplier_name=COALESCE(?, supplier_name), created_by=COALESCE(?, created_by) WHERE id=?"
+            "UPDATE products SET code=?, name=?, display_name=?, category_id=?, price=?, cost=?, stock=?, unit=?, image_url=?, store_id=?, supplier_name=COALESCE(?, supplier_name), created_by=COALESCE(?, created_by), uuid=COALESCE(uuid, ?) WHERE id=?"
         )
         .bind(code)
         .bind(name)
@@ -177,6 +185,7 @@ impl InventoryRepository {
         .bind(store_id)
         .bind(supplier_name)
         .bind(created_by)
+        .bind(uuid::Uuid::new_v4().to_string())
         .bind(id)
         .execute(&self.pool)
         .await?;
@@ -370,7 +379,7 @@ async fn enqueue_category(pool: &SqlitePool, id: i64, name: String) -> Result<()
 async fn enqueue_product(pool: &SqlitePool, id: i64) -> Result<(), sqlx::Error> {
     let queue = SyncQueue::new(pool.clone());
 let row: Option<(
-            String,
+            Option<String>,
             Option<String>,
             String,
             Option<String>,
@@ -416,6 +425,48 @@ let row: Option<(
     else {
         return Ok(());
     };
+
+    // Un producto sin `uuid` (creado antes de la migracion 022) no tiene
+    // identidad con la que deduplicar en la Primary. Antes esto fallaba al
+    // decodificar NULL en un String y el producto no se encolaba nunca, que es
+    // como la Primary se quedaba sin nombre, categoria, costo ni cantidad.
+    // Se le asigna uno aqui para que cualquier fila recupera la que le falte.
+    let Some(sync_uuid) = sync_uuid else {
+        let generated = uuid::Uuid::new_v4().to_string();
+        sqlx::query("UPDATE products SET uuid = ? WHERE id = ? AND uuid IS NULL")
+            .bind(&generated)
+            .bind(id)
+            .execute(pool)
+            .await?;
+        return queue
+            .enqueue(
+                "inventory",
+                &generated,
+                "product",
+                &id.to_string(),
+                &ProductUpsertSync {
+                    sync_uuid: generated.clone(),
+                    local_product_id: id,
+                    code,
+                    name,
+                    display_name,
+                    category_name,
+                    price,
+                    cost,
+                    min_stock,
+                    unit,
+                    image_url,
+                    is_active,
+                    supplier_name,
+                    created_by_username,
+                    origin_device_id,
+                    origin_username,
+                    occurred_at: chrono::Local::now().to_rfc3339(),
+                },
+            )
+            .await;
+    };
+
     queue
         .enqueue(
             "inventory",

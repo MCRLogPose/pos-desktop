@@ -172,7 +172,21 @@ No generan sincronización (no escriben): `get_products`, `get_categories`, `get
 - [ ] Configuración en Réplica: `primary_url`, `store_code`, `sync_token`. (Queda pendiente la UI/onboarding que persista estos valores.)
 - [x] 🐞 Corregir `add_expense_standalone` para permitirse en Réplica (gasto de mercadería/lotes): ahora usa `reject_in_primary()` y encola un `ExpenseSync` con `cash_session_uuid=None`.
 - [x] 🔧 Refactor de **latencia**: enqueues fuera de la ruta síncrona (background con `tauri::async_runtime::spawn`, helpers libres post-commit). Incluye `sales`, `cash`, `inventory`, `purchases`, `store` (v1.2.0).
+- [x] 🐞 **Identidad de catálogo**: `create_product` nunca escribía `products.uuid` (la migración 011 solo rellenó lo que ya existía). Como `enqueue_product` lee esa columna, el decode de `NULL` fallaba y **el producto nunca se encolaba**: la Primary solo veía el stub del lote, sin categoría, sin costo real y con cantidad que no cuadraba. Corregido en tres partes:
+  - `create_product` genera y persiste el `uuid`.
+  - `update_product` usa `uuid = COALESCE(uuid, ?)` para rellenar el que falte sin rotar el ya encolado (si rotara, la Primary lo trataría como otro producto).
+  - `enqueue_product` lee `uuid` como opcional y, si falta, se lo asigna y encola igual, en vez de fallar en silencio.
+- [x] 🐞 Migración 022: rellena los `uuid` nulos, borra las filas de outbox con `item_uuid` vacío (no identifican nada y rompen la idempotencia) y reencola el catálogo pendiente. Solo encola si `operating_mode = replica`, para que la Primary no acumule outbox.
 - [ ] ⚠️ Restringir en Réplica: creación/eliminación de tiendas (solo tienda asignada).
+
+### 7a-bis. Pendientes de catálogo y stock (detectado al probar en 2 máquinas)
+
+> El fix de `uuid` (arriba) hace que el catálogo viaje completo. Lo siguiente sigue abierto:
+
+- [ ] ⚠️ **`StockMovementSync` no tiene productor.** El tipo existe en `sync/payloads.rs` y la Primary lo aplica, pero ningún camino lo genera: `add_stock_to_product`, las ventas y las anulaciones no lo encolan. Hoy la cantidad llega de rebote por el lote, no como movimiento.
+- [ ] ⚠️ **`apply_one_purchase` no aplica la cantidad.** Inserta el lote y sus items, pero no hace `UPDATE products SET stock = stock + ?`. En la Primary el producto queda en 0 aunque la Réplica lo tenga.
+- [ ] ⚠️ **`resolve_or_create_product_id` crea un producto incompleto** (`apply.rs`): fija `stock=0`, `min_stock=5`, `unit='Unidades'`, `is_active=1` y nunca asigna `category_id`, proveedor ni origen. Conviene que herede del item del lote en lugar de hardcodear.
+- [ ] ⚠️ **Otros `uuid` que siguen sin persistirse**: `expenses`, `purchase_orders`, `orders` y `cash_sessions` generan el uuid en memoria para el payload pero no lo guardan en la columna, así que su `item_uuid` tampoco es una identidad real. Es la misma familia de bug que acabamos de corregir en productos.
 
 ---
 
