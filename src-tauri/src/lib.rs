@@ -146,6 +146,7 @@ pub fn run() {
             commands::inventory::get_products,
             commands::inventory::create_product,
             commands::inventory::update_product,
+            commands::inventory::add_stock_to_product,
             commands::inventory::delete_product,
             // Sales
             commands::sales::create_sale,

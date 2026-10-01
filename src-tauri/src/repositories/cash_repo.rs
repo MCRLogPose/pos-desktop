@@ -699,7 +699,7 @@ async fn enqueue_expense(
         .await
 }
 
-async fn enqueue_expense_standalone(
+pub(crate) async fn enqueue_expense_standalone(
     pool: &SqlitePool,
     uuid: &str,
     id: i64,

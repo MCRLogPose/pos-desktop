@@ -1,5 +1,5 @@
 use crate::models::inventory::{Category, ProductWithCategory};
-use crate::repositories::inventory_repo::InventoryRepository;
+use crate::repositories::inventory_repo::{AddStockOutcome, InventoryRepository};
 use sqlx::SqlitePool;
 
 pub struct InventoryService {
@@ -116,6 +116,31 @@ impl InventoryService {
             )
             .await
             .map_err(|e| e.to_string())
+    }
+
+    /// Reposicion de mercaderia sobre un producto existente. Transaccional:
+    /// suma stock, actualiza el costo y registra el gasto, o no hace nada.
+    pub async fn add_stock_to_product(
+        &self,
+        id: i64,
+        quantity: i64,
+        unit_cost: f64,
+        store_id: i64,
+        supplier_name: Option<&str>,
+        payment_method: &str,
+    ) -> Result<AddStockOutcome, String> {
+        let expense_uuid = uuid::Uuid::new_v4().to_string();
+        self.inventory_repo
+            .add_stock_to_product(
+                id,
+                quantity,
+                unit_cost,
+                store_id,
+                supplier_name,
+                payment_method,
+                &expense_uuid,
+            )
+            .await
     }
 
     pub async fn delete_product(&self, id: i64, user_id: i64) -> Result<(), String> {

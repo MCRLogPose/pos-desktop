@@ -31,6 +31,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [quantity, setQuantity] = useState('');
+    const [unitCost, setUnitCost] = useState('');
     const [supplierName, setSupplierName] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('cash');
 
@@ -45,6 +46,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
             setSearchTerm('');
             setSelectedProduct(null);
             setQuantity('');
+            setUnitCost('');
             setSupplierName('');
             setPaymentMethod('cash');
         }
@@ -53,6 +55,9 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
     const handleSelectProduct = (product: Product) => {
         setSelectedProduct(product);
         setSearchTerm('');
+        // Se precarga el costo vigente solo como punto de partida: el precio de
+        // compra de esta reposicion casi siempre cambia, y es el que genera el gasto.
+        setUnitCost(product.cost > 0 ? String(product.cost) : '');
     };
 
     const handleUpdateStock = async () => {
@@ -67,51 +72,57 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
             return;
         }
 
+        const cost = parseFloat(unitCost);
+        if (isNaN(cost) || cost <= 0) {
+            showNotification(
+                'warning',
+                'Costo requerido',
+                'Ingresa el costo de compra de esta mercadería. Con costo 0 el gasto se registraría en 0 y las márgenes quedarían infladas'
+            );
+            return;
+        }
+
         if (!storeId) {
             showNotification('error', 'Error', 'No hay tienda seleccionada');
             return;
         }
 
-        const newStock = selectedProduct.stock + qty;
-        const expenseAmount = selectedProduct.cost * qty;
-
         setIsSubmitting(true);
         try {
-            await invoke('update_product', {
+            // Un solo comando transaccional: suma el stock en la base, actualiza
+            // el costo y registra el gasto. El stock ya no se calcula aqui, asi que
+            // una venta concurrente no se pierde.
+            const result = await invoke<{
+                productId: number;
+                newStock: number;
+                expenseId: number;
+                expenseAmount: number;
+            }>('add_stock_to_product', {
                 id: selectedProduct.id,
-                code: selectedProduct.code || null,
-                name: selectedProduct.name,
-                displayName: selectedProduct.display_name || null,
-                categoryId: selectedProduct.category_id || null,
-                price: selectedProduct.price,
-                cost: selectedProduct.cost,
-                stock: newStock,
-                unit: selectedProduct.unit || null,
-                imageUrl: selectedProduct.image_url || null,
-                storeId
+                quantity: qty,
+                unitCost: cost,
+                storeId,
+                supplierName: supplierName || null,
+                paymentMethod
             });
 
-            await invoke('add_expense_standalone', {
-                description: `Ingreso mercadería: ${selectedProduct.name}`,
-                amount: expenseAmount,
-                paymentMethod,
-                category: 'Mercadería',
-                supplier: supplierName || null,
-                storeId
-            });
-
-            showNotification('success', 'Stock actualizado', `Se agregaron ${qty} unidades de "${selectedProduct.name}". Stock total: ${newStock}`);
+            showNotification(
+                'success',
+                'Stock actualizado',
+                `Se agregaron ${qty} unidades de "${selectedProduct.name}". Stock total: ${result.newStock}. Gasto: S/ ${result.expenseAmount.toFixed(2)}`
+            );
             onSubmit();
             onClose();
         } catch (error) {
             console.error(error);
-            showNotification('error', 'Error', 'Error al actualizar el stock');
+            showNotification('error', 'Error', (error as string) || 'Error al agregar la mercadería');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const totalCost = selectedProduct ? (selectedProduct.cost * (parseInt(quantity) || 0)) : 0;
+    const totalCost = (parseFloat(unitCost) || 0) * (parseInt(quantity) || 0);
+    const costWasChanged = selectedProduct !== null && parseFloat(unitCost) !== selectedProduct.cost;
 
     return (
         <AnimatePresence>
@@ -208,22 +219,52 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
                                     </div>
                                 )}
 
-                                {/* Quantity */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700">Cantidad a agregar</label>
-                                    <div className="relative">
-                                        <BarChart3 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                        <input
-                                            type="number"
-                                            value={quantity}
-                                            onChange={(e) => setQuantity(e.target.value)}
-                                            placeholder="0"
-                                            min="1"
-                                            disabled={!selectedProduct}
-                                            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                                        />
+                                {/* Quantity + Cost */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700">Cantidad a agregar</label>
+                                        <div className="relative">
+                                            <BarChart3 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                            <input
+                                                type="number"
+                                                value={quantity}
+                                                onChange={(e) => setQuantity(e.target.value)}
+                                                placeholder="0"
+                                                min="1"
+                                                disabled={!selectedProduct}
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                                            Costo unitario
+                                            <span className="text-red-400" title="Obligatorio">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                            <input
+                                                type="number"
+                                                value={unitCost}
+                                                onChange={(e) => setUnitCost(e.target.value)}
+                                                placeholder="0.00"
+                                                step="0.01"
+                                                min="0.01"
+                                                disabled={!selectedProduct}
+                                                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
+
+                                {/* Aviso de que el costo cambia */}
+                                {selectedProduct && costWasChanged && (
+                                    <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        El costo de "{selectedProduct.name}" pasará de S/ {selectedProduct.cost.toFixed(2)} a S/ {(parseFloat(unitCost) || 0).toFixed(2)}.
+                                        {' '}Las márgenes se calcularán sobre el nuevo valor.
+                                    </p>
+                                )}
 
                                 {/* Supplier */}
                                 <div className="space-y-2">
@@ -263,7 +304,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
                                     <div className="p-4 bg-gray-50 rounded-xl space-y-2">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-500">Costo unitario:</span>
-                                            <span className="font-mono font-medium">S/ {selectedProduct.cost.toFixed(2)}</span>
+                                            <span className="font-mono font-medium">S/ {(parseFloat(unitCost) || 0).toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-500">Cantidad:</span>
@@ -284,7 +325,7 @@ export default function AddStockModal({ isOpen, onClose, onSubmit, products, sto
                                 <button
                                     type="button"
                                     onClick={handleUpdateStock}
-                                    disabled={isSubmitting || !selectedProduct || !quantity}
+                                    disabled={isSubmitting || !selectedProduct || !quantity || !unitCost || parseFloat(unitCost) <= 0}
                                     className="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isSubmitting ? (

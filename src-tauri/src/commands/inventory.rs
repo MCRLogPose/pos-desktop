@@ -1,5 +1,6 @@
 use crate::commands::auth::AppState;
 use crate::models::inventory::{Category, ProductWithCategory};
+use crate::repositories::inventory_repo::AddStockOutcome;
 use tauri::State;
 
 // Categories CRUD
@@ -111,6 +112,39 @@ pub async fn update_product(
         )
         .await
 }
+
+/// Reposicion de mercaderia sobre un producto existente.
+    ///
+    /// Reemplaza el par `update_product` + `add_expense_standalone` que usaba el
+    /// modal antes. Tres diferencias que importan:
+    /// - el stock lo suma la base (`stock = stock + ?`), no el cliente sobre un
+    ///   snapshot: si hubo una venta mientras el modal estaba abierto, ya no se pierde.
+    /// - el costo se pide explicito y no puede ser 0, asi que el gasto nunca se
+    ///   registra en 0.
+    /// - stock, costo y gasto van en una sola transaccion.
+    #[tauri::command]
+    pub async fn add_stock_to_product(
+        state: State<'_, AppState>,
+        id: i64,
+        quantity: i64,
+        unit_cost: f64,
+        store_id: i64,
+        supplier_name: Option<String>,
+        payment_method: String,
+    ) -> Result<AddStockOutcome, String> {
+        state.config_service.reject_in_primary().await?;
+        state
+            .inventory_service
+            .add_stock_to_product(
+                id,
+                quantity,
+                unit_cost,
+                store_id,
+                supplier_name.as_deref(),
+                &payment_method,
+            )
+            .await
+    }
 
 #[tauri::command]
 pub async fn delete_product(state: State<'_, AppState>, id: i64, user_id: i64) -> Result<(), String> {

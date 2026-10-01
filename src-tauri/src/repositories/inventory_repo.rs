@@ -8,6 +8,16 @@ pub struct InventoryRepository {
     pool: SqlitePool,
 }
 
+/// Resultado de reponer mercadería sobre un producto existente.
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AddStockOutcome {
+    pub product_id: i64,
+    pub new_stock: i64,
+    pub expense_id: i64,
+    pub expense_amount: f64,
+}
+
 impl InventoryRepository {
     pub fn new(pool: SqlitePool) -> Self {
         Self { pool }
@@ -178,6 +188,122 @@ impl InventoryRepository {
             }
         });
         Ok(())
+    }
+
+    /// Reposicion de un producto existente: suma stock, actualiza el costo al
+    /// precio de compra actual y registra el gasto por `unit_cost * quantity`,
+    /// todo en una sola transaccion.
+    ///
+    /// El stock se suma en SQL (`stock = stock + ?`) a proposito: calcularlo en
+    /// el cliente con `stock + qty` sobre un snapshot viejo pisaba las ventas
+    /// que ocurrieran mientras el modal estaba abierto. Y el gasto va en la misma
+    /// transaccion porque antes eran dos comandos independientes: si el segundo
+    /// fallaba, el stock ya habia subido sin gasto que lo respaldara.
+    pub async fn add_stock_to_product(
+        &self,
+        id: i64,
+        quantity: i64,
+        unit_cost: f64,
+        store_id: i64,
+        supplier_name: Option<&str>,
+        payment_method: &str,
+        expense_uuid: &str,
+    ) -> Result<AddStockOutcome, String> {
+        if quantity <= 0 {
+            return Err("la cantidad debe ser mayor a 0".into());
+        }
+        if unit_cost <= 0.0 {
+            return Err(
+                "ingresa el costo de compra de esta mercadería: con costo 0 el gasto se \
+                 registraría en 0 y las márgenes quedarían infladas"
+                    .into(),
+            );
+        }
+
+        let expense_amount = unit_cost * quantity as f64;
+        let mut tx = self
+            .pool
+            .begin()
+            .await
+            .map_err(|e| format!("no se pudo iniciar la operación: {e}"))?;
+
+        let name: Option<String> =
+            sqlx::query_scalar("SELECT name FROM products WHERE id = ? AND is_active = 1")
+                .bind(id)
+                .fetch_optional(&mut *tx)
+                .await
+                .map_err(|e| format!("no se pudo leer el producto: {e}"))?;
+
+        let name = name.ok_or_else(|| "el producto no existe o está eliminado".to_string())?;
+
+        sqlx::query("UPDATE products SET stock = stock + ?1, cost = ?2 WHERE id = ?3")
+            .bind(quantity)
+            .bind(unit_cost)
+            .bind(id)
+            .execute(&mut *tx)
+            .await
+            .map_err(|e| format!("no se pudo actualizar el stock: {e}"))?;
+
+        let new_stock: i64 =
+            sqlx::query_scalar("SELECT stock FROM products WHERE id = ?")
+                .bind(id)
+                .fetch_one(&mut *tx)
+                .await
+                .map_err(|e| format!("no se pudo leer el stock resultante: {e}"))?;
+
+        let description = format!("Ingreso mercadería: {name}");
+        let expense_id = sqlx::query(
+            "INSERT INTO expenses (uuid, cash_session_id, description, amount, payment_method, category, supplier, store_id, source, created_at)
+             VALUES (?, NULL, ?, ?, ?, 'Mercadería', ?, ?, 'standalone', datetime('now', 'localtime'))",
+        )
+        .bind(expense_uuid)
+        .bind(&description)
+        .bind(expense_amount)
+        .bind(payment_method)
+        .bind(supplier_name)
+        .bind(store_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| format!("no se pudo registrar el gasto: {e}"))?
+        .last_insert_rowid();
+
+        tx.commit()
+            .await
+            .map_err(|e| format!("no se pudo confirmar la operación: {e}"))?;
+
+        // Los encolados van despues del commit: si fallan, el dato local ya esta
+        // y el outbox se recupera en el proximo sync.
+        let pool = self.pool.clone();
+        let uuid_owned = expense_uuid.to_string();
+        let description_owned = description.clone();
+        let payment_method_owned = payment_method.to_string();
+        let supplier_owned = supplier_name.map(str::to_string);
+        tauri::async_runtime::spawn(async move {
+            if let Err(e) = enqueue_product(&pool, id).await {
+                log::warn!("[sync] no se pudo encolar producto {id}: {e}");
+            }
+            if let Err(e) = crate::repositories::cash_repo::enqueue_expense_standalone(
+                &pool,
+                &uuid_owned,
+                expense_id,
+                &description_owned,
+                expense_amount,
+                &payment_method_owned,
+                Some("Mercadería".to_string()),
+                supplier_owned,
+            )
+            .await
+            {
+                log::warn!("[sync] no se pudo encolar gasto general {expense_id}: {e}");
+            }
+        });
+
+        Ok(AddStockOutcome {
+            product_id: id,
+            new_stock,
+            expense_id,
+            expense_amount,
+        })
     }
 
     pub async fn soft_delete_product(&self, id: i64) -> Result<(), sqlx::Error> {

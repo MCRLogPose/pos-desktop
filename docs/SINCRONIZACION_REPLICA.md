@@ -11,7 +11,7 @@
 - **v1.2.0 (2026-09-01) — Refactor de latencia de UI (background enqueues).** Todos los enqueues de `sync_outbox` que antes corrían de forma **síncrona** en la ruta de escritura (abriendo una conexión separada del pool y haciendo lookups mientras la transacción principal tenía el write-lock, provocando `SQLITE_BUSY` y latencia visible en `POSPage.tsx` al confirmar ventas) se movieron a **tareas en background** con `tauri::async_runtime::spawn`. El patrón: tras `tx.commit()` (o tras la escritura principal en repos autocommit), se clona el pool y los datos necesarios, y el armado del payload + `enqueue` corre en una **función helper libre** asíncrona. Ningún modal de UI vuelve a bloquearse por sincronización.
   - `sales_repo.rs`: `create_order` → post-commit spawn; `anular_venta` similar.
   - `cash_repo.rs`: `open_session`, `close_session`, `add_expense`, `add_expense_standalone`, `add_other_income` → post-commit spawn. `close_session` conserva `enqueue_replace` (mismo `item_uuid` = uuid de sesión) para que el cierre reemplace la apertura pendiente.
-  - `inventory_repo.rs`: `create/update_category`, `create/update_product` → spawn background.
+  - `inventory_repo.rs`: `create/update_category`, `create/update_product`, `add_stock_to_product` → spawn background (este último encola tras el commit de la transacción).
   - `purchase_order_repo.rs` + `purchase_order_service.rs`: `create_purchase_order` → spawn background (helper libre `enqueue_purchase_sync`).
   - `store_repo.rs`: `create`/`update` → spawn background (helpers `enqueue_store` / `enqueue_store_by_id`).
   - Además se cambió `db/mod.rs` a `journal_mode=Wal`, `foreign_keys(true)`, `busy_timeout(5s)` y `max_connections(10)`.
@@ -101,7 +101,7 @@ Nota: `anular_venta` con `cashSessionId` ya valida que **solo se pueda anular un
 | Acción | Comando Tauri | Tabla(s) que escribe | UI | Estado |
 |---|---|---|---|---|
 | Editar producto | `update_product` | products | InventoryTable → ProductModal (editar) | ✅ + encola → `inventory` (upsert) |
-| Agregar stock/mercadería | `update_product` + `add_expense_standalone` | products (stock), expenses | AddStockModal | ✅ + encola → `inventory` + `cash` |
+| Agregar stock/mercadería | `add_stock_to_product` | products (stock, cost), expenses | AddStockModal | ✅ transaccional + encola → `inventory` + `cash` |
 | Crear lote de compra | `create_purchase_order` | purchase_orders, purchase_order_items, products (crea/actualiza), expenses (gasto generado) | ProductModal ("Nuevo Lote") | ✅ + encola → `purchases` (+ `inventory`, + `cash`) |
 | Crear categoría | `create_category` | categories | CategoryModal | ✅ + encola → `inventory` |
 | Editar categoría | `update_category` | categories | CategoryModal | ✅ + encola → `inventory` |
