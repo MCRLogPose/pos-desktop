@@ -21,7 +21,7 @@ interface CloseCashModalProps {
 }
 
 const CloseCashModal: React.FC<CloseCashModalProps> = ({ isOpen, onClose }) => {
-    const { activeSession, closeSession } = useCash();
+    const { activeSession, closeSession, refreshSession } = useCash();
     const { logout } = useAuth();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [paymentTotals, setPaymentTotals] = useState({ cash: 0, yape: 0, card: 0 });
@@ -48,6 +48,12 @@ const CloseCashModal: React.FC<CloseCashModalProps> = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (isOpen && activeSession) {
+            // El "Cuadre Esperado" sale de `cash_sessions`, que cambia con cada
+            // venta, anulación, ingreso o gasto. El contexto guarda una copia en
+            // memoria, así que hay que releerlo al abrir: sin esto el esperado
+            // podía quedar desfasado (por ejemplo tras anular una venta, el
+            // monto no bajaba hasta la siguiente venta).
+            refreshSession();
             loadData();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

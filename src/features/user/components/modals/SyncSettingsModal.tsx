@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
     AlertTriangle,
     CheckCircle2,
+    ChevronDown,
     Copy,
     DatabaseBackup,
     Eye,
@@ -18,6 +19,7 @@ import {
     copyToClipboard,
     syncService,
     type SyncInfo,
+    type SyncQueueItem,
     type SyncTestResult,
 } from '@/services/syncService';
 
@@ -92,15 +94,22 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
     const [testing, setTesting] = useState(false);
     const [reconciling, setReconciling] = useState(false);
     const [testResult, setTestResult] = useState<SyncTestResult | null>(null);
+    const [queueItems, setQueueItems] = useState<SyncQueueItem[]>([]);
+    const [showQueue, setShowQueue] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const [loadedInfo, loadedToken] = await Promise.all([
+            const [loadedInfo, loadedToken, loadedQueue] = await Promise.all([
                 syncService.getInfo(),
                 syncService.getToken(),
+                // La cola se lee siempre: el contador solo no dice *que* falta ni
+                // *por que*, que es la diferencia entre "no hay nada pendiente" y
+                // "algo lleva dias atascado en silencio".
+                syncService.getQueueItems().catch(() => [] as SyncQueueItem[]),
             ]);
             setInfo(loadedInfo);
+            setQueueItems(loadedQueue);
             setToken(loadedToken || '');
             setPrimaryUrlInput(loadedInfo.primaryUrl || '');
             setStoreCodeInput(loadedInfo.storeCode || '');
@@ -452,6 +461,142 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
                                                     {info.pendingCount}
                                                 </span>
                                             </div>
+                                            <div className="grid grid-cols-3 gap-2 text-center">
+                                                <div className="bg-white border border-gray-200 rounded-xl py-2">
+                                                    <p className="text-lg font-black text-gray-900 tabular-nums">
+                                                        {info.syncedCount}
+                                                    </p>
+                                                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                                                        Enviados
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    className={clsx(
+                                                        'border rounded-xl py-2',
+                                                        info.pendingCount > 0
+                                                            ? 'bg-amber-50 border-amber-200'
+                                                            : 'bg-white border-gray-200'
+                                                    )}
+                                                >
+                                                    <p
+                                                        className={clsx(
+                                                            'text-lg font-black tabular-nums',
+                                                            info.pendingCount > 0
+                                                                ? 'text-amber-700'
+                                                                : 'text-gray-900'
+                                                        )}
+                                                    >
+                                                        {info.pendingCount}
+                                                    </p>
+                                                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                                                        Pendientes
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    className={clsx(
+                                                        'border rounded-xl py-2',
+                                                        info.failedCount > 0
+                                                            ? 'bg-red-50 border-red-200'
+                                                            : 'bg-white border-gray-200'
+                                                    )}
+                                                >
+                                                    <p
+                                                        className={clsx(
+                                                            'text-lg font-black tabular-nums',
+                                                            info.failedCount > 0
+                                                                ? 'text-red-700'
+                                                                : 'text-gray-900'
+                                                        )}
+                                                    >
+                                                        {info.failedCount}
+                                                    </p>
+                                                    <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                                                        Con error
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Donde acaba lo que sale de esta maquina.
+                                                La identidad la deriva el ID del equipo, no
+                                                el nombre de la tienda: sin esto se busca
+                                                en la sede equivocada y parece que no
+                                                llego nada. */}
+                                            {info.primaryStoreCode && (
+                                                <div className="flex items-start gap-2 text-xs bg-white border border-gray-200 rounded-xl p-3">
+                                                    <Server className="w-4 h-4 shrink-0 mt-0.5 text-gray-400" />
+                                                    <span className="text-gray-600 leading-relaxed">
+                                                        En la Primary, los datos de esta máquina
+                                                        aparecen en la sede{' '}
+                                                        <strong className="text-gray-900 font-mono">
+                                                            {info.primaryStoreCode}
+                                                        </strong>
+                                                        . Búscalos ahí, no en «Tienda
+                                                        Principal».
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {/* Detalle de lo pendiente: que es y por que. */}
+                                            {info.pendingCount > 0 && (
+                                                <div className="bg-white border border-gray-200 rounded-xl">
+                                                    <button
+                                                        onClick={() => setShowQueue(v => !v)}
+                                                        className="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        <span>
+                                                            Ver qué falta ({queueItems.length}
+                                                            {queueItems.length >= info.pendingCount
+                                                                ? ''
+                                                                : ` de ${info.pendingCount}`}
+                                                            )
+                                                        </span>
+                                                        <ChevronDown
+                                                            className={clsx(
+                                                                'w-4 h-4 transition-transform',
+                                                                showQueue && 'rotate-180'
+                                                            )}
+                                                        />
+                                                    </button>
+                                                    {showQueue && (
+                                                        <ul className="max-h-56 overflow-y-auto divide-y divide-gray-100 border-t border-gray-100">
+                                                            {queueItems.map(item => (
+                                                                <li
+                                                                    key={item.id}
+                                                                    className="px-3 py-2 text-xs space-y-1"
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-mono font-bold text-gray-800">
+                                                                            {item.topic}
+                                                                        </span>
+                                                                        {item.entity && (
+                                                                            <span className="text-gray-400">
+                                                                                {item.entity}
+                                                                            </span>
+                                                                        )}
+                                                                        {item.lastError ? (
+                                                                            <span className="ml-auto px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold">
+                                                                                error
+                                                                            </span>
+                                                                        ) : (
+                                                                            <span className="ml-auto px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 text-[10px] font-bold">
+                                                                                sin enviar
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <p className="font-mono text-gray-400 break-all">
+                                                                        {item.itemUuid}
+                                                                    </p>
+                                                                    {item.lastError && (
+                                                                        <p className="text-red-600 break-words">
+                                                                            {item.lastError}
+                                                                        </p>
+                                                                    )}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    )}
+                                                </div>
+                                            )}
                                             {testResult && (
                                                 <div
                                                     className={clsx(

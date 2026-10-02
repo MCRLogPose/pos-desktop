@@ -61,7 +61,7 @@ const todayStr = () => {
 const SalesPage = () => {
   const { showNotification } = useNotification();
   const { user, activeStoreId } = useAuth();
-  const { activeSession } = useCash();
+  const { activeSession, refreshSession } = useCash();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -137,7 +137,10 @@ const SalesPage = () => {
       showNotification('success', 'Venta anulada', `La venta #${saleToAnular.id} fue anulada correctamente.`);
       setSaleToAnular(null);
       setSelectedSale(null);
-      loadSales();
+      // Anular descuenta el esperado de efectivo/virtual de la sesión en el
+      // backend. Sin releerla, el cuadro del corte de caja seguía mostrando la
+      // venta anulada hasta que se hacía otra venta.
+      await Promise.all([loadSales(), refreshSession()]);
     } catch (error) {
       const msg = typeof error === 'string' ? error : 'No se pudo anular la venta.';
       showNotification('error', 'Error', msg);

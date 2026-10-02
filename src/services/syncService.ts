@@ -8,8 +8,33 @@ export interface SyncInfo {
     storeCode: string | null;
     hasToken: boolean;
     pendingCount: number;
+    /** Filas que la Primary rechazo y que siguen esperando su reintento. */
+    failedCount: number;
+    /** Historial de lo ya confirmado. La cola no se poda, asi que solo crece. */
+    syncedCount: number;
+    /**
+     * Sede con la que la Primary archiva los datos de esta maquina.
+     *
+     * Se deriva del `deviceId`, no del nombre de la tienda. Sin esto no hay
+     * forma de saber donde buscar los datos de una replica y se acaba
+     * mirando en la sede equivocada.
+     */
+    primaryStoreCode: string | null;
     localIps: string[];
     serverRunning: boolean;
+}
+
+/** Fila de la cola de salida: que no ha llegado a la Primary todavia. */
+export interface SyncQueueItem {
+    id: number;
+    topic: string;
+    entity: string | null;
+    entityId: string | null;
+    itemUuid: string;
+    revision: number;
+    lastError: string | null;
+    createdAt: string | null;
+    updatedAt: string | null;
 }
 
 export interface SyncSettingsInput {
@@ -39,6 +64,16 @@ export interface FullSyncResult {
 export const syncService = {
     async getInfo(): Promise<SyncInfo> {
         return await invoke('get_sync_info');
+    },
+
+    /**
+     * Detalle de lo pendiente: que es y por que.
+     *
+     * El contador de `getInfo` no distingue "no hay nada" de "tres cosas
+     * lleva dias fallando en silencio"; esto si.
+     */
+    async getQueueItems(limit?: number): Promise<SyncQueueItem[]> {
+        return await invoke('get_sync_queue_items', { limit });
     },
 
     async getToken(): Promise<string | null> {

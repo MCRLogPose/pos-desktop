@@ -19,6 +19,26 @@ pub struct PendingItem {
     pub payload: serde_json::Value,
 }
 
+/// Fila de la outbox tal como se muestra en la UI: que falta por enviar y por
+/// que.
+///
+/// Sin esto el unico dato que habia era un contador, y un contador no deja
+/// distinguir "no hay nada pendiente" de "tres cosas lleva dias fallando".
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncQueueItem {
+    pub id: i64,
+    pub topic: String,
+    pub entity: Option<String>,
+    pub entity_id: Option<String>,
+    pub item_uuid: String,
+    /// Veces que el payload de esta fila fue reemplazado por uno mas nuevo.
+    pub revision: i64,
+    pub last_error: Option<String>,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+}
+
 /// Cola de sincronizacion (outbox) de la Replica -> Primary.
 ///
 /// Cada operacion de escritura en una Replica inserta una fila en `sync_outbox`
@@ -138,6 +158,61 @@ impl SyncQueue {
             .fetch_one(&self.pool)
             .await?;
         Ok(count)
+    }
+
+    /// Filas que todavia no llegaron a la Primary: o nunca se enviaron, o la
+    /// Primary las rechazo y siguen esperando con su motivo.
+    pub async fn failed_count(&self) -> Result<i64, sqlx::Error> {
+        let count: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sync_outbox WHERE synced = 0 AND last_error IS NOT NULL",
+        )
+        .fetch_one(&self.pool)
+        .await?;
+        Ok(count)
+    }
+
+    /// Total de filas ya confirmadas por la Primary. La outbox no se poda: es el
+    /// historial de lo que salio de esta maquina, y por eso el total crece para
+    /// siempre.
+    pub async fn synced_count(&self) -> Result<i64, sqlx::Error> {
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE synced = 1")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(count)
+    }
+
+    /// Detalle de lo pendiente, para que la UI pueda mostrar que falta y por que.
+    /// Solo trae `synced = 0`: lo ya confirmado no aporta nada y son miles de
+    /// filas.
+    pub async fn pending_items(&self, limit: i64) -> Result<Vec<SyncQueueItem>, sqlx::Error> {
+        let rows = sqlx::query_as::<_, (i64, String, Option<String>, Option<String>, String, i64, Option<String>, Option<String>, Option<String>)>(
+            "SELECT id, topic, entity, entity_id, item_uuid, revision, last_error, created_at, updated_at
+               FROM sync_outbox
+              WHERE synced = 0
+           ORDER BY CASE WHEN last_error IS NULL THEN 1 ELSE 0 END, id ASC
+              LIMIT ?",
+        )
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await?;
+        Ok(rows
+            .into_iter()
+            .map(
+                |(id, topic, entity, entity_id, item_uuid, revision, last_error, created_at, updated_at)| {
+                    SyncQueueItem {
+                        id,
+                        topic,
+                        entity,
+                        entity_id,
+                        item_uuid,
+                        revision,
+                        last_error,
+                        created_at,
+                        updated_at,
+                    }
+                },
+            )
+            .collect())
     }
 
     /// Fila pendiente, ordenadas por topic y fecha.

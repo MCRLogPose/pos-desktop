@@ -114,3 +114,60 @@ async fn el_ack_marca_el_item_si_no_cambio() {
 
     assert_eq!(synced(&pool, "prod-2").await, 1);
 }
+/// El detalle de la cola tiene que decir *que* falta y *por que*.
+///
+/// Un contador no distingue "no hay nada pendiente" de "tres filas lleva dias
+/// fallando en silencio", y esa distincion es justo lo que impide diagnosticar
+/// una replica que parece al dia y en realidad no lo esta.
+#[tokio::test]
+async fn el_detalle_de_la_cola_distingue_enviado_de_fallido() {
+    let pool = test_pool().await;
+    let queue = SyncQueue::new(pool.clone());
+
+    queue
+        .enqueue("sales", "sale-ok", "order", "1", &serde_json::json!({ "sync_uuid": "sale-ok" }))
+        .await
+        .unwrap();
+    queue
+        .enqueue("sales", "sale-espera", "order", "2", &serde_json::json!({ "sync_uuid": "sale-espera" }))
+        .await
+        .unwrap();
+    queue
+        .enqueue("cash", "cash-falla", "session", "1", &serde_json::json!({ "sync_uuid": "cash-falla" }))
+        .await
+        .unwrap();
+
+    let enviado = queue.pending().await.unwrap().remove(0);
+    queue.mark_synced(&[("sale-ok".to_string(), enviado.revision)]).await.unwrap();
+    queue.mark_failed("sale-espera", "la Primary rechazo el vendedor").await.unwrap();
+
+    assert_eq!(queue.pending_count().await.unwrap(), 2);
+    assert_eq!(queue.failed_count().await.unwrap(), 1);
+    assert_eq!(queue.synced_count().await.unwrap(), 1);
+
+    let items = queue.pending_items(10).await.unwrap();
+    assert_eq!(items.len(), 2);
+    // Los que tienen error salen primero: son los que requieren atencion.
+    assert_eq!(items[0].item_uuid, "sale-espera");
+    assert_eq!(items[0].last_error.as_deref(), Some("la Primary rechazo el vendedor"));
+    assert_eq!(items[1].item_uuid, "cash-falla");
+    assert!(items[1].last_error.is_none(), "este todavia no se envio: no hay error");
+    assert_eq!(items[1].topic, "cash");
+
+    // Lo ya confirmado no aparece: son miles de filas y no aportan nada.
+    assert!(items.iter().all(|i| i.item_uuid != "sale-ok"));
+}
+
+/// El limite protege de volcar una cola enorme en la UI.
+#[tokio::test]
+async fn el_detalle_de_la_cola_respeta_el_limite() {
+    let pool = test_pool().await;
+    let queue = SyncQueue::new(pool.clone());
+    for i in 0..5 {
+        queue
+            .enqueue("sales", &format!("sale-{i}"), "order", &i.to_string(), &serde_json::json!({ "n": i }))
+            .await
+            .unwrap();
+    }
+    assert_eq!(queue.pending_items(2).await.unwrap().len(), 2);
+}

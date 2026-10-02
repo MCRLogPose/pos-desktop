@@ -17,6 +17,18 @@ pub struct SyncInfo {
     /// Nunca se envia el token aqui: se pide explicitamente con `get_sync_token`.
     pub has_token: bool,
     pub pending_count: i64,
+    /// Filas que la Primary rechazo y que siguen esperando su reintento.
+    pub failed_count: i64,
+    /// Historial de lo ya confirmado. La cola no se poda, asi que este numero
+    /// solo crece.
+    pub synced_count: i64,
+    /// Sede con la que la Primary archiva los datos de esta maquina.
+    ///
+    /// La identidad se deriva del `device_id`, no del nombre de la tienda: sin
+    /// esto no hay forma de saber donde buscar los datos de una replica, y
+    /// acaba buscandose en la sede equivocada ("no llego nada") cuando en
+    /// realidad llego a la sede de al lado.
+    pub primary_store_code: Option<String>,
     pub local_ips: Vec<String>,
     /// false cuando la app no levantó el servidor (p. ej. se eligió Primary
     /// después del arranque): hay que reiniciar para que las réplicas conecten.
@@ -57,6 +69,17 @@ pub async fn get_sync_info(state: State<'_, AppState>) -> Result<SyncInfo, Strin
         .pending_count()
         .await
         .map_err(|e| format!("no se pudo leer la cola de sincronizacion: {e}"))?;
+    let failed_count = state
+        .sync_queue
+        .failed_count()
+        .await
+        .map_err(|e| format!("no se pudo leer la cola de sincronizacion: {e}"))?;
+    let synced_count = state
+        .sync_queue
+        .synced_count()
+        .await
+        .map_err(|e| format!("no se pudo leer la cola de sincronizacion: {e}"))?;
+    let device_id = config.get_config_non_empty("device_id").await?;
     // `ipconfig` es un proceso bloqueante: se ejecuta fuera del runtime async.
     let local_ips = tauri::async_runtime::spawn_blocking(local_ipv4_addresses)
         .await
@@ -67,7 +90,10 @@ pub async fn get_sync_info(state: State<'_, AppState>) -> Result<SyncInfo, Strin
 
     Ok(SyncInfo {
         operating_mode: config.get_operating_mode().await?,
-        device_id: config.get_config_non_empty("device_id").await?,
+        primary_store_code: device_id
+            .as_deref()
+            .map(crate::sync::apply::device_store_code),
+        device_id,
         sync_port: config
             .get_config_non_empty("sync_port")
             .await?
@@ -80,9 +106,28 @@ pub async fn get_sync_info(state: State<'_, AppState>) -> Result<SyncInfo, Strin
             .await?
             .is_some(),
         pending_count,
+        failed_count,
+        synced_count,
         local_ips,
         server_running,
     })
+}
+
+/// Detalle de lo que todavia no llego a la Primary.
+///
+/// La UI necesita esto para poder distinguir "no hay nada pendiente" de "hay
+/// cosas atascadas": un contador no dice *que* ni *por que*.
+#[tauri::command]
+pub async fn get_sync_queue_items(
+    state: State<'_, AppState>,
+    limit: Option<i64>,
+) -> Result<Vec<crate::sync::queue::SyncQueueItem>, String> {
+    let limit = limit.unwrap_or(200).clamp(1, 1000);
+    state
+        .sync_queue
+        .pending_items(limit)
+        .await
+        .map_err(|e| format!("no se pudo leer la cola de sincronizacion: {e}"))
 }
 
 /// Token de sincronizacion de esta maquina, para compartirlo con las Replicas.

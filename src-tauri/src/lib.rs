@@ -183,6 +183,7 @@ pub fn run() {
             commands::config::set_app_config,
             // Sync
             commands::sync::get_sync_info,
+            commands::sync::get_sync_queue_items,
             commands::sync::get_sync_token,
             commands::sync::save_sync_settings,
             commands::sync::test_sync_connection,

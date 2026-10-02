@@ -252,6 +252,35 @@ caja. `apply_one_anulacion` ahora hace lo mismo:
   versión anterior, cruzando `ventas_anuladas.order_id` con la fila `sales` de
   la outbox, de la que se recupera el uuid de la venta.
 
+### El cuadre no se actualizaba al anular (v0.1.8)
+
+El backend siempre estuvo bien: `anular_venta` descuenta el esperado de
+`cash_sessions`. Lo que fallaba era el frontend, que guarda la sesión en
+`CashContext` como una copia en memoria:
+
+- `SalesPage.handleAnular` recarga la lista de ventas pero no la sesión, así que
+  el esperado seguía con la venta anulada. La venta nueva sí refrescaba
+  (`POSPage`), y por eso el descuadre "se arreglaba solo" con la venta
+  siguiente.
+- `CloseCashModal` relee la sesión al abrirse. Así el cuadre no depende de que
+  cada pantalla recuerde invalidar el contexto.
+
+### Se puede ver qué falta por sincronizar (v0.1.8)
+
+La outbox vive en el `pos.db` de cada máquina
+(`%APPDATA%\com.cruzr.vestikPOS\pos.db`) y **nunca se poda**: las filas
+sincronizadas se quedan como historial. Antes la UI solo mostraba un contador,
+que no distingue "no hay nada pendiente" de "tres filas lleva días fallando".
+
+Ahora Configuración → Sincronización muestra enviados / pendientes / con error,
+el detalle de cada fila pendiente con su `last_error`, y **la sede con la que la
+Primary archiva los datos de esta máquina**.
+
+Lo último es la clave para diagnosticar: la identidad de sede se deriva del
+`device_id`, no del nombre de la tienda. Una réplica con `device_id` `4e83d3f6…`
+aparece en la Primary como `MAIN-4e83d3f6`, y buscar sus datos en «Tienda
+Principal» hace ver como si nada hubiera llegado.
+
 ---
 
 ## 6. Cómo retomar el trabajo
@@ -286,7 +315,7 @@ caja. `apply_one_anulacion` ahora hace lo mismo:
 
 ### Comandos
 ```bash
-cd src-tauri && cargo test          # 65 passed
+cd src-tauri && cargo test          # 67 passed
 npx tsc -b --noEmit
 pnpm build
 pnpm tauri build                    # genera NSIS + MSI
@@ -314,17 +343,23 @@ pnpm tauri build                    # genera NSIS + MSI
 ### Entorno de la Réplica de desarrollo
 ```
 operating_mode = replica
-device_id       = 18562cf9-4944-4fe7-b8b5-0f4c0f87b963
-store_code      = Gamarra
+device_id       = 4e83d3f6-a4e4-4bd8-a16c-dd10c5fdf3fa
+store_code      = Gamarra-413
 primary_url     = http://100.107.82.109:8787
-sede en Primary = MAIN-18562cf9
+sede en Primary = MAIN-4e83d3f6
 ```
+
+> `sede en Primary` no es el `store_code`: la identidad se deriva del
+> `device_id`. En la Primary, Finanzas filtra por sede, así que los datos de
+> esta maquina solo se ven seleccionando `MAIN-4e83d3f6`. El nombre
+> (`store_code`) es referencial.
 Base: `%APPDATA%\com.cruzr.vestikPOS\pos.db` (**en WAL**: copiar solo `pos.db`
 no basta, usar la API `backup()` de SQLite para un snapshot consistente).
 
-> La base local de desarrollo tiene 4 productos. Los "10 productos" del reporte
-> corresponden a otra máquina; para diagnosticar eso hace falta el dump de esa
-> réplica o revisar su outbox.
+> La base local de esta maquina tiene 3 productos, 4 cajas (3 cerradas + 1
+> abierta), 7 ventas, 6 anuladas y 3 gastos. Si en la Primary, bajo
+> `MAIN-4e83d3f6`, falta alguno de esos datos, entonces si se perdio algo: la
+> outbox local dice que la Primary lo confirmo.
 
 ---
 
@@ -337,7 +372,8 @@ no basta, usar la API `backup()` de SQLite para un snapshot consistente).
 | v0.1.4 | Reposición transaccional con costo. |
 | **v0.1.5** | **Identidad `uuid` del catálogo + migración 022.** |
 | **v0.1.6** | **Stock como delta + reconciliación de catálogo + outbox re-encolable + clasificación de payloads.** `52/52` tests. |
-| **v0.1.7** (pendiente de publicar) | **Autorreconciliación del catálogo en cada sync + anulaciones que de verdad anulan + ACK con revisión.** `65/65` tests. |
+| **v0.1.7** | **Autorreconciliación del catálogo en cada sync + anulaciones que de verdad anulan + ACK con revisión.** `65/65` tests. |
+| **v0.1.8** (pendiente de publicar) | **El cuadre del corte de caja se actualiza al anular + panel de pendientes de sincronización.** `67/67` tests. |
 
 Todos con tests verdes al momento del cierre de cada versión.
 
@@ -347,3 +383,6 @@ Todos con tests verdes al momento del cierre de cada versión.
 
 > `v0.1.7` también: las tres correcciones están en el backend y las dos
 > máquinas tienen que aplicarlas.
+
+> `v0.1.8` toca la interfaz: solo hace falta instalarla donde se anulan ventas
+> (la réplica). El backend añade dos consultas de lectura, sin migraciones.
