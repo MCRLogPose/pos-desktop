@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/inventory_repo.rs": {
-    "mtime": 1790977140.52449,
-    "ast_hash": "b6d0762b15de69eedf17d4c3e50e1152",
+    "mtime": 1790973061.8202312,
+    "ast_hash": "0e207eb6e273387ea14cc4340e366d63",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/mod.rs": {
@@ -220,8 +220,8 @@
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/sales_repo.rs": {
-    "mtime": 1790977328.5211415,
-    "ast_hash": "4deb2269f9da9d925c358c734bb6768e",
+    "mtime": 1790971536.8283033,
+    "ast_hash": "8c64732340664e8e9a2029defdb9c8b2",
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/store_repo.rs": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "src-tauri/tauri.conf.json": {
-    "mtime": 1790978257.353073,
-    "ast_hash": "37d35896164e90938ca56bd07a444738",
+    "mtime": 1790973186.5593607,
+    "ast_hash": "08213f3ea4b6013a5bc080119b668ce9",
     "semantic_hash": ""
   },
   "src/App.tsx": {
@@ -1025,13 +1025,13 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/mod.rs": {
-    "mtime": 1790978046.270023,
-    "ast_hash": "1d399293b18510449a747af5a7458b9c",
+    "mtime": 1790469704.0751822,
+    "ast_hash": "90a96883260e6b10973f0056aacaa260",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/payloads.rs": {
-    "mtime": 1790977289.6729057,
-    "ast_hash": "223558d7dc2cd6b4fce259d8113a4311",
+    "mtime": 1790887582.3101768,
+    "ast_hash": "43fd99c768dae4e53ecb26dbba796708",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/server.rs": {
@@ -1045,13 +1045,13 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/apply.rs": {
-    "mtime": 1790978197.9440465,
-    "ast_hash": "85104a9eb92b1aa0e4775f63283f8827",
+    "mtime": 1790971607.178244,
+    "ast_hash": "264b433f0d5364ef877fc5aad87bad97",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/apply_tests.rs": {
-    "mtime": 1790977913.8442414,
-    "ast_hash": "495567b705cfa783909de004df33bbd2",
+    "mtime": 1790972378.3139014,
+    "ast_hash": "38c3a8d1dccc94b306fbb41de73b06cc",
     "semantic_hash": ""
   },
   "src-tauri/migrations/013_anulaciones.sql": {
@@ -1095,18 +1095,18 @@
     "semantic_hash": ""
   },
   "src-tauri/src/sync/client.rs": {
-    "mtime": 1790978125.873605,
-    "ast_hash": "53a35ab182dad0450bf915b4f2d0c42b",
+    "mtime": 1790972484.177916,
+    "ast_hash": "3b1785ac7a569fd94e2e40f8e9be76fd",
     "semantic_hash": ""
   },
   "src-tauri/src/sync/queue.rs": {
-    "mtime": 1790978010.0025494,
-    "ast_hash": "1a64fb09c3cc04b2d0a3f36a4d6d5fe6",
+    "mtime": 1790971084.8396966,
+    "ast_hash": "0da159c20b2db3685bcc29343a665f4f",
     "semantic_hash": ""
   },
   "docs/SINCRONIZACION_REPLICA.md": {
-    "mtime": 1790978279.1388755,
-    "ast_hash": "5399ecd2564e3279973258abc37dcf84",
+    "mtime": 1790973177.8518064,
+    "ast_hash": "7376779514ffba5c178ec212b34c1cf2",
     "semantic_hash": ""
   },
   "src-tauri/src/commands/sync.rs": {
@@ -1195,33 +1195,13 @@
     "semantic_hash": ""
   },
   "src-tauri/src/repositories/inventory_repo_tests.rs": {
-    "mtime": 1790977095.1867619,
-    "ast_hash": "c8b481753b54629051271f66df9a00c9",
+    "mtime": 1790972148.381068,
+    "ast_hash": "baa6efd1f222bc24905c945493c4db74",
     "semantic_hash": ""
   },
   "docs/SYNC-ESTADO-Y-PENDIENTES.md": {
-    "mtime": 1790978257.2005417,
-    "ast_hash": "7b7b48ddbda6bfd63b1c259fc376e7a8",
-    "semantic_hash": ""
-  },
-  "src-tauri/migrations/024_ventas_anuladas_order_uuid.sql": {
-    "mtime": 1790977296.8618586,
-    "ast_hash": "2bdf51614651f4a74e255ff56b704c09",
-    "semantic_hash": ""
-  },
-  "src-tauri/migrations/025_reparar_anulaciones_aceptadas.sql": {
-    "mtime": 1790977866.477854,
-    "ast_hash": "247a8bb6818458b84b1701f3cf555e26",
-    "semantic_hash": ""
-  },
-  "src-tauri/migrations/026_sync_outbox_revision.sql": {
-    "mtime": 1790978000.7412143,
-    "ast_hash": "526ab7d8b04142fa9254e9be4b7e9c65",
-    "semantic_hash": ""
-  },
-  "src-tauri/src/sync/queue_tests.rs": {
-    "mtime": 1790978042.3419304,
-    "ast_hash": "329863a5e2bfdb03b11a29966bc5fc08",
+    "mtime": 1790973061.823546,
+    "ast_hash": "fbc81f5b8a089ea1d7896ec50ebb4946",
     "semantic_hash": ""
   }
 }
