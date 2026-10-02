@@ -32,6 +32,25 @@ impl SyncClient {
         }
 
         let (primary_url, token, device_id, store_code) = self.read_config().await?;
+
+        // Antes de leer la cola: la outbox es un log de cambios, asi que un
+        // producto que nunca llego a la Primary no aparece como pendiente y
+        // se quedaria desincronizado para siempre. Esto encola solo lo que
+        // falta (coste cero cuando no hay atras), de modo que cualquier
+        // sincronizacion -incluida la del cierre de caja de un usuario
+        // comun- deja el catalogo al dia sin que nadie tenga que pedir un
+        // reenvio completo a mano.
+        let pending_catalog = crate::repositories::inventory_repo::enqueue_pending_catalog(&self.pool)
+            .await
+            .map_err(|e| format!("no se pudo preparar el catalogo pendiente: {e}"))?;
+        if pending_catalog.products > 0 || pending_catalog.stock_movements > 0 {
+            log::info!(
+                "[sync] catalogo pendiente: {} productos, {} ajustes de stock",
+                pending_catalog.products,
+                pending_catalog.stock_movements
+            );
+        }
+
         let pending = self.queue.pending().await.map_err(|e| e.to_string())?;
         if pending.is_empty() {
             return Ok("nada que sincronizar".to_string());
@@ -95,7 +114,20 @@ impl SyncClient {
             for ack in &parsed.acks {
                 match ack.status {
                     SyncItemStatus::Accepted | SyncItemStatus::Duplicate => {
-                        accepted.push(ack.item_uuid.clone());
+                        // Se guarda la revision que realmente se envio para que el
+                        // ACK no pueda marcar como sincronizada una version mas
+                        // nueva que haya cambiado en medio del vuelo.
+                        let sent = items
+                            .iter()
+                            .find(|i| i.item_uuid == ack.item_uuid)
+                            .map(|i| i.revision);
+                        match sent {
+                            Some(revision) => accepted.push((ack.item_uuid.clone(), revision)),
+                            None => log::warn!(
+                                "[sync] la Primary ACKeo '{uuid}' pero no estaba en este envio: no se marca",
+                                uuid = ack.item_uuid
+                            ),
+                        }
                     }
                     SyncItemStatus::Rejected => {
                         self.queue
@@ -378,6 +410,7 @@ mod tests {
             topic: "".into(),
             entity: entity.into(),
             item_uuid: format!("uuid-{id}"),
+            revision: 1,
             payload,
         }
     }

@@ -1238,3 +1238,446 @@ async fn eliminar_producto_solo_admin() {
         .unwrap();
     assert!(!is_active, "el producto debe quedar desactivado tras el borrado admin");
 }
+
+// ───────────────────── ANULACIONES QUE DE verdad ANULAN ─────────────────────
+
+fn venta_de_prueba(uuid: &str, session: Option<&str>) -> SalesBatch {
+    SalesBatch {
+        sales: vec![SaleSync {
+            sync_uuid: uuid.into(),
+            local_order_id: 7,
+            seller_username: Some("vendedor1".into()),
+            client_document: None,
+            client_phone: None,
+            client_name: None,
+            payment_method: "cash".into(),
+            payments: vec![PaymentSync {
+                payment_method: "cash".into(),
+                amount: 100.0,
+            }],
+            subtotal: 84.74,
+            igv: 15.26,
+            total: 100.0,
+            cash_session_uuid: session.map(str::to_string),
+            created_at: "2026-08-23 14:00:00".into(),
+            items: vec![SaleItemSync {
+                product_code: Some("SHO-001".into()),
+                product_name: "Short M".into(),
+                display_name: None,
+                unit_price: 50.0,
+                quantity: 2,
+                subtotal: 100.0,
+                cash_amount: 100.0,
+                card_amount: 0.0,
+                yape_amount: 0.0,
+            }],
+        }],
+    }
+}
+
+fn anulacion_de_prueba(uuid: &str, order_uuid: Option<&str>) -> AnulacionesBatch {
+    AnulacionesBatch {
+        anulaciones: vec![VentaAnuladaSync {
+            sync_uuid: uuid.into(),
+            local_anulacion_id: 3,
+            order_id: Some(7),
+            order_uuid: order_uuid.map(str::to_string),
+            seller_username: Some("vendedor1".into()),
+            reason: "cliente se retracto".into(),
+            payment_method: "cash".into(),
+            payments: vec![PaymentSync {
+                payment_method: "cash".into(),
+                amount: 100.0,
+            }],
+            subtotal: 84.74,
+            igv: 15.26,
+            total: 100.0,
+            cancelled_at: "2026-08-23 15:00:00".into(),
+            items: vec![ItemAnuladoSync {
+                product_code: Some("SHO-001".into()),
+                product_name: "Short M".into(),
+                display_name: None,
+                unit_price: 50.0,
+                quantity: 2,
+                subtotal: 100.0,
+            }],
+        }],
+    }
+}
+
+async fn abrir_turno(pool: &SqlitePool) {
+    sqlx::query(
+        "INSERT INTO cash_sessions (uuid, store_id, opened_by, opening_cash, opening_virtual, expected_closing_cash, expected_closing_virtual, status)
+         VALUES ('cs-9', (SELECT id FROM stores WHERE code = ?1), 1, 0, 0, 100.0, 0.0, 'open')",
+    )
+    .bind(device_store_code(DEV_ONE))
+    .execute(pool)
+    .await
+    .unwrap();
+    // El usuario 1 no es el vendedor1 de DEV_ONE; el que abrio el turno da igual.
+    let acks = apply_cash_batch(
+        pool,
+        &CashBatch {
+            sessions: vec![CashSessionSync {
+                sync_uuid: "sess-9".into(),
+                local_session_id: 9,
+                opened_by_username: Some("vendedor1".into()),
+                opened_at: "2026-08-23 09:00:00".into(),
+                closed_by_username: None,
+                closed_at: None,
+                opening_cash: 0.0,
+                opening_virtual: 0.0,
+                expected_closing_cash: 0.0,
+                expected_closing_virtual: 0.0,
+                real_closing_cash: None,
+                real_closing_virtual: None,
+                difference: None,
+                justification: None,
+                status: "open".into(),
+            }],
+            expenses: vec![],
+            incomes: vec![],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(acks[0].status, SyncItemStatus::Accepted);
+}
+
+/// La venta anulada tiene que DEJAR DE EXISTIR en la Primary.
+///
+/// Antes solo se guardaba el registro en `ventas_anuladas`: la venta se quedaba
+/// en `orders`, seguia sumando en el efectivo esperado y apareciendo en la lista
+/// de movimientos del turno. Esto es lo que reportaba el usuario.
+#[tokio::test]
+async fn la_anulacion_borra_la_venta_y_revierte_caja() {
+    let pool = test_pool().await;
+    abrir_turno(&pool).await;
+
+    let venta = venta_de_prueba("sale-a1", Some("sess-9"));
+    assert_eq!(
+        apply_sales_batch(&pool, &venta, DEV_ONE, Some("Sucursal Uno")).await[0].status,
+        SyncItemStatus::Accepted
+    );
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 1);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM order_items").await, 1);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM order_payments").await, 1);
+
+    let acks = apply_anulaciones_batch(
+        &pool,
+        &anulacion_de_prueba("anu-a1", Some("sale-a1")),
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(acks[0].status, SyncItemStatus::Accepted);
+
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 0, "la venta sigue viva");
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM order_items").await, 0);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM order_payments").await, 0);
+
+    // La caja deja de contar esa venta.
+    assert_eq!(
+        f64_at(
+            &pool,
+            "SELECT expected_closing_cash FROM cash_sessions WHERE uuid = 'sess-9'"
+        )
+        .await,
+        -100.0
+    );
+
+    // El rastro de la anulacion si se conserva, ahora con el uuid de la venta.
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM ventas_anuladas").await, 1);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM items_anulados").await, 1);
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT order_uuid FROM ventas_anuladas")
+            .fetch_one(&pool)
+            .await
+            .unwrap(),
+        "sale-a1"
+    );
+
+    // Y el stock NO se toca en la Primary: ni al aplicar la venta ni al anularla.
+    // Las dos variaciones viajan como `StockMovementSync`, asi que aqui el stock
+    // sigue como estaba.
+    assert_eq!(count(&pool, "SELECT stock FROM products WHERE code = 'SHO-001'").await, 10);
+}
+
+/// Si la venta ya no esta, la anulacion tambien debe limpar el esperado de caja.
+#[tokio::test]
+async fn anular_dos_veces_no_revierte_dos_veces() {
+    let pool = test_pool().await;
+    abrir_turno(&pool).await;
+    apply_sales_batch(
+        &pool,
+        &venta_de_prueba("sale-a2", Some("sess-9")),
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+
+    let anulacion = anulacion_de_prueba("anu-a2", Some("sale-a2"));
+    apply_anulaciones_batch(&pool, &anulacion, DEV_ONE, Some("Sucursal Uno")).await;
+    let replay = apply_anulaciones_batch(&pool, &anulacion, DEV_ONE, Some("Sucursal Uno")).await;
+    assert_eq!(replay[0].status, SyncItemStatus::Duplicate);
+
+    assert_eq!(
+        f64_at(
+            &pool,
+            "SELECT expected_closing_cash FROM cash_sessions WHERE uuid = 'sess-9'"
+        )
+        .await,
+        -100.0,
+        "un reenvio no puede descontar dos veces"
+    );
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM ventas_anuladas").await, 1);
+}
+
+/// Reenviar una anulacion que ya habia aceptado una version vieja tambien limpia.
+///
+/// La version anterior aceptaba la anulacion y devolvia `duplicate` sin tocar
+/// nada, asi que las ventas ya anuladas seguian vivas y solo un reenvio con la
+/// correccion las puede sacar.
+#[tokio::test]
+async fn reenviar_una_anulacion_antigua_limpia_la_venta() {
+    let pool = test_pool().await;
+    abrir_turno(&pool).await;
+    apply_sales_batch(
+        &pool,
+        &venta_de_prueba("sale-a3", Some("sess-9")),
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+
+    // Anulacion antigua: sin `order_uuid`, no podia neutralizar nada.
+    let vieja = anulacion_de_prueba("anu-a3", None);
+    assert_eq!(
+        apply_anulaciones_batch(&pool, &vieja, DEV_ONE, Some("Sucursal Uno")).await[0].status,
+        SyncItemStatus::Accepted
+    );
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 1, "asi quedaba antes");
+
+    // La replica ya tiene el uuid de la venta y reenvia la misma anulacion.
+    let reparada = anulacion_de_prueba("anu-a3", Some("sale-a3"));
+    let acks = apply_anulaciones_batch(&pool, &reparada, DEV_ONE, Some("Sucursal Uno")).await;
+    assert_eq!(acks[0].status, SyncItemStatus::Duplicate);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 0);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM ventas_anuladas").await, 1);
+}
+
+/// Orden inverso: la anulacion llego antes que la venta (por ejemplo, si la
+/// venta se quedo con error y se reintenta despues). La venta no debe reaparecer.
+#[tokio::test]
+async fn una_venta_anulada_no_reaparece_si_llega_tarde() {
+    let pool = test_pool().await;
+    abrir_turno(&pool).await;
+
+    let acks = apply_anulaciones_batch(
+        &pool,
+        &anulacion_de_prueba("anu-a4", Some("sale-a4")),
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(acks[0].status, SyncItemStatus::Accepted);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 0);
+
+    let venta = venta_de_prueba("sale-a4", Some("sess-9"));
+    let acks = apply_sales_batch(&pool, &venta, DEV_ONE, Some("Sucursal Uno")).await;
+    assert_eq!(acks[0].status, SyncItemStatus::Accepted, "se acepta para no reintentar infinito");
+    assert!(
+        acks[0].message.as_deref().unwrap_or_default().contains("anulada"),
+        "el ack debe explicar por que no se aplico: {:?}",
+        acks[0].message
+    );
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 0, "no debe resucitar");
+}
+
+/// La anulacion borra justo esa venta y nada mas.
+///
+/// `orders.uuid` es unico en toda la base, pero el filtro incluye `store_id`
+/// para que el borrado nunca dependa solo de un uuid: si un payload viniera mal
+/// formado, el dano tiene que limitarse a la sede que envio la anulacion.
+#[tokio::test]
+async fn la_anulacion_borra_solo_la_venta_anulada() {
+    let pool = test_pool().await;
+    let dev_store: i64 = sqlx::query_scalar("SELECT id FROM stores WHERE code = ?")
+        .bind(device_store_code(DEV_ONE))
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    let seller_id: i64 = sqlx::query_scalar("SELECT id FROM users WHERE username = 'vendedor1'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+
+    // Dos ventas en la sede de la replica y una en la principal.
+    for (store_id, uuid) in [
+        (dev_store, "sale-b1"),
+        (dev_store, "sale-b2"),
+        (1, "sale-b3"),
+    ] {
+        sqlx::query(
+            "INSERT INTO orders (user_id, store_id, payment_method, subtotal, igv, total, created_at, uuid)
+             VALUES (?1, ?2, 'cash', 0.0, 0.0, 100.0, datetime('now','localtime'), ?3)",
+        )
+        .bind(seller_id)
+        .bind(store_id)
+        .bind(uuid)
+        .execute(&pool)
+        .await
+        .unwrap();
+    }
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 3);
+
+    apply_anulaciones_batch(
+        &pool,
+        &anulacion_de_prueba("anu-b1", Some("sale-b1")),
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders").await, 2);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders WHERE uuid = 'sale-b1'").await, 0);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders WHERE uuid = 'sale-b2'").await, 1);
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM orders WHERE store_id = 1").await, 1);
+}
+
+// ───────────── REPARACION DE ANULACIONES QUE LA PRIMARY YA ACEPTO ─────────────
+
+/// Estado que dejo una version anterior: la anulacion aceptada sin
+/// `order_uuid`, y su fila en la outbox ya marcada como sincronizada.
+async fn sembrar_anulacion_antigua(pool: &SqlitePool) {
+    let dev_store: i64 = sqlx::query_scalar("SELECT id FROM stores WHERE code = ?")
+        .bind(device_store_code(DEV_ONE))
+        .fetch_one(pool)
+        .await
+        .unwrap();
+    let seller_id: i64 = sqlx::query_scalar("SELECT id FROM users WHERE username = 'vendedor1'")
+        .fetch_one(pool)
+        .await
+        .unwrap();
+
+    sqlx::query(
+        "INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at)
+         VALUES ('anu-r1', 7, ?1, ?2, 'cliente se retracto', 'cash', 84.74, 15.26, 100.0, '2026-08-23 15:00:00')",
+    )
+    .bind(dev_store)
+    .bind(seller_id)
+    .execute(pool)
+    .await
+    .unwrap();
+
+    // La venta que se anulo: la outbox guardo su uuid como `item_uuid`.
+    sqlx::query(
+        "INSERT INTO sync_outbox (topic, item_uuid, entity, entity_id, payload, synced)
+         VALUES ('sales', 'sale-r1', 'order', '7', '{\"sync_uuid\":\"sale-r1\"}', 1)",
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    // La anulacion, ya aceptada por la Primary, sin el campo que faltaba.
+    sqlx::query(
+        "INSERT INTO sync_outbox (topic, item_uuid, entity, entity_id, payload, synced)
+         VALUES ('anulaciones', 'anu-r1', 'venta_anulada', '1', '{\"sync_uuid\":\"anu-r1\",\"local_anulacion_id\":1,\"order_id\":7,\"reason\":\"cliente se retracto\",\"payment_method\":\"cash\",\"payments\":[{\"payment_method\":\"cash\",\"amount\":100.0}],\"subtotal\":84.74,\"igv\":15.26,\"total\":100.0,\"cancelled_at\":\"2026-08-23 15:00:00\",\"items\":[]}', 1)",
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    sqlx::query("INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'replica')")
+        .execute(pool)
+        .await
+        .unwrap();
+}
+
+const REPARACION: &str = include_str!("../../migrations/025_reparar_anulaciones_aceptadas.sql");
+
+/// Sin esto, las ventas ya anuladas seguirian sumando en caja para siempre: la
+/// reparacion reabre la anulacion para que la Primary la vuelva a neutralizar.
+#[tokio::test]
+async fn la_reparacion_reabre_las_anulaciones_ya_aceptadas() {
+    let pool = test_pool().await;
+    sembrar_anulacion_antigua(&pool).await;
+
+    sqlx::raw_sql(REPARACION).execute(&pool).await.unwrap();
+
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT order_uuid FROM ventas_anuladas WHERE uuid = 'anu-r1'")
+            .fetch_one(&pool)
+            .await
+            .unwrap(),
+        "sale-r1"
+    );
+    let (synced, order_uuid): (i64, Option<String>) = sqlx::query_as(
+        "SELECT synced, json_extract(payload, '$.order_uuid') FROM sync_outbox WHERE topic = 'anulaciones'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(synced, 0, "tiene que volver a enviarse");
+    assert_eq!(order_uuid.as_deref(), Some("sale-r1"));
+
+    // La venta no se reenvia: solo la anulacion.
+    assert_eq!(
+        count(&pool, "SELECT synced FROM sync_outbox WHERE topic = 'sales'").await,
+        1
+    );
+}
+
+/// Correr la reparacion dos veces no debe romper nada.
+#[tokio::test]
+async fn la_reparacion_es_idempotente() {
+    let pool = test_pool().await;
+    sembrar_anulacion_antigua(&pool).await;
+
+    sqlx::raw_sql(REPARACION).execute(&pool).await.unwrap();
+    sqlx::raw_sql(REPARACION).execute(&pool).await.unwrap();
+
+    assert_eq!(
+        count(&pool, "SELECT COUNT(*) FROM ventas_anuladas WHERE order_uuid = 'sale-r1'").await,
+        1
+    );
+    assert_eq!(count(&pool, "SELECT COUNT(*) FROM sync_outbox WHERE topic = 'anulaciones'").await, 1);
+    assert_eq!(
+        sqlx::query_scalar::<_, String>(
+            "SELECT payload FROM sync_outbox WHERE topic = 'anulaciones'"
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .matches("order_uuid")
+        .count(),
+        1,
+        "el campo no debe duplicarse"
+    );
+}
+
+/// En la Primary no se toca nada: sus `ventas_anuladas.order_id` son ids de la
+/// replica y cruzarlos con la outbox local apuntaria a la venta equivocada.
+#[tokio::test]
+async fn la_reparacion_no_se_ejecuta_en_la_primary() {
+    let pool = test_pool().await;
+    sembrar_anulacion_antigua(&pool).await;
+    sqlx::query("UPDATE app_config SET value = 'primary' WHERE key = 'operating_mode'")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    sqlx::raw_sql(REPARACION).execute(&pool).await.unwrap();
+
+    let order_uuid: Option<String> =
+        sqlx::query_scalar("SELECT order_uuid FROM ventas_anuladas WHERE uuid = 'anu-r1'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert!(order_uuid.is_none());
+    assert_eq!(
+        count(&pool, "SELECT synced FROM sync_outbox WHERE topic = 'anulaciones'").await,
+        1,
+        "no debe reabrir la cola en la Primary"
+    );
+}

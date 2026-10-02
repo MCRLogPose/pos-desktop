@@ -1,6 +1,8 @@
 pub mod apply;
 #[cfg(test)]
 mod apply_tests;
+#[cfg(test)]
+mod queue_tests;
 pub mod client;
 pub mod net;
 pub mod payloads;

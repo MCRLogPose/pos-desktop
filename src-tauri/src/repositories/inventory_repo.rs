@@ -567,6 +567,12 @@ let product_uuid = uuid::Uuid::new_v4().to_string();
     ///   se le comunico a la Primary. Es idempotente: si ya esta al dia, el delta
     ///   es 0 y no se encola nada.
     ///
+    /// Reencola el catalogo completo y la diferencia de stock de cada producto.
+    ///
+    /// Es la version **forzada**: recorre todo, sin filtro. La usada en cada
+    /// cierre de caja es `enqueue_pending_catalog`, que hace lo mismo pero solo
+    /// con lo que falta. Esta se conserva como herramienta de repair.
+    ///
     /// Repetirlo es seguro. En la Primary el `product_upsert` se reaplica sobre
     /// la misma fila y los movimientos ya aceptados responden `duplicate`.
     pub async fn reconcile_with_primary(&self) -> Result<ReconcileReport, String> {
@@ -588,12 +594,11 @@ let product_uuid = uuid::Uuid::new_v4().to_string();
                 .map_err(|e| format!("no se pudo reencolar la categoria '{name}': {e}"))?;
         }
 
-        let products: Vec<(i64, i64, i64)> = sqlx::query_as(
-            "SELECT id, stock, stock_synced FROM products ORDER BY id",
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|e| format!("no se pudo leer el catalogo de productos: {e}"))?;
+        let products: Vec<(i64, i64, i64)> =
+            sqlx::query_as("SELECT id, stock, stock_synced FROM products ORDER BY id")
+                .fetch_all(&self.pool)
+                .await
+                .map_err(|e| format!("no se pudo leer el catalogo de productos: {e}"))?;
 
         let mut report = ReconcileReport {
             categories: categories.len(),
@@ -618,12 +623,112 @@ let product_uuid = uuid::Uuid::new_v4().to_string();
                     None,
                 )
                 .await
-                .map_err(|e| format!("no se pudo encolar la diferencia de stock del producto {id}: {e}"))?;
+                .map_err(|e| {
+                    format!("no se pudo encolar la diferencia de stock del producto {id}: {e}")
+                })?;
                 report.stock_movements += 1;
             }
         }
         Ok(report)
     }
+}
+
+/// Encola solo lo que la Primary aun no conoce. Se ejecuta en **cada** sync.
+///
+/// `sync_outbox` es un log de cambios y ademas es la unica prueba de que un
+/// producto llego a la Primary: la fila se crea al encolar y solo pasa a
+/// `synced = 1` cuando la Primary responde `accepted` o `duplicate`. Por eso
+/// "este producto no tiene fila en la outbox" significa exactamente "este
+/// producto no le llego a la Primary", sin necesidad de que la Primary conteste
+/// nada.
+///
+/// Costo: una consulta con indice y, en el caso normal, cero escrituras. No es
+/// "enviar el catalogo completo en cada cierre de caja" (que si seria
+/// contraproducente con muchos productos: un unico POST por topic, sin
+/// fragmentar, con miles de upserts) sino "enviar lo que falta", que es cero
+/// mientras no haya atras.
+pub async fn enqueue_pending_catalog(pool: &SqlitePool) -> Result<ReconcileReport, String> {
+    let queue = SyncQueue::new(pool.clone());
+    if !queue.is_replica().await {
+        return Ok(ReconcileReport {
+            categories: 0,
+            products: 0,
+            stock_movements: 0,
+        });
+    }
+
+    // Producto sin fila en la outbox: nunca se comunico. Incluye los inactivos
+    // (dar de baja se propaga como estado, no como ausencia) y los que se
+    // crearon mientras la maquina operaba como Primary.
+    let missing: Vec<i64> = sqlx::query_scalar(
+        "SELECT p.id FROM products p
+          WHERE p.uuid IS NULL
+             OR NOT EXISTS (SELECT 1 FROM sync_outbox o
+                              WHERE o.item_uuid = p.uuid AND o.entity = 'product')
+          ORDER BY p.id",
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| format!("no se pudo leer el catalogo pendiente: {e}"))?;
+
+    // Stock que todavia no se le dijo a la Primary. El contador avanza en la
+    // misma transaccion que encola el movimiento, asi que el delta pendiente es
+    // exactamente `stock - stock_synced`.
+    let stock_pending: Vec<(i64, i64)> = sqlx::query_as(
+        "SELECT id, stock - stock_synced FROM products
+          WHERE stock <> stock_synced ORDER BY id",
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| format!("no se pudo leer el stock pendiente: {e}"))?;
+
+    // Categorias: mismo criterio que los productos, "no tiene fila en la outbox".
+    // Encolar todas en cada sync reabriria (`synced = 0`) filas ya aceptadas y
+    // las reenviaria para siempre.
+    let categories_missing: Vec<(i64, String)> = sqlx::query_as(
+        "SELECT c.id, c.name FROM categories c
+          WHERE c.uuid IS NULL
+             OR NOT EXISTS (SELECT 1 FROM sync_outbox o
+                              WHERE o.item_uuid = c.uuid AND o.entity = 'category')
+          ORDER BY c.id",
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(|e| format!("no se pudo leer el catalogo de categorias: {e}"))?;
+
+    let mut report = ReconcileReport {
+        categories: 0,
+        products: 0,
+        stock_movements: 0,
+    };
+    for (id, name) in categories_missing {
+        enqueue_category(pool, id, name.clone())
+            .await
+            .map_err(|e| format!("no se pudo encolar la categoria '{name}': {e}"))?;
+        report.categories += 1;
+    }
+    for id in &missing {
+        // `enqueue_product` tambien rellena el `uuid` si faltara, asi que la
+        // segunda pasada ya lo encuentra.
+        enqueue_product(pool, *id)
+            .await
+            .map_err(|e| format!("no se pudo encolar el producto {id}: {e}"))?;
+        report.products += 1;
+    }
+    for (id, delta) in stock_pending {
+        enqueue_stock_movement(
+            pool,
+            id,
+            delta,
+            StockReason::Initial,
+            None,
+        )
+        .await
+        .map_err(|e| format!("no se pudo encolar el stock pendiente del producto {id}: {e}"))?;
+        report.stock_movements += 1;
+    }
+
+    Ok(report)
 }
 
 /// Resumen de lo que reencolo `reconcile_with_primary`.

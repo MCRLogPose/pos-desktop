@@ -197,13 +197,60 @@ Mismo patrón que el de productos, en otras cuatro tablas:
 | `products` | ✅ Corregido en v0.1.5 |
 | `expenses` | ❌ Genera el uuid en memoria, no lo persiste |
 | `purchase_orders` | ❌ Igual |
-| `orders` | ❌ Igual |
-| `cash_sessions` | ❌ Igual |
+| `orders` | ✅ Ya persistía el `uuid` (verificado en v0.1.7: es lo que permite que la Primary identifique una venta anulada) |
+| `cash_sessions` | ✅ Ya persistía el `uuid` |
 
 Consecuencia: su `item_uuid` en la outbox tampoco es una identidad real, así que
 la deduplicación del lado Primary es débil para esos topics. Vale la pena revisarlo
 con el mismo cuidado que productos, en especial `cash_sessions`, donde
 `close_session` ya usa `enqueue_replace` y depende de que el uuid sea estable.
+
+### El catálogo se autorreconcilia en cada sync (v0.1.7)
+
+«Los productos no se actualizan en la Primary hasta que alguien pulsa *Reenviar
+todo el catálogo*». El motivo no era el alta ni la edición, que ya encolaban
+correcto: era que **un producto que nunca se encoló no aparece como pendiente en
+la outbox**. Como la outbox es un log de cambios y no un snapshot, ese producto
+se quedaba desincronizado para siempre y solo un reenvio completo lo sacaba de
+ahí.
+
+La solución no es enviar el catálogo entero en cada cierre, sino cerrar el hueco
+por el que se colaban esos productos:
+
+- `enqueue_pending_catalog()` se llama al inicio de cada `SyncClient::sync_all()`,
+  o sea que también en el cierre de caja de un usuario común.
+- Encola **solo lo que falta**: productos y categorías sin fila en la outbox, más
+  los productos con `stock <> stock_synced`. Cuando no hay atraso son tres
+  consultas y cero escrituras.
+- Con el catálogo al día no se reabre ninguna fila: reencolar todo en cada sync
+  mandaría el catálogo completo en cada venta, que es justo lo que no se quiere.
+
+El botón de reenvío completo se queda, pero como reparación a pedido, no como
+paso obligatorio del cierre.
+
+### Las anulaciones ahora anulan de verdad (v0.1.7)
+
+En la Primary, una venta anulada en la réplica **seguía existiendo**: la
+anulación solo insertaba el registro en `ventas_anuladas`. Por eso la venta
+seguía sumando en el efectivo esperado del turno y apareciendo en la lista de
+movimientos, que es lo que se reportó en Finanzas.
+
+La diferencia con la réplica es que allí `anular_venta` borra la venta y revierte
+caja. `apply_one_anulacion` ahora hace lo mismo:
+
+- La réplica manda el `uuid` de la venta en `VentaAnuladaSync.order_uuid`
+  (`migración 024`). `order_id` es un id local y no sirve para nada del otro
+  lado: por eso faltaba la pieza que identificaba la venta.
+- La Primary busca por `(orders.uuid, store_id)`, revierte el esperado de caja
+  con las mismas fracciones de pago, y borra `order_payments`, `order_items` y
+  `orders`. El stock no se toca ahí: la devolución viaja como `StockMovementSync`.
+- Si la venta **llega después** de la anulación, `apply_one_sale` la descarta en
+  vez de resucitarla (los topics viajan por separado y una venta con error se
+  reintenta después de su anulación).
+- Un reenvío responde `duplicate` pero **vuelve a neutralizar**: eso es lo que
+  permite que la `migración 025` repare las anulaciones que ya había aceptado una
+  versión anterior, cruzando `ventas_anuladas.order_id` con la fila `sales` de
+  la outbox, de la que se recupera el uuid de la venta.
 
 ---
 
@@ -227,20 +274,19 @@ con el mismo cuidado que productos, en especial `cash_sessions`, donde
 
 ### Lo que sigue abierto
 
-- §5: `uuid` que no se persiste en `expenses`, `purchase_orders`, `orders` y
-  `cash_sessions`.
+- §5: `uuid` que no se persiste en `expenses` y `purchase_orders`.
 - El worker de reintento automático en background
   (`SINCRONIZACION_REPLICA.md` §7b) sigue sin existir: hoy las filas con error
   solo se reintentan cuando alguien pulsa «Sincronizar ahora».
-- Riesgo conocido de concurrencia: si una edición ocurre mientras la anterior
-  está en vuelo, `mark_synced` puede marcar como al día la fila que esa misma
-  edición reactivó. Hoy no se detecta; la reconciliación lo corrige en el
-  siguiente paso, pero la causa (un `generation` por fila en la outbox) sigue
-  abierta.
+- ~~Riesgo de concurrencia~~ **Resuelto en v0.1.7**: `sync_outbox` tiene una
+  columna `revision` que se incrementa en cada `enqueue`, y `mark_synced` solo
+  marca la fila si sigue siendo la versión que se envió. Una edición que ocurre
+  mientras el POST está en vuelo deja la fila en `synced = 0` y sale en el
+  siguiente sync, en vez de perder el cambio en silencio.
 
 ### Comandos
 ```bash
-cd src-tauri && cargo test          # 52 passed
+cd src-tauri && cargo test          # 65 passed
 npx tsc -b --noEmit
 pnpm build
 pnpm tauri build                    # genera NSIS + MSI
@@ -290,10 +336,14 @@ no basta, usar la API `backup()` de SQLite para un snapshot consistente).
 | v0.1.3 | Fix del INSERT de productos sincronizados. |
 | v0.1.4 | Reposición transaccional con costo. |
 | **v0.1.5** | **Identidad `uuid` del catálogo + migración 022.** |
-| **v0.1.6** (pendiente de publicar) | **Stock como delta + reconciliación de catálogo + outbox re-encolable + clasificación de payloads.** `52/52` tests. |
+| **v0.1.6** | **Stock como delta + reconciliación de catálogo + outbox re-encolable + clasificación de payloads.** `52/52` tests. |
+| **v0.1.7** (pendiente de publicar) | **Autorreconciliación del catálogo en cada sync + anulaciones que de verdad anulan + ACK con revisión.** `65/65` tests. |
 
 Todos con tests verdes al momento del cierre de cada versión.
 
 > `v0.1.6` requiere instaladores nuevos en **ambas** máquinas: el receptor (Primary)
 > y el emisor (Réplica) ejecutan el mismo binario, y el formato del lote de
 > inventario y de la outbox cambió.
+
+> `v0.1.7` también: las tres correcciones están en el backend y las dos
+> máquinas tienen que aplicarlas.

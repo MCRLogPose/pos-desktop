@@ -1,0 +1,13 @@
+-- 026_sync_outbox_revision.sql
+--
+-- Contador de versiones del payload en la outbox.
+--
+-- El ACK de la Primary llega por item_uuid. Si el producto se editaba mientras
+-- su catalogo viajaba en un POST, el ACK de la version vieja marcaba como
+-- sincronizada la version nueva (mismo item_uuid) y el cambio se perdia en
+-- silencio: no aparecia hasta que alguien pedia un reenvio completo.
+--
+-- Al enviar se guarda la `revision` que se leyo y el ACK solo marca la fila si
+-- sigue siendo la misma. Si el payload cambio en el vuelo, la fila queda
+-- `synced = 0` y sale en el siguiente sync.
+ALTER TABLE sync_outbox ADD COLUMN revision INTEGER NOT NULL DEFAULT 1;

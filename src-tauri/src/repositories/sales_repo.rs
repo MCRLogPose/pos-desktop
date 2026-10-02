@@ -489,11 +489,12 @@ impl SalesRepository {
             total: f64,
             cash_session_id: Option<i64>,
             synced: bool,
+            uuid: Option<String>,
         }
 
         let order = sqlx::query_as::<_, OrderRow>(
             r#"
-            SELECT id, user_id, store_id, payment_method, subtotal, igv, total, cash_session_id, synced
+            SELECT id, user_id, store_id, payment_method, subtotal, igv, total, cash_session_id, synced, uuid
             FROM orders WHERE id = ?
             "#,
         )
@@ -597,11 +598,12 @@ impl SalesRepository {
         let venta_anulada_uuid = uuid::Uuid::new_v4().to_string();
         let venta_anulada_id = sqlx::query(
             r#"
-            INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
+            INSERT INTO ventas_anuladas (uuid, order_uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now','localtime'))
             "#,
         )
         .bind(&venta_anulada_uuid)
+        .bind(order.uuid.as_deref())
         .bind(order.id)
         .bind(order.store_id)
         .bind(requester_user_id)
@@ -680,6 +682,10 @@ impl SalesRepository {
         let anulacion_uuid = venta_anulada_uuid.clone();
         let sync_anulacion_id = venta_anulada_id;
         let sync_order_id = order.id;
+        // Identidad de la venta del lado de la Primary. Se captura antes del
+        // borrado porque despues la fila local ya no existe, y es lo unico que
+        // permite que la Primary encuentre y neutralize la venta anulada.
+        let sync_order_uuid = order.uuid.clone();
         let sync_seller = requester_user_id;
         let sync_reason = reason.clone();
         let sync_pm = order.payment_method.clone();
@@ -710,6 +716,7 @@ impl SalesRepository {
             if let Err(e) = enqueue_anulacion(
                 &pool,
                 sync_order_id,
+                sync_order_uuid,
                 &sync_pm,
                 sync_payments,
                 sync_subtotal,
@@ -945,6 +952,7 @@ async fn enqueue_sale(
 async fn enqueue_anulacion(
     pool: &SqlitePool,
     order_id: i64,
+    order_uuid: Option<String>,
     payment_method: &str,
     payments: Vec<(String, f64)>,
     subtotal: f64,
@@ -994,6 +1002,7 @@ async fn enqueue_anulacion(
         sync_uuid: anulacion_uuid.to_string(),
         local_anulacion_id: anulacion_id,
         order_id: Some(order_id),
+        order_uuid,
         seller_username,
         reason: reason.to_string(),
         payment_method: payment_method.to_string(),

@@ -809,3 +809,139 @@ async fn reconciliacion_no_hace_nada_en_primary() {
         .unwrap();
     assert_eq!(n, 0, "una Primary no debe acumular outbox");
 }
+
+// ─────────────────── AUTORRECONCILIADO EN CADA SINCRONIZACION ───────────────────
+
+/// El cierre de caja de un usuario comun tiene que dejar el catalogo al día.
+///
+/// No alcanza con "enviar lo pendiente": un producto que nunca se encoló no
+/// aparece como pendiente en la outbox y se quedaría desincronizado para
+/// siempre, que es exactamente el sintoma que se reportó. `enqueue_pending_catalog`
+/// lo recupera sin que nadie tenga que pedir un reenvio completo a mano.
+#[tokio::test]
+async fn el_sync_encola_el_catalogo_que_nunca_llego_a_la_primary() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    // Producto cargado antes de que existiera el encolado: esta en la base pero
+    // no tiene fila en la outbox.
+    sqlx::query(
+        "INSERT INTO products (code, name, price, cost, stock, is_active, store_id, uuid, created_at)
+         VALUES ('Huerfano-1', 'Huerfano', 10.0, 5.0, 3, 1, ?1, 'uuid-huerfano-1', datetime('now','localtime'))",
+    )
+    .bind(STORE_ID)
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let report = crate::repositories::inventory_repo::enqueue_pending_catalog(&pool)
+        .await
+        .unwrap();
+    assert_eq!(report.products, 2, "los dos productos estaban sin comunicar");
+
+    let (payload, synced): (String, i64) = sqlx::query_as(
+        "SELECT payload, synced FROM sync_outbox WHERE item_uuid = 'uuid-huerfano-1'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(synced, 0);
+    assert!(payload.contains("Huerfano"), "{payload}");
+
+    // El stock del huerfano tambien viaja, que es el otro sintoma reportado.
+    let deltas: Vec<i64> = sqlx::query_scalar(
+        "SELECT json_extract(payload, '$.delta') FROM sync_outbox WHERE entity = 'stock_movement'",
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
+    assert!(deltas.contains(&3), "faltaria el stock del huerfano: {deltas:?}");
+}
+
+/// Al dia no se reencola nada.
+///
+/// Es lo que hace seguro correrlo en cada cierre de caja: con el catalogo
+/// al dia el coste es una consulta y cero escrituras, no "el catalogo completo
+/// en cada venta".
+#[tokio::test]
+async fn no_reencola_nada_cuando_la_primary_ya_esta_al_dia() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    sqlx::query("UPDATE products SET uuid = 'prod-al-dia' WHERE id = ?")
+        .bind(PRODUCT_ID)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    // Primer sync: lo encola y la Primary lo acepta.
+    crate::repositories::inventory_repo::enqueue_pending_catalog(&pool)
+        .await
+        .unwrap();
+    wait_for_outbox(&pool, "stock_movement", 1).await;
+    sqlx::query("UPDATE sync_outbox SET synced = 1")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let rows_before: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    let report = crate::repositories::inventory_repo::enqueue_pending_catalog(&pool)
+        .await
+        .unwrap();
+    let rows_after: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+
+    assert_eq!(report.products, 0);
+    assert_eq!(report.stock_movements, 0);
+    assert_eq!(rows_after, rows_before, "no debe reabrir filas ya aceptadas");
+}
+
+/// Reabrir un envio pendiente no lo duplica.
+///
+/// Un producto que quedo con `last_error` ya tiene fila: el autorreconciliado
+/// no debe tocarlo (se reenvia tal cual en el proximo sync), pero tampoco
+/// duplizar su movimiento de stock.
+#[tokio::test]
+async fn un_producto_con_error_no_se_duplica() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    sqlx::query("UPDATE products SET uuid = 'prod-error', stock_synced = 10, stock_moves_synced = 1 WHERE id = ?")
+        .bind(PRODUCT_ID)
+        .execute(&pool)
+        .await
+        .unwrap();
+    sqlx::query(
+        "UPDATE sync_outbox SET last_error = 'la Primary lo rechazo'",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    // El movimiento quedo a medias: el delta es 0 porque el contador avanzo.
+    sqlx::query(
+        "INSERT INTO sync_outbox (topic, item_uuid, entity, entity_id, payload, last_error)
+         VALUES ('inventory', 'mov-1', 'stock_movement', ?1, '{\"sync_uuid\":\"mov-1\",\"delta\":10}', 'fallo')",
+    )
+    .bind(PRODUCT_ID.to_string())
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let report = crate::repositories::inventory_repo::enqueue_pending_catalog(&pool)
+        .await
+        .unwrap();
+    assert_eq!(report.stock_movements, 0, "el contador yaadvanced: no hay delta nuevo");
+
+    let moves: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM sync_outbox WHERE entity = 'stock_movement'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(moves, 1);
+}

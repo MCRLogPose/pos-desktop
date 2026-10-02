@@ -13,6 +13,9 @@ pub struct PendingItem {
     /// terminaban duplicados (un gasto entrava tambien como ingreso).
     pub entity: String,
     pub item_uuid: String,
+    /// Version del payload tal como se leyo de la cola. Se devuelve con el ACK
+    /// para no marcar como sincronizada una version mas nueva.
+    pub revision: i64,
     pub payload: serde_json::Value,
 }
 
@@ -82,6 +85,7 @@ impl SyncQueue {
                 entity = excluded.entity,
                 entity_id = excluded.entity_id,
                 payload = excluded.payload,
+                revision = sync_outbox.revision + 1,
                 synced = 0,
                 last_error = NULL,
                 updated_at = datetime('now','localtime')",
@@ -138,21 +142,22 @@ impl SyncQueue {
 
     /// Fila pendiente, ordenadas por topic y fecha.
     pub async fn pending(&self) -> Result<Vec<PendingItem>, sqlx::Error> {
-        let rows = sqlx::query_as::<_, (i64, String, String, String, String)>(
-            "SELECT id, topic, COALESCE(entity, ''), item_uuid, payload FROM sync_outbox
+        let rows = sqlx::query_as::<_, (i64, String, String, String, i64, String)>(
+            "SELECT id, topic, COALESCE(entity, ''), item_uuid, revision, payload FROM sync_outbox
              WHERE synced = 0 ORDER BY topic ASC, id ASC",
         )
         .fetch_all(&self.pool)
         .await?;
         Ok(rows
             .into_iter()
-            .filter_map(|(id, topic, entity, item_uuid, payload)| {
+            .filter_map(|(id, topic, entity, item_uuid, revision, payload)| {
                 let payload: serde_json::Value = serde_json::from_str(&payload).ok()?;
                 Some(PendingItem {
                     id,
                     topic,
                     entity,
                     item_uuid,
+                    revision,
                     payload,
                 })
             })
@@ -160,13 +165,26 @@ impl SyncQueue {
     }
 
     /// Marca como sincronizados los items dados (ack accepted o duplicate).
-    pub async fn mark_synced(&self, item_uuids: &[String]) -> Result<(), sqlx::Error> {
-        for u in item_uuids {
+    /// Marca como sincronizado lo que la Primary acepto, **solo si la fila sigue
+    /// siendo la version que se envio**.
+    ///
+    /// Sin esta condicion, editar un producto mientras su catalogo viaja en un
+    /// POST hace que el ACK de la version vieja marque como sincronizada la
+    /// version nueva (mismo `item_uuid`): el cambio se pierde en silencio y no
+    /// aparece hasta que alguien pide un reenvio completo. Con la condicion la
+    /// fila nueva sigue `synced = 0` y sale en el siguiente sync.
+    pub async fn mark_synced(
+        &self,
+        accepted: &[(String, i64)],
+    ) -> Result<(), sqlx::Error> {
+        for (item_uuid, sent_revision) in accepted {
             sqlx::query(
-                "UPDATE sync_outbox SET synced = 1, updated_at = datetime('now','localtime')
-                 WHERE item_uuid = ?",
+                "UPDATE sync_outbox
+                    SET synced = 1, last_error = NULL, updated_at = datetime('now','localtime')
+                  WHERE item_uuid = ? AND revision = ?",
             )
-            .bind(u)
+            .bind(item_uuid)
+            .bind(sent_revision)
             .execute(&self.pool)
             .await?;
         }

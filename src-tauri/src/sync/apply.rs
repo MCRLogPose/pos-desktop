@@ -278,6 +278,17 @@ async fn apply_one_sale(
         .await
         .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
 
+    // Una venta anulada en la replica no debe reaparecer. Los topics viajan por
+    // separado, asi que la anulacion puede llegar antes que la venta (por
+    // ejemplo, si la venta quedo con error y se reintenta despues): en ese caso
+    // se acepta el item sin insertarlo, para que el cliente lo marque como
+    // sincronizado y no lo reintente eternamente.
+    if let Some(anulacion_id) = find_annulled_order_id(tx, store_id, &sale.sync_uuid).await? {
+        let mut ack = SyncItemAck::accepted(sale.sync_uuid.clone(), Some(anulacion_id));
+        ack.message = Some("la venta ya fue anulada en la replica: no se aplica".to_string());
+        return Ok(ack);
+    }
+
     let seller_username = sale
         .seller_username
         .as_deref()
@@ -1053,13 +1064,19 @@ async fn apply_one_anulacion(
     device_id: &str,
     store_code: Option<&str>,
 ) -> Result<SyncItemAck, String> {
-    if !claim_append_item(tx, &a.sync_uuid, "anulaciones", device_id).await? {
-        return Ok(SyncItemAck::duplicate(a.sync_uuid.clone()));
-    }
+    // Ya aplicada. No se corta el flujo: la neutralizacion es idempotente y hay
+    // que volver a pasarla, porque una anulacion aceptada por una version vieja
+    // dejo la venta viva en la Primary y solo un reenvio la puede limpiar.
+    let already_applied = !claim_append_item(tx, &a.sync_uuid, "anulaciones", device_id).await?;
 
     let store_id = resolve_store_id_tx(tx, device_id, store_code)
         .await
         .ok_or_else(|| format!("no se pudo resolver la sede de la replica {device_id}"))?;
+
+    if already_applied {
+        neutralize_annulled_sale(tx, store_id, a).await?;
+        return Ok(SyncItemAck::duplicate(a.sync_uuid.clone()));
+    }
 
     // La anulacion la ejecuto un usuario en la replica; se vincula por username
     // si existe, si no queda sin usuario (no es bloqueante).
@@ -1068,8 +1085,9 @@ async fn apply_one_anulacion(
         None => None,
     };
 
-    sqlx::query("INSERT INTO ventas_anuladas (uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)")
+    sqlx::query("INSERT INTO ventas_anuladas (uuid, order_uuid, order_id, store_id, user_id, reason, payment_method, subtotal, igv, total, cancelled_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)")
         .bind(&a.sync_uuid)
+        .bind(a.order_uuid.as_deref())
         .bind(a.order_id)
         .bind(store_id)
         .bind(user_id)
@@ -1114,7 +1132,106 @@ async fn apply_one_anulacion(
             .map_err(|e| format!("no se pudo registrar el item anulado '{}': {e}", item.product_name))?;
     }
 
+    // Registrar la anulacion no es lo mismo que anular la venta. En la replica
+    // `anular_venta` borra `orders`/`order_items`/`order_payments` y revierte los
+    // esperados de caja; si la Primary solo deja el registro, la venta sigue
+    // existiendo y por eso seguia sumando en el efectivo y apareciendo en los
+    // movimientos del turno, que es justo lo que reportaba el usuario.
+    neutralize_annulled_sale(tx, store_id, a).await?;
+
     Ok(SyncItemAck::accepted(&a.sync_uuid, Some(anulacion_id)))
+}
+
+/// Id de una venta ya anulada en esta sede, buscada por su `uuid`.
+async fn find_annulled_order_id(
+    tx: &mut Tx,
+    store_id: i64,
+    order_uuid: &str,
+) -> Result<Option<i64>, String> {
+    sqlx::query_scalar("SELECT id FROM ventas_anuladas WHERE order_uuid = ?1 AND store_id = ?2")
+        .bind(order_uuid)
+        .bind(store_id)
+        .fetch_optional(&mut **tx)
+        .await
+        .map_err(|e| format!("no se pudo consultar la anulacion de la venta: {e}"))
+}
+
+/// Deja la venta como estaba antes de que existiera: la misma huella que
+/// `anular_venta` deja en la replica.
+async fn neutralize_annulled_sale(
+    tx: &mut Tx,
+    store_id: i64,
+    a: &VentaAnuladaSync,
+) -> Result<(), String> {
+    // `order_uuid` es la identidad que la Primary guardo al aplicar la venta.
+    // `order_id` es el id local de la replica y no sirve para nada aqui: podria
+    // apuntar a otra venta cualquiera de esta misma sede.
+    let Some(order_uuid) = a.order_uuid.as_deref() else {
+        return Ok(());
+    };
+
+    let order: Option<(i64, Option<i64>)> =
+        sqlx::query_as("SELECT id, cash_session_id FROM orders WHERE uuid = ?1 AND store_id = ?2")
+            .bind(order_uuid)
+            .bind(store_id)
+            .fetch_optional(&mut **tx)
+            .await
+            .map_err(|e| format!("no se pudo buscar la venta anulada: {e}"))?;
+    let Some((order_id, cash_session_id)) = order else {
+        // La venta no llego todavia, o ya la borro otra anulacion. El registro de
+        // `ventas_anuladas` ya esta, asi que si la venta aparece mas tarde
+        // `apply_one_sale` la va a descartar.
+        return Ok(());
+    };
+
+    // Revertir los esperados de caja con las mismas fracciones que uso la
+    // replica: efectivo a efectivo, el resto a virtual.
+    if let Some(session_id) = cash_session_id {
+        let mut revert_cash = 0.0f64;
+        let mut revert_virtual = 0.0f64;
+        for payment in &a.payments {
+            if payment.payment_method == "cash" {
+                revert_cash += payment.amount;
+            } else {
+                revert_virtual += payment.amount;
+            }
+        }
+        if revert_cash == 0.0 && revert_virtual == 0.0 {
+            // Payload sin fracciones (lo mando una version anterior): se usa el
+            // metodo principal y el total, igual que hace `anular_venta`.
+            if a.payment_method == "cash" {
+                revert_cash = a.total;
+            } else {
+                revert_virtual = a.total;
+            }
+        }
+        if revert_cash != 0.0 || revert_virtual != 0.0 {
+            sqlx::query("UPDATE cash_sessions SET expected_closing_cash = expected_closing_cash - ?1, expected_closing_virtual = expected_closing_virtual - ?2 WHERE id = ?3")
+                .bind(revert_cash)
+                .bind(revert_virtual)
+                .bind(session_id)
+                .execute(&mut **tx)
+                .await
+                .map_err(|e| format!("no se pudo revertir el esperado de caja: {e}"))?;
+        }
+    }
+
+    sqlx::query("DELETE FROM order_payments WHERE order_id = ?")
+        .bind(order_id)
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| format!("no se pudo borrar las fracciones de pago: {e}"))?;
+    sqlx::query("DELETE FROM order_items WHERE order_id = ?")
+        .bind(order_id)
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| format!("no se pudo borrar los items de la venta: {e}"))?;
+    sqlx::query("DELETE FROM orders WHERE id = ?")
+        .bind(order_id)
+        .execute(&mut **tx)
+        .await
+        .map_err(|e| format!("no se pudo borrar la venta anulada: {e}"))?;
+    Ok(())
 }
 
 

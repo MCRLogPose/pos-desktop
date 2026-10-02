@@ -241,6 +241,15 @@ pub struct VentaAnuladaSync {
     pub sync_uuid: String,
     pub local_anulacion_id: i64,
     pub order_id: Option<i64>,
+    /// `uuid` de la venta anulada **en la replica**, que es el mismo que quedo
+    /// en `orders.uuid` de la Primary al aplicarse la venta.
+    ///
+    /// `order_id` es el id local de la replica y no identifica nada del otro
+    /// lado: sin este campo la Primary no puede encontrar la venta que tiene que
+    /// neutralizar, y la anulacion quedaba solo registrada como historial
+    /// mientras la venta seguia sumando en caja y en los movimientos del turno.
+    #[serde(default)]
+    pub order_uuid: Option<String>,
     pub seller_username: Option<String>,
     pub reason: String,
     pub payment_method: String,

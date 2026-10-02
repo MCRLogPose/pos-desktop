@@ -151,11 +151,12 @@ No generan sincronización (no escriben): `get_products`, `get_categories`, `get
 
 1. El usuario realiza operaciones durante el turno. Cada escritura registra una fila pendiente en `sync_outbox` (con su `topic` y payload JSON). Para la caja, la apertura y el cierre usan el mismo `item_uuid` (el `uuid` de la sesión): al cerrar se usa `enqueue_replace` para que el estado final de la sesión reemplace la fila pendiente de la apertura.
 2. Al **cerrar la caja** (`close_cash_session`), si el modo es Réplica y el corte es exitoso, se invoca `sync_client.sync_all()`.
-3. `sync_all` recopila las filas pendientes (`synced=0`) y las **agrupa por `topic`**; solo los topics con filas pendientes generan y envían su `SyncEnvelope` al Primary (`POST {primary_url}/sync/{topic}` con Bearer token).
-4. Por cada ack:
-   - `accepted` / `duplicate` → filas marcadas `synced=1`.
+3. Antes de leer la cola, `sync_all` llama a `enqueue_pending_catalog()`: encola solo lo que nunca se comunicó (productos y categorías sin fila en la outbox) y el stock pendiente (`stock <> stock_synced`). Con el catálogo al día no escribe nada. Así el cierre de caja de cualquier usuario deja el catálogo al día sin reenviar el catálogo entero.
+4. `sync_all` recopila las filas pendientes (`synced=0`) y las **agrupa por `topic`**; solo los topics con filas pendientes generan y envían su `SyncEnvelope` al Primary (`POST {primary_url}/sync/{topic}` con Bearer token).
+5. Por cada ack:
+   - `accepted` / `duplicate` → la fila se marca `synced=1` **solo si su `revision` sigue siendo la que se envió**. Si el payload cambió mientras el POST estaba en vuelo (una edición), la fila queda pendiente y sale en el siguiente sync.
    - `rejected` → se conservan `synced=0` y se registra el motivo en `last_error`.
-5. Tolerancia a fallos: si no hay red o la Primary está caída, el cierre de caja **no falla** (el error se loguea) y las filas quedan pendientes para el siguiente intento (sync manual `force_sync_now` o próximo cierre).
+6. Tolerancia a fallos: si no hay red o la Primary está caída, el cierre de caja **no falla** (el error se loguea) y las filas quedan pendientes para el siguiente intento (sync manual `force_sync_now` o próximo cierre).
 
 ---
 
@@ -192,7 +193,19 @@ No generan sincronización (no escriben): `get_products`, `get_categories`, `get
 - [x] 🐞 **La outbox no podía re-encolar.** `enqueue` usaba `INSERT OR IGNORE` sobre un índice UNIQUE de `item_uuid`: la primera sincronización dejaba la fila en `synced = 1` y **toda edición posterior se descartaba en silencio**, así que la Primary quedaba congelada en la primera versión del producto (y una baja nunca se propagaba). Ahora `enqueue` refresca el payload y reabre el envío con `ON CONFLICT(item_uuid) DO UPDATE`.
 - [x] 🐞 **Gastos duplicados como ingresos.** `client.rs` armaba cada lista del lote probando el payload contra todos los tipos del topic; en `cash`, `OtherIncomeSync` es un subconjunto de `ExpenseSync`, así que cada gasto entraba también como ingreso y el cierre de caja de la Primary no cuadraba. Ahora `PendingItem` trae `entity` y el cliente despacha por entidad, además de reportar como huérfanas las filas que no se pueden convertir.
 - [x] ⚠️ **Reencolado reutilizable del catálogo.** `sync_outbox` es un log de cambios: lo que nunca se encoló (catálogo cargado mientras la máquina operaba como Primary) no llega por más que se pulse «Sincronizar ahora». Ya existe `reconcile_with_primary()` + el comando `force_full_inventory_sync`, expuesto como «Reenviar todo el catálogo» en Configuración → Sincronización. Reencola categorías y productos **incluidos los inactivos**, y manda solo la diferencia `stock - stock_synced` (migración 023).
-- [ ] ⚠️ **Otros `uuid` que siguen sin persistirse**: `expenses`, `purchase_orders`, `orders` y `cash_sessions` generan el uuid en memoria para el payload pero no lo guardan en la columna, así que su `item_uuid` tampoco es una identidad real. Es la misma familia de bug que acabamos de corregir en productos.
+- [ ] ⚠️ **Otros `uuid` que siguen sin persistirse**: `expenses` y `purchase_orders` generan el uuid en memoria para el payload pero no lo guardan en la columna, así que su `item_uuid` tampoco es una identidad real. Es la misma familia de bug que acabamos de corregir en productos. (`orders` y `cash_sessions` sí persistían el uuid; se verificó en v0.1.7.)
+
+### 7a-ter. Catálogo y anulaciones — cerrado (v0.1.7)
+
+> Dos cosas que solo aparecen cuando la máquina está encima de la Primary real:
+
+- [x] 🐞 **El catálogo se quedaba desincronizado hasta el reenvío completo.** Un producto que nunca se encoló no aparece como pendiente en la outbox —que es un log de cambios, no un snapshot— así que «Sincronizar ahora» tampoco lo sacaba y solo el botón de reenvío completo lo arreglaba. Ahora `enqueue_pending_catalog()` se llama al inicio de cada `sync_all()` (o sea, también en el cierre de caja de un usuario común) y encola **solo el atraso**: productos y categorías sin fila en la outbox, más `stock <> stock_synced`. Con el catálogo al día son tres consultas y cero escrituras; no se reabre ninguna fila ya aceptada, para no convertir cada cierre en un envío del catálogo entero. El botón se conserva como reparación a pedido.
+- [x] 🐞 **Las ventas anuladas seguían vivas en la Primary.** `apply_one_anulacion` solo insertaba el registro en `ventas_anuladas`: la venta no se borraba ni se revertía el esperado de caja, así que seguía sumando en el turno y apareciendo en los movimientos (lo que se reportó en Finanzas). La réplica ya lo hacía bien al borrar la venta localmente; faltaba el otro lado:
+  - `VentaAnuladaSync.order_uuid` (migración 024) lleva la identidad de la venta. `order_id` es un id local de la réplica y no identifica nada en la Primary: sin ese campo la anulación quedaba solo como historial.
+  - `apply_one_anulacion` busca por `(orders.uuid, store_id)`, revierte el esperado de caja con las fracciones de pago de la venta y borra `order_payments`, `order_items` y `orders`. El stock no se toca: la devolución viaja como `StockMovementSync`.
+  - `apply_one_sale` descarta una venta que ya tiene anulación registrada, para el caso inverso (anulación primero, venta después por un reintento).
+  - Un reenvío responde `duplicate` pero **vuelve a neutralizar**. Eso es lo que permite que la migración 025 repare las anulaciones que una versión anterior ya había aceptado, recuperando el uuid de la venta desde la fila `sales` de la outbox.
+- [x] 🐞 **Una edición durante el envío se perdía en silencio.** El ACK vuelve por `item_uuid` y una edición posterior usa el mismo `item_uuid`, así que `mark_synced` marcaba como enviada una versión que nunca salió (migración 026). Ahora la outbox lleva `revision`, que se incrementa en cada `enqueue`, y el ACK solo marca la fila si sigue siendo la versión enviada; si no, queda pendiente para el siguiente sync.
 
 ---
 
