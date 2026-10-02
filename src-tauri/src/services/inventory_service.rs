@@ -1,5 +1,5 @@
 use crate::models::inventory::{Category, ProductWithCategory};
-use crate::repositories::inventory_repo::{AddStockOutcome, InventoryRepository};
+use crate::repositories::inventory_repo::{AddStockOutcome, InventoryRepository, ReconcileReport};
 use sqlx::SqlitePool;
 
 pub struct InventoryService {
@@ -107,7 +107,7 @@ impl InventoryService {
                 category_id,
                 price,
                 cost,
-                stock,
+                Some(stock),
                 unit,
                 image_url,
                 store_id,
@@ -151,5 +151,10 @@ impl InventoryService {
             .soft_delete_product(id)
             .await
             .map_err(|e| e.to_string())
+    }
+
+    /// Reencola el catalogo completo y la diferencia de stock para la Primary.
+    pub async fn reconcile_with_primary(&self) -> Result<ReconcileReport, String> {
+        self.inventory_repo.reconcile_with_primary().await
     }
 }

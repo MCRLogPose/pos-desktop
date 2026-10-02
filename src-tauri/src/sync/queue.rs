@@ -1,11 +1,17 @@
 use serde::Serialize;
 use sqlx::SqlitePool;
 
-/// Fila pendiente: id + item_uuid + payload + topic.
+/// Fila pendiente: id + item_uuid + payload + topic + entidad de origen.
 #[derive(Clone)]
 pub struct PendingItem {
     pub id: i64,
     pub topic: String,
+    /// Entidad logica de la fila ('product', 'category', 'expense',
+    /// 'stock_movement' ...). Es lo que decide en que lista del batch va el
+    /// payload: sin ella habia que adivinarlo intentando deserializar el item
+    /// contra todos los tipos del topic, y dos tipos compatibles entre si
+    /// terminaban duplicados (un gasto entrava tambien como ingreso).
+    pub entity: String,
     pub item_uuid: String,
     pub payload: serde_json::Value,
 }
@@ -39,9 +45,22 @@ impl SyncQueue {
         mode.as_deref() == Some("replica")
     }
 
-    /// Inserta un item en la outbox si el modo es Replica.
+    /// Encola un item para enviarlo a la Primary.
     ///
-    /// `topic` usa la forma snake_case ('sales', 'inventory' ... nombre del payload).
+    /// `item_uuid` es la identidad del item y hay un indice UNIQUE sobre el, asi
+    /// que una fila ya existente se REFRESCA en vez de ignorarse. Ese detalle es
+    /// lo que hace que el catalogo se mantenga vivo: con `INSERT OR IGNORE`, la
+    /// segunda edicion de un producto caia contra la fila ya sincronizada y se
+    /// descartaba en silencio, de modo que la Primary se quedaba con la primera
+    /// version para siempre (categoria, precio o nombre viejos).
+    ///
+    /// Refrescar tambien reabre el envio (`synced = 0`): si el item ya habia sido
+    /// aceptado, la Primary lo vuelve a aplicar y responde `duplicate`, que el
+    /// cliente trata igual que `accepted`.
+    ///
+    /// `topic` usa la forma snake_case ('sales', 'inventory' ... nombre del payload)
+    /// y `entity` el nombre de la entidad logica ('product', 'stock_movement' ...),
+    /// que es por donde el cliente decide a que lista del batch va el payload.
     pub async fn enqueue<T: Serialize>(
         &self,
         topic: &str,
@@ -56,8 +75,16 @@ impl SyncQueue {
         let json = serde_json::to_string(payload)
             .map_err(|e| sqlx::Error::Protocol(format!("serializar payload {topic}: {e}").into()))?;
         sqlx::query(
-            "INSERT OR IGNORE INTO sync_outbox (topic, item_uuid, entity, entity_id, payload)
-             VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO sync_outbox (topic, item_uuid, entity, entity_id, payload)
+             VALUES (?1, ?2, ?3, ?4, ?5)
+             ON CONFLICT(item_uuid) DO UPDATE SET
+                topic = excluded.topic,
+                entity = excluded.entity,
+                entity_id = excluded.entity_id,
+                payload = excluded.payload,
+                synced = 0,
+                last_error = NULL,
+                updated_at = datetime('now','localtime')",
         )
         .bind(topic)
         .bind(item_uuid)
@@ -111,19 +138,20 @@ impl SyncQueue {
 
     /// Fila pendiente, ordenadas por topic y fecha.
     pub async fn pending(&self) -> Result<Vec<PendingItem>, sqlx::Error> {
-        let rows = sqlx::query_as::<_, (i64, String, String, String)>(
-            "SELECT id, topic, item_uuid, payload FROM sync_outbox
+        let rows = sqlx::query_as::<_, (i64, String, String, String, String)>(
+            "SELECT id, topic, COALESCE(entity, ''), item_uuid, payload FROM sync_outbox
              WHERE synced = 0 ORDER BY topic ASC, id ASC",
         )
         .fetch_all(&self.pool)
         .await?;
         Ok(rows
             .into_iter()
-            .filter_map(|(id, topic, item_uuid, payload)| {
+            .filter_map(|(id, topic, entity, item_uuid, payload)| {
                 let payload: serde_json::Value = serde_json::from_str(&payload).ok()?;
                 Some(PendingItem {
                     id,
                     topic,
+                    entity,
                     item_uuid,
                     payload,
                 })

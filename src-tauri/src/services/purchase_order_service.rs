@@ -68,7 +68,10 @@ impl PurchaseOrderService {
             };
 
             let product_id = if let Some(product) = existing_product {
-                // Update existing product: sum stock, update prices
+                // El stock NO se escribe aqui: se suma con `increase_stock`.
+                // Pasarlo como absoluto (product.stock + item.quantity) pixaba
+                // una cantidad calculada antes de la consulta, y cualquier venta
+                // ocurrida en el medio se perdia al guardar.
                 self.inventory_repo
                     .update_product(
                         product.id,
@@ -78,13 +81,17 @@ impl PurchaseOrderService {
                         item.category_id,
                         item.unit_price,
                         item.unit_cost,
-                        product.stock + item.quantity,
+                        None,
                         None,
                         item.image_url.as_deref(),
                         payload.store_id,
                         payload.supplier_name.as_deref(),
                         Some(payload.created_by),
                     )
+                    .await
+                    .map_err(|e| e.to_string())?;
+                self.inventory_repo
+                    .increase_stock(product.id, item.quantity, item.unit_cost)
                     .await
                     .map_err(|e| e.to_string())?;
                 Some(product.id)

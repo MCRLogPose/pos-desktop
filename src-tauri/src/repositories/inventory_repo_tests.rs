@@ -129,7 +129,7 @@ async fn producto_sin_uuid_se_recupera_al_encolar() {
         None,
         30.0,
         15.0,
-        4,
+        Some(4),
         None,
         None,
         STORE_ID,
@@ -187,7 +187,7 @@ async fn update_product_conserva_el_uuid_existente() {
         .await
         .unwrap();
 
-    repo.update_product(id, Some("KEEP-1"), "ConUuid", None, None, 12.0, 6.0, 2, None, None, STORE_ID, None, None)
+    repo.update_product(id, Some("KEEP-1"), "ConUuid", None, None, 12.0, 6.0, Some(2), None, None, STORE_ID, None, None)
         .await
         .unwrap();
 
@@ -376,4 +376,436 @@ async fn varias_reposiciones_acumulan() {
     assert_eq!(stock_of(&pool).await, 22);
     assert_eq!(cost_of(&pool).await, 22.0, "el ultimo costo de compra gana");
     assert_eq!(expense_amounts(&pool).await, vec![100.0, 154.0]);
+}
+
+// ───────────────────────── STOCK QUE VIAJA A LA PRIMARY ─────────────────────────
+//
+// La ficha del producto (`ProductUpsertSync`) no lleva la cantidad: la Primary
+// crea el producto con stock 0 y la cantidad llega como evento en
+// `StockMovementSync`. Ese canal existia pero no tenia productor, asi que en la
+// Primary todo producto aparecia en 0 y por debajo de `min_stock`, es decir
+// "agotado".
+
+/// Espera a que la outbox tenga al menos `n` filas del tipo pedido.
+///
+/// Los encolados van en un `spawn` en segundo plano para no bloquear la UI, asi
+/// que en un test hay que darles tiempo.
+async fn wait_for_outbox(pool: &SqlitePool, entity: &str, n: i64) {
+    for _ in 0..100 {
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE entity = ?")
+            .bind(entity)
+            .fetch_one(pool)
+            .await
+            .unwrap();
+        if count >= n {
+            return;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+    panic!("la outbox no alcanzo {n} filas de '{entity}'");
+}
+
+async fn set_replica(pool: &SqlitePool) {
+    sqlx::query(
+        "INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'replica')",
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
+async fn movement_deltas(pool: &SqlitePool, product_id: i64) -> Vec<i64> {
+    let payloads: Vec<String> = sqlx::query_scalar(
+        "SELECT payload FROM sync_outbox WHERE entity = 'stock_movement' AND entity_id = ?1
+         ORDER BY id",
+    )
+    .bind(product_id.to_string())
+    .fetch_all(pool)
+    .await
+    .unwrap();
+    payloads
+        .iter()
+        .map(|p| {
+            serde_json::from_str::<serde_json::Value>(p)
+                .unwrap()
+                .get("delta")
+                .and_then(|v| v.as_i64())
+                .expect("el payload debe traer delta")
+        })
+        .collect()
+}
+
+/// Crear un producto con 7 unidades encola un movimiento de +7.
+///
+/// Regresion del sintoma reportado: el producto llegaba completo a la Primary
+/// (nombre, categoria, costo) pero con la cantidad en 0.
+#[tokio::test]
+async fn crear_producto_encola_el_stock_inicial() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    let id = repo
+        .create_product(
+            Some("STK-1"),
+            "ConStockInicial",
+            None,
+            None,
+            10.0,
+            4.0,
+            7,
+            None,
+            None,
+            STORE_ID,
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+
+    wait_for_outbox(&pool, "stock_movement", 1).await;
+    assert_eq!(movement_deltas(&pool, id).await, vec![7]);
+
+    // El contador de "ya comunicado" queda igual al stock: si no, la
+    // reconciliacion volveria a mandar el +7 y la Primary sumaria de mas.
+    let (stock, synced): (i64, i64) =
+        sqlx::query_as("SELECT stock, stock_synced FROM products WHERE id = ?")
+            .bind(id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(stock, 7);
+    assert_eq!(synced, 7, "no debe quedar stock pendiente de comunicar");
+}
+
+/// Reponer mercaderia encola `+quantity`: es el camino que el cajero usa todos
+/// los dias, y antes la Primary no recibia nada.
+#[tokio::test]
+async fn reposicion_encola_el_delta_de_stock() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    repo.add_stock_to_product(PRODUCT_ID, 6, 42.75, STORE_ID, None, "cash", "exp-stk-1")
+        .await
+        .unwrap();
+    wait_for_outbox(&pool, "stock_movement", 1).await;
+
+    assert_eq!(stock_of(&pool).await, 16);
+    assert_eq!(movement_deltas(&pool, PRODUCT_ID).await, vec![6]);
+}
+
+/// Editar el producto sin tocar la cantidad no genera movimiento: se mandaria un
+/// delta 0 que la Primary contaria como ruido en cada edicion de precio.
+#[tokio::test]
+async fn editar_sin_cambiar_el_stock_no_genera_movimiento() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    repo.update_product(
+        PRODUCT_ID,
+        Some("SHO-001"),
+        "Short M",
+        None,
+        None,
+        55.0,
+        30.0,
+        Some(10),
+        None,
+        None,
+        STORE_ID,
+        None,
+        None,
+    )
+    .await
+    .unwrap();
+
+    wait_for_outbox(&pool, "product", 1).await;
+    let n: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox WHERE entity = 'stock_movement'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(n, 0, "mismo stock, ningun movimiento");
+}
+
+/// Corregir el stock a mano desde el formulario manda la diferencia, no el valor
+/// absoluto. Si mandara el valor absoluto, la Primary recibiria el mismo numero
+/// que esta maquina y dejaria de acumular los deltas de las otras replicas.
+#[tokio::test]
+async fn edicion_de_stock_encola_solo_la_diferencia() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    repo.update_product(
+        PRODUCT_ID,
+        Some("SHO-001"),
+        "Short M",
+        None,
+        None,
+        50.0,
+        30.0,
+        Some(14),
+        None,
+        None,
+        STORE_ID,
+        None,
+        None,
+    )
+    .await
+    .unwrap();
+
+    wait_for_outbox(&pool, "stock_movement", 1).await;
+    assert_eq!(stock_of(&pool).await, 14);
+    assert_eq!(movement_deltas(&pool, PRODUCT_ID).await, vec![4]);
+}
+
+/// Editar dos veces el mismo producto debe re-encolar la segunda version.
+///
+/// Regresion: `enqueue` usaba `INSERT OR IGNORE` y hay un indice UNIQUE sobre
+/// `item_uuid`, que es el uuid del producto. La primera vez que se sincronizo, la
+/// fila quedo con `synced = 1`; las ediciones siguientes caian contra ella y se
+/// descartaban en silencio, asi que la Primary se quedaba con la primera version
+/// para siempre (categoria, precio o nombre viejos).
+#[tokio::test]
+async fn editar_dos_veces_reencola_la_ultima_version() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    for (price, name) in [(50.0, "Short M"), (99.0, "Short M Rebajado")] {
+        repo.update_product(
+            PRODUCT_ID,
+            Some("SHO-001"),
+            name,
+            None,
+            None,
+            price,
+            30.0,
+            Some(10),
+            None,
+            None,
+            STORE_ID,
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+    }
+    wait_for_outbox(&pool, "product", 1).await;
+
+    let (rows, payload): (i64, String) = sqlx::query_as(
+        "SELECT COUNT(*), MAX(payload) FROM sync_outbox WHERE entity = 'product'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(rows, 1, "el mismo producto no debe ocupar dos filas");
+    assert!(
+        payload.contains("99"),
+        "la ultima edicion es la que viaja: {payload}"
+    );
+    assert!(
+        payload.contains("Short M Rebajado"),
+        "y con su nombre nuevo: {payload}"
+    );
+
+    // Marcar la fila como sincronizada es lo que disparaba el bug: la segunda
+    // edicion caia contra la fila ya aceptada.
+    sqlx::query("UPDATE sync_outbox SET synced = 1")
+        .execute(&pool)
+        .await
+        .unwrap();
+    repo.update_product(
+        PRODUCT_ID,
+        Some("SHO-001"),
+        "Short M Final",
+        None,
+        None,
+        77.0,
+        30.0,
+        Some(10),
+        None,
+        None,
+        STORE_ID,
+        None,
+        None,
+    )
+    .await
+    .unwrap();
+
+    for _ in 0..100 {
+        let (synced, payload): (i64, String) = sqlx::query_as(
+            "SELECT synced, payload FROM sync_outbox WHERE entity = 'product'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        if synced == 0 && payload.contains("77") {
+            return;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+    }
+    panic!("editar despues de sincronizar no reencolo la fila");
+}
+
+/// Vender y luego anular la venta no puede repetir el `item_uuid` del primer
+/// movimiento.
+///
+/// El item_uuid se deriva del producto y de una generacion creciente, no del
+/// stock resultante: con el stock como clave, la devolucion tras la anulacion
+/// volveria a producir el mismo item_uuid, la Primary lo responderia como
+/// `duplicate` y el delta se perderia.
+#[tokio::test]
+async fn venta_y_anulacion_no_repiten_el_item_uuid() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+
+    sqlx::query(
+        "UPDATE products SET uuid = 'prod-stk-test', stock = 10, stock_synced = 10 WHERE id = ?",
+    )
+    .bind(PRODUCT_ID)
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    // Venta de 3 y devolucion de las 3: el stock vuelve a 10.
+    crate::repositories::inventory_repo::enqueue_stock_movement(
+        &pool,
+        PRODUCT_ID,
+        -3,
+        crate::sync::payloads::StockReason::Sale,
+        Some("order-1".into()),
+    )
+    .await
+    .unwrap();
+    crate::repositories::inventory_repo::enqueue_stock_movement(
+        &pool,
+        PRODUCT_ID,
+        3,
+        crate::sync::payloads::StockReason::Adjustment,
+        Some("anulacion-1".into()),
+    )
+    .await
+    .unwrap();
+
+    let uuids: Vec<String> = sqlx::query_scalar(
+        "SELECT item_uuid FROM sync_outbox WHERE entity = 'stock_movement' ORDER BY id",
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
+    assert_eq!(uuids.len(), 2, "los dos movimientos deben coexistir");
+    assert_ne!(
+        uuids[0], uuids[1],
+        "mismo item_uuid = la Primary lo vera como duplicado"
+    );
+    assert_eq!(movement_deltas(&pool, PRODUCT_ID).await, vec![-3, 3]);
+}
+
+/// Dar de baja un producto se propaga como estado.
+///
+/// Sin reencolar el `product_upsert` con `is_active = 0`, la Primary seguiria
+/// mostrando la mercaderia como disponible para siempre.
+#[tokio::test]
+async fn dar_de_baja_el_producto_se_sincroniza() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    repo.soft_delete_product(PRODUCT_ID).await.unwrap();
+    wait_for_outbox(&pool, "product", 1).await;
+
+    let payload: String = sqlx::query_scalar("SELECT payload FROM sync_outbox WHERE entity = 'product'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert!(
+        payload.contains("\"is_active\":false"),
+        "la baja debe viajar: {payload}"
+    );
+}
+
+// ───────────────────────── RECONCILIACION DEL CATALOGO ──────────────────────────
+
+/// La reconciliacion recupera el stock que nunca se comunico.
+///
+/// Es el caso real que reporto el administrador: productos creados antes de que
+/// existiera el encolado de movimientos. La outbox es un log de cambios, asi que
+/// sin esto su stock no llegaria nunca, por mas syncs manuales que se hagan.
+#[tokio::test]
+async fn reconciliacion_manda_el_stock_pendiente_y_solo_una_vez() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    // Producto con 10 unidades de las que la Primary no sabe nada.
+    let report = repo.reconcile_with_primary().await.unwrap();
+    assert_eq!(report.products, 1);
+    assert_eq!(report.stock_movements, 1);
+    assert_eq!(movement_deltas(&pool, PRODUCT_ID).await, vec![10]);
+
+    // Repetirla no duplica nada: el delta pendiente ya es 0.
+    let again = repo.reconcile_with_primary().await.unwrap();
+    assert_eq!(
+        again.stock_movements, 0,
+        "el stock ya estaba comunicado"
+    );
+    assert_eq!(movement_deltas(&pool, PRODUCT_ID).await, vec![10]);
+}
+
+/// La reconciliacion tambien reencola los productos inactivos.
+///
+/// Si no, dar de baja un producto en la replica se propagaria como ausencia y no
+/// como estado, y el catalogo de la Primary quedaria desactualizado.
+#[tokio::test]
+async fn reconciliacion_incluye_productos_inactivos() {
+    let pool = test_pool().await;
+    set_replica(&pool).await;
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+    repo.soft_delete_product(PRODUCT_ID).await.unwrap();
+
+    let report = repo.reconcile_with_primary().await.unwrap();
+    assert_eq!(
+        report.products, 1,
+        "un producto dado de baja tambien se reencola"
+    );
+    let payload: String = sqlx::query_scalar("SELECT payload FROM sync_outbox WHERE entity = 'product'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert!(payload.contains("\"is_active\":false"), "{payload}");
+}
+
+/// En modo Primary la reconciliacion no hace nada: la Primary no envia datos.
+#[tokio::test]
+async fn reconciliacion_no_hace_nada_en_primary() {
+    let pool = test_pool().await;
+    sqlx::query(
+        "INSERT OR REPLACE INTO app_config (key, value) VALUES ('operating_mode', 'primary')",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    seed_product(&pool).await;
+    let repo = InventoryRepository::new(pool.clone());
+
+    let err = repo.reconcile_with_primary().await.unwrap_err();
+    assert!(err.contains("Replica"), "esperado aviso de modo, vino: {err}");
+
+    let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sync_outbox")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(n, 0, "una Primary no debe acumular outbox");
 }

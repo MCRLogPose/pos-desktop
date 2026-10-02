@@ -187,6 +187,7 @@ pub fn run() {
             commands::sync::save_sync_settings,
             commands::sync::test_sync_connection,
             commands::sync::force_sync_now,
+            commands::sync::force_full_inventory_sync,
         ])
         .plugin(tauri_plugin_process::init())
         .run(tauri::generate_context!())

@@ -3,6 +3,7 @@ import {
     AlertTriangle,
     CheckCircle2,
     Copy,
+    DatabaseBackup,
     Eye,
     EyeOff,
     Loader2,
@@ -89,6 +90,7 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [testing, setTesting] = useState(false);
+    const [reconciling, setReconciling] = useState(false);
     const [testResult, setTestResult] = useState<SyncTestResult | null>(null);
 
     const load = useCallback(async () => {
@@ -168,6 +170,29 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
             showNotification('error', 'Error', (error as string) || 'No se pudo probar la conexión');
         } finally {
             setTesting(false);
+        }
+    };
+
+    const handleReconcile = async () => {
+        setReconciling(true);
+        try {
+            const result = await syncService.forceFullInventorySync();
+            showNotification(
+                'success',
+                'Catálogo reenviado',
+                `${result.products} productos, ${result.categories} categorías y ${result.stockMovements} ` +
+                `ajustes de stock enviados. ${result.summary}`
+            );
+            await load();
+        } catch (error) {
+            console.error(error);
+            showNotification(
+                'error',
+                'No se pudo reenviar el catálogo',
+                (error as string) || 'Revisa la conexión con la Primary'
+            );
+        } finally {
+            setReconciling(false);
         }
     };
 
@@ -466,6 +491,34 @@ export default function SyncSettingsModal({ isOpen, onClose }: SyncSettingsModal
                                                     Sincronizar ahora
                                                 </button>
                                             </div>
+                                        </div>
+
+                                        <div className="border border-amber-200 bg-amber-50 rounded-2xl p-4 space-y-3">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-semibold text-amber-900">
+                                                    Reenviar todo el catálogo
+                                                </p>
+                                                <p className="text-xs leading-relaxed text-amber-800">
+                                                    La cola guarda los <strong>cambios</strong>, no una copia: lo que
+                                                    nunca llegó a encolarse (mercadería cargada antes de esta
+                                                    versión) no se envía por más que pulses «Sincronizar ahora».
+                                                    Esto reenvía todas las categorías y productos —incluidos los
+                                                    dados de baja— y solo la cantidad que la Primary aún no
+                                                    conoce.
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={handleReconcile}
+                                                disabled={reconciling || testing || !info.primaryUrl}
+                                                className="w-full flex items-center justify-center gap-2 py-2.5 border border-amber-300 bg-white rounded-xl text-amber-800 font-medium hover:bg-amber-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {reconciling ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <DatabaseBackup className="w-4 h-4" />
+                                                )}
+                                                {reconciling ? 'Reenviando catálogo...' : 'Reenviar todo el catálogo'}
+                                            </button>
                                         </div>
                                     </>
                                 )}

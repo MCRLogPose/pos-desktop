@@ -3,7 +3,9 @@ use crate::models::sales::{
     ItemAnuladoExport, OrderItemExport, OrderPayment, PaymentMethodTotal, Sale, SaleDetail, SaleItem,
     VentaAnuladaExport,
 };
-use crate::sync::payloads::{ItemAnuladoSync, PaymentSync, SaleItemSync, SaleSync, VentaAnuladaSync};
+use crate::sync::payloads::{
+    ItemAnuladoSync, PaymentSync, SaleItemSync, SaleSync, StockReason, VentaAnuladaSync,
+};
 use crate::sync::queue::SyncQueue;
 use sqlx::SqlitePool;
 
@@ -166,9 +168,33 @@ impl SalesRepository {
         let pool = self.pool.clone();
         let mut payload_for_sync = payload.clone();
         payload_for_sync.payments = payments;
+        let sync_items: Vec<(i64, i64)> = payload
+            .items
+            .iter()
+            .map(|i| (i.product_id, i.quantity))
+            .collect();
+        let order_uuid_for_moves = order_uuid.clone();
         tauri::async_runtime::spawn(async move {
             if let Err(e) = enqueue_sale(&pool, &payload_for_sync, order_id, &order_uuid).await {
                 log::warn!("[sync] no se pudo encolar la venta {order_id}: {e}");
+            }
+            // La venta viaja como `sales`, pero en la Primary el stock de un
+            // producto solo baja si llegan los movimientos: sin esto, lo vendido
+            // en la replica seguia disponible en la Primary.
+            for (product_id, quantity) in sync_items {
+                if let Err(e) = crate::repositories::inventory_repo::enqueue_stock_movement(
+                    &pool,
+                    product_id,
+                    -quantity,
+                    StockReason::Sale,
+                    Some(order_uuid_for_moves.clone()),
+                )
+                .await
+                {
+                    log::warn!(
+                        "[sync] no se pudo encolar la salida de stock del producto {product_id}: {e}"
+                    );
+                }
             }
         });
 
@@ -676,6 +702,10 @@ impl SalesRepository {
                 )
             })
             .collect();
+        let restored_items: Vec<(i64, i64)> = items
+            .iter()
+            .map(|it| (it.product_id, it.quantity))
+            .collect();
         tauri::async_runtime::spawn(async move {
             if let Err(e) = enqueue_anulacion(
                 &pool,
@@ -694,6 +724,24 @@ impl SalesRepository {
             .await
             {
                 log::warn!("[sync] no se pudo encolar la anulacion {sync_anulacion_id}: {e}");
+            }
+            // La mercaderia devuelta a bodega tambien es un movimiento de stock:
+            // la Primary no deduce el stock por la anulacion, solo lo suma si
+            // llega el delta.
+            for (product_id, quantity) in &restored_items {
+                if let Err(e) = crate::repositories::inventory_repo::enqueue_stock_movement(
+                    &pool,
+                    *product_id,
+                    *quantity,
+                    StockReason::Adjustment,
+                    Some(anulacion_uuid.clone()),
+                )
+                .await
+                {
+                    log::warn!(
+                        "[sync] no se pudo encolar la devolucion de stock del producto {product_id}: {e}"
+                    );
+                }
             }
         });
 

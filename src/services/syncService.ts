@@ -29,6 +29,13 @@ export interface SyncTestResult {
     message: string;
 }
 
+export interface FullSyncResult {
+    categories: number;
+    products: number;
+    stockMovements: number;
+    summary: string;
+}
+
 export const syncService = {
     async getInfo(): Promise<SyncInfo> {
         return await invoke('get_sync_info');
@@ -48,6 +55,17 @@ export const syncService = {
 
     async forceSyncNow(): Promise<string> {
         return await invoke('force_sync_now');
+    },
+
+    /**
+     * Reencola todo el catalogo (categorias, productos y stock) y sincroniza.
+     *
+     * La outbox es un log de cambios, no una copia: lo que nunca se encolo no
+     * llega a la Primary por mas que se pulse "Sincronizar ahora". Esta
+     * reconciliacion es idempotente y solo manda la diferencia de stock.
+     */
+    async forceFullInventorySync(): Promise<FullSyncResult> {
+        return await invoke('force_full_inventory_sync');
     },
 };
 

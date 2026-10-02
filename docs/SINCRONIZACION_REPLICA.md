@@ -179,13 +179,19 @@ No generan sincronización (no escriben): `get_products`, `get_categories`, `get
 - [x] 🐞 Migración 022: rellena los `uuid` nulos, borra las filas de outbox con `item_uuid` vacío (no identifican nada y rompen la idempotencia) y reencola el catálogo pendiente. Solo encola si `operating_mode = replica`, para que la Primary no acumule outbox.
 - [ ] ⚠️ Restringir en Réplica: creación/eliminación de tiendas (solo tienda asignada).
 
-### 7a-bis. Pendientes de catálogo y stock (detectado al probar en 2 máquinas)
+### 7a-bis. Catálogo y stock — cerrado (detectado al probar en 2 máquinas)
 
-> El fix de `uuid` (arriba) hace que el catálogo viaje completo. Lo siguiente sigue abierto:
+> El fix de `uuid` (arriba) hizo que la ficha del catálogo viaje completa. Lo que
+> faltaba era la cantidad y el reenvío del catálogo acumulado:
 
-- [ ] ⚠️ **`StockMovementSync` no tiene productor.** El tipo existe en `sync/payloads.rs` y la Primary lo aplica, pero ningún camino lo genera: `add_stock_to_product`, las ventas y las anulaciones no lo encolan. Hoy la cantidad llega de rebote por el lote, no como movimiento.
-- [ ] ⚠️ **`apply_one_purchase` no aplica la cantidad.** Inserta el lote y sus items, pero no hace `UPDATE products SET stock = stock + ?`. En la Primary el producto queda en 0 aunque la Réplica lo tenga.
-- [ ] ⚠️ **`resolve_or_create_product_id` crea un producto incompleto** (`apply.rs`): fija `stock=0`, `min_stock=5`, `unit='Unidades'`, `is_active=1` y nunca asigna `category_id`, proveedor ni origen. Conviene que herede del item del lote en lugar de hardcodear.
+- [x] 🐞 **La cantidad nunca viaja.** El tipo existía entero (`payloads.rs`, `client.rs`, `apply.rs` y hasta un test) pero ningún repositorio lo producía: `add_stock_to_product`, las ventas y las anulaciones no lo encolaban, y `apply_one_purchase` no sumaba la cantidad. En la Primary todo producto quedaba en 0. Corregido en tres partes:
+  - `enqueue_stock_movement` (`repositories/inventory_repo.rs`) es el productor único: alta, reposición, ajuste manual, venta y anulación lo llaman. El delta se escribe en la misma transacción que avanza `products.stock_synced`, y el `item_uuid` se deriva del producto más una generación monotónica (`stock_moves_synced`) para que una venta y su posterior anulación no colisionen.
+  - El ajuste manual manda **la diferencia**, no el valor absoluto; la compra suma con `increase_stock` (`stock = stock + ?`) en vez de sobrescribir, y `update_product` acepta `stock: Option<i64>` para que el ingreso de un lote no pise una venta concurrente.
+  - En la Primary, `apply_one_purchase` **no** suma stock (llega por el movimiento; sumarlo en ambos lados duplicaría el ingreso de mercadería), `apply_product_upsert` no toca la columna (editar el precio no repone lo vendido) y un movimiento cuyo producto todavía no existe lo crea en vez de rechazarse (antes quedaba `synced = 0` para siempre y cada venta repetida descontaba de más).
+- [x] 🐞 **`resolve_or_create_product_id` creaba un producto incompleto** (`apply.rs`): fijaba `stock=0`, `min_stock=5`, `unit='Unidades'`, `is_active=1` y nunca asignaba `category_id` ni proveedor. Ahora hereda la categoría del item del lote y el proveedor de la cabecera, y genera `uuid`.
+- [x] 🐞 **La outbox no podía re-encolar.** `enqueue` usaba `INSERT OR IGNORE` sobre un índice UNIQUE de `item_uuid`: la primera sincronización dejaba la fila en `synced = 1` y **toda edición posterior se descartaba en silencio**, así que la Primary quedaba congelada en la primera versión del producto (y una baja nunca se propagaba). Ahora `enqueue` refresca el payload y reabre el envío con `ON CONFLICT(item_uuid) DO UPDATE`.
+- [x] 🐞 **Gastos duplicados como ingresos.** `client.rs` armaba cada lista del lote probando el payload contra todos los tipos del topic; en `cash`, `OtherIncomeSync` es un subconjunto de `ExpenseSync`, así que cada gasto entraba también como ingreso y el cierre de caja de la Primary no cuadraba. Ahora `PendingItem` trae `entity` y el cliente despacha por entidad, además de reportar como huérfanas las filas que no se pueden convertir.
+- [x] ⚠️ **Reencolado reutilizable del catálogo.** `sync_outbox` es un log de cambios: lo que nunca se encoló (catálogo cargado mientras la máquina operaba como Primary) no llega por más que se pulse «Sincronizar ahora». Ya existe `reconcile_with_primary()` + el comando `force_full_inventory_sync`, expuesto como «Reenviar todo el catálogo» en Configuración → Sincronización. Reencola categorías y productos **incluidos los inactivos**, y manda solo la diferencia `stock - stock_synced` (migración 023).
 - [ ] ⚠️ **Otros `uuid` que siguen sin persistirse**: `expenses`, `purchase_orders`, `orders` y `cash_sessions` generan el uuid en memoria para el payload pero no lo guardan en la columna, así que su `item_uuid` tampoco es una identidad real. Es la misma familia de bug que acabamos de corregir en productos.
 
 ---

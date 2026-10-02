@@ -179,25 +179,41 @@ async fn ensure_category_id(tx: &mut Tx, name: &str) -> Result<i64, String> {
         .ok_or_else(|| "no se pudo leer el id de la categoria".to_string())
 }
 
+/// Resuelve el producto o lo da de alta desde el item que lo menciona.
+///
+/// Antes se creaba con columnas fijas (`stock=0`, `min_stock=5`, `unit='Unidades'`)
+/// y **sin categoria ni proveedor**, aunque el item trajera esos datos. Asi, un
+/// producto que llegaba primero por una venta o por un lote quedaba incompleto
+/// en la Primary, y la UI lo mostraba sin categoria hasta que llegara su
+/// `product_upsert`.
 async fn resolve_or_create_product_id(
     tx: &mut Tx,
     store_id: i64,
     code: Option<&str>,
     name: &str,
     display_name: Option<&str>,
+    category_name: Option<&str>,
+    supplier_name: Option<&str>,
     price: f64,
     cost: f64,
 ) -> Result<i64, String> {
     if let Some(id) = resolve_product_id(tx, store_id, code, name).await {
         return Ok(id);
     }
-    sqlx::query("INSERT INTO products (code, name, display_name, price, cost, stock, min_stock, unit, is_active, store_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5, 0, 5, 'Unidades', 1, ?6, datetime('now','localtime'))")
+    let category_id = match category_name {
+        Some(n) => Some(ensure_category_id(tx, n).await?),
+        None => None,
+    };
+    sqlx::query("INSERT INTO products (code, name, display_name, category_id, price, cost, stock, min_stock, unit, is_active, store_id, supplier_name, created_at, uuid) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, 5, 'Unidades', 1, ?7, ?8, datetime('now','localtime'), ?9)")
         .bind(code)
         .bind(name)
         .bind(display_name)
+        .bind(category_id)
         .bind(price)
         .bind(cost)
         .bind(store_id)
+        .bind(supplier_name)
+        .bind(uuid::Uuid::new_v4().to_string())
         .execute(&mut **tx)
         .await
         .map_err(|e| format!("no se pudo crear el producto '{name}': {e}"))?;
@@ -322,6 +338,10 @@ async fn apply_one_sale(
             store_id,
             item.product_code.as_deref(),
             &item.product_name,
+            item.display_name.as_deref(),
+            // Una venta no transporta la ficha del producto: si hay que crearlo
+            // aqui, se crea sin categoria y el `product_upsert` la completara.
+            None,
             None,
             item.unit_price,
             0.0,
@@ -515,14 +535,28 @@ async fn apply_stock_movement(
         return Ok(SyncItemAck::duplicate(m.sync_uuid.clone()));
     }
 
-    let product_id = resolve_product_id(tx, store_id, m.product_code.as_deref(), &m.product_name)
-        .await
-        .ok_or_else(|| {
-            format!(
-                "producto desconocido '{}' en sede {store_code:?}",
-                m.product_name
+    // Si el producto todavia no existe en la Primary se crea antes de aplicar el
+    // delta. Rechazarlo dejaria el movimiento pendiente para siempre y el stock
+    // nunca llegaria; el `product_upsert` que lo acompaña en el mismo lote
+    // despues completa la ficha (categoria, costo, proveedor).
+    let known = resolve_product_id(tx, store_id, m.product_code.as_deref(), &m.product_name).await;
+    let product_id = match known {
+        Some(id) => id,
+        None => {
+            resolve_or_create_product_id(
+                tx,
+                store_id,
+                m.product_code.as_deref(),
+                &m.product_name,
+                None,
+                None,
+                None,
+                0.0,
+                0.0,
             )
-        })?;
+            .await?
+        }
+    };
 
     sqlx::query("UPDATE products SET stock = stock + ?1 WHERE id = ?2")
         .bind(m.delta)
@@ -531,7 +565,14 @@ async fn apply_stock_movement(
         .await
         .map_err(|e| format!("no se pudo aplicar el movimiento de stock: {e}"))?;
 
-    Ok(SyncItemAck::accepted(&m.sync_uuid, Some(product_id)))
+    let mut ack = SyncItemAck::accepted(&m.sync_uuid, Some(product_id));
+    if known.is_none() {
+        ack.message = Some(
+            "el movimiento llego antes que la ficha del producto; se creo con stock 0 y se le sumo el delta"
+                .to_string(),
+        );
+    }
+    Ok(ack)
 }
 
 pub async fn apply_purchases_batch(
@@ -593,6 +634,8 @@ async fn apply_one_purchase(
                     item.product_code.as_deref(),
                     &item.product_name,
                     item.display_name.as_deref(),
+                    item.category_name.as_deref(),
+                    po.supplier_name.as_deref(),
                     item.unit_price,
                     item.unit_cost,
                 )
@@ -604,6 +647,10 @@ async fn apply_one_purchase(
             Some(name) => Some(ensure_category_id(tx, name).await?),
             None => None,
         };
+        // El stock NO se suma aqui a proposito: la replica encola un movimiento
+        // por cada ingreso (alta de producto, `increase_stock`,
+        // `add_stock_to_product`), y la Primary ya suma ese delta. Sumarlo
+        // tambien por el lote contaria cada entrada dos veces.
         sqlx::query("INSERT INTO purchase_order_items (purchase_order_id, product_id, product_name, sku, category_id, quantity, unit_cost, unit_price, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)")
             .bind(po_id)
             .bind(product_id)
@@ -1048,6 +1095,8 @@ async fn apply_one_anulacion(
             item.product_code.as_deref(),
             &item.product_name,
             item.display_name.as_deref(),
+            None,
+            None,
             item.unit_price,
             0.0,
         )

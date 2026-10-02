@@ -1,10 +1,11 @@
 # Estado de la sincronización Réplica → Primary
 
 > **Propósito de este documento:** punto de reanudación. Describe el estado real
-> de la sincronización de inventario al cierre de `v0.1.5`, qué se corrigió, qué
-> está verificado y qué falta. Para el diseño general ver `SINCRONIZACION_REPLICA.md`.
+> de la sincronización de inventario, qué se corrigió, qué está verificado y qué
+> falta. Para el diseño general ver `SINCRONIZACION_REPLICA.md`.
 
-Última actualización: `v0.1.5` (commit `fff54bf`).
+Última actualización: cierre de los pendientes A y B (sin publicar todavía).
+Última release publicada: `v0.1.5` (commit `fff54bf`).
 
 ---
 
@@ -17,8 +18,10 @@ Síntomas desde la Primary (equipo Hybrid), con la RéplicaConfigured correctame
 | La Primary reconoce el producto, pero sin atributos | ✅ **Corregido en v0.1.5** |
 | La categoría no aparece | ✅ **Corregido en v0.1.5** |
 | El costo no coincide | ✅ **Corregido en v0.1.5** |
-| La cantidad (stock) no aparece | ❌ **Abierto** |
-| La Réplica tiene 10 productos, la Primary solo 2 | ❌ **Abierto** |
+| La cantidad (stock) no aparece | ✅ **Corregido** (pendiente A) |
+| La Réplica tiene 10 productos, la Primary solo 2 | ✅ **Corregido** (pendiente B) |
+| La Primary descuenta stock dos veces por venta | ✅ **Corregido** (movimiento sin producto: se rechazaba y no se aplicaba) |
+| Los gastos de la réplica aparecen también como ingresos | ✅ **Corregido** (clasificación de payloads por entidad) |
 
 ---
 
@@ -70,9 +73,12 @@ De ahí los síntomas: categoría y proveedor ausentes, y nombre/costo incomplet
 
 ---
 
-## 3. Pendiente A — La cantidad nunca viaja
+## 3. Pendiente A — La cantidad nunca viaja ✅ RESUELTO
 
-**Confirmado sobre la base real: el payload de `inventory` no tiene clave `stock`.**
+**Síntoma:** en la Primary todo producto aparecía con la ficha completa pero con
+cantidad 0 (y por debajo de `min_stock`, es decir «agotado»).
+
+### El diagnóstico era correcto
 
 ```
 claves: category_name, code, cost, created_by_username, display_name, image_url,
@@ -81,86 +87,104 @@ claves: category_name, code, cost, created_by_username, display_name, image_url,
 'stock' presente: False
 ```
 
-Es coherente con el diseño actual: `ProductUpsertSync` transporta la **ficha** del
-producto y el stock viaja como evento separado en `StockMovementSync`
-(`sync/payloads.rs`). Ese canal nunca se usa.
+`ProductUpsertSync` transporta la **ficha** y la cantidad viaja como evento en
+`StockMovementSync`. Ese canal existía entero —definición, parseo en el cliente,
+aplicación en la Primary y hasta un test— pero **ningún repositorio lo producía**.
 
-### Tres fallas concretas
+### Decisión de diseño: el stock viaja como delta, nunca como valor absoluto
 
-1. **`StockMovementSync` no tiene productor.**
-   Aparece en `payloads.rs` (definición), `client.rs:258` (parseo), `apply.rs:506`
-   (aplicación) y `apply_tests.rs:208` (test). **Ningún repositorio lo genera.**
-   `add_stock_to_product`, `create_sale` y `anular_venta` no lo encolan.
+El producto vive en la sede que la Primary asignó a esa réplica, y el stock de esa
+sede se reconstruye sumando los deltas que envía. Mandar el valor absoluto en cada
+ficha pisaría las ventas ya descontadas. Y como la suma es ciega a repeticiones,
+cada delta tiene que llegar exactamente una vez: de ahí la importance del
+`item_uuid` estable y de la deduplicación en la Primary. Por eso el arreglo **no** fue «sumar la cantidad en el lote de
+compra» (que era el paso 1 del orden originalmente sugerido): el lote se aplica en
+el topic `purchases` y su movimiento en el topic `inventory`, así que sumar en
+ambos lados duplicaría el ingreso de mercadería.
 
-2. **`apply_one_purchase` no aplica la cantidad.**
-   Inserta el lote y sus items (`apply.rs:607`), pero **no hace
-   `UPDATE products SET stock = stock + ?`**. En la Primary el producto queda en 0
-   aunque la Réplica lo tenga. Es la causa directa de "aún no sale la cantidad".
+### Qué se implementó
 
-3. **`resolve_or_create_product_id` crea un producto incompleto** (`apply.rs:194`):
-   ```
-   INSERT INTO products (..., stock, min_stock, unit, is_active, ...)
-   VALUES (?, ?, ?, ?, ?, 0, 5, 'Unidades', 1, ...)
-   ```
-   Sin `category_id`, sin proveedor, sin origen. Debería heredar del item del lote
-   en lugar de hardcodear.
+| Punto | Dónde |
+|---|---|
+| Productor de movimientos, con `item_uuid` derivado del producto + generación | `repositories/inventory_repo.rs` → `enqueue_stock_movement` |
+| Alta de producto encola el stock inicial | `create_product` |
+| Reposición encola `+cantidad` | `add_stock_to_product` |
+| Ajuste manual encola **la diferencia**, no el valor absoluto | `update_product(stock: Option<i64>)` |
+| Venta encola `-cantidad`; anulación encola `+cantidad` | `repositories/sales_repo.rs` |
+| Baja de producto reencola la ficha con `is_active = 0` | `soft_delete_product` |
+| Ingreso de lote NO suma stock (llega por el movimiento) | `sync/apply.rs` → `apply_one_purchase` |
+| Alta desde lote hereda categoría y proveedor | `sync/apply.rs` → `resolve_or_create_product_id` |
+| Un movimiento cuyo producto no existe lo crea y le aplica el delta | `sync/apply.rs` → `apply_stock_movement` |
+| La compra nunca pisa el stock ya vendido | `sync/apply.rs` → `apply_product_upsert` (no toca `stock`) |
+| Migración de contadores | `migrations/023_stock_sync.sql` |
 
-### Orden sugerido
+### Dos detalles que parecían menores y no lo eran
 
-1. Hacer que `apply_one_purchase` sume la cantidad al stock del producto.
-   Es el arreglo más pequeño y quita el síntoma reportado.
-2. Encolar `StockMovementSync` en `add_stock_to_product` y en el camino de venta.
-   Cierra el canal y hace que el stock llegue como evento, no de rebote.
-3. Completar el alta desde lote para que herede categoría y proveedor.
+1. **`item_uuid` no puede derivarse del stock resultante.** Con
+   `uuid(producto) + stock` como clave, una venta y su posterior anulación
+   producen el mismo `item_uuid`: la Primary responde `duplicate` y el delta se
+   pierde para siempre. Se usa `products.stock_moves_synced` como **generación
+   monotónica**, que solo avanza.
 
-> Nota de alcance: el paso 2 toca el camino de venta, que es la parte más
-> sensible del sistema (afecta anulaciones e inventario descontado).
+2. **Un movimiento no puede rechazarse por producto desconocido.** Los encolados
+   corren en `spawn` y no hay garantía de orden entre la ficha y el movimiento.
+   Antes se respondía `Unknown`, la fila quedaba `synced = 0` para siempre y
+   cada venta repetida descontaba stock de más. Ahora se crea el producto y se le
+   aplica el delta.
+
+### Verificación
+
+- 52/52 tests Rust (ver la tabla de tests en §6).
+- `npx tsc -b --noEmit` limpio; `pnpm lint` sin errores en los archivos tocados
+  (los errores restantes son preexistentes en otras pantallas y en assets
+  generados dentro de `src-tauri/target`).
 
 ---
 
-## 4. Pendiente B — "10 productos en la Réplica, 2 en la Primary"
+## 4. Pendiente B — «10 productos en la Réplica, 2 en la Primary» ✅ RESUELTO
 
-### La intuición es correcta, pero la causa es más específica
+### La causa era la misma de siempre: la outbox es un log, no un snapshot
 
-Sí, el problema es de alcance temporal, **pero no porque el sync mande "solo los
-últimos cambios"**. Es porque **`sync_outbox` es un log de cambios, no un snapshot**:
+Sí, el problema es de alcance, **pero no porque el sync mande «solo los últimos
+cambios»**. Es que `sync_outbox` solo registra lo que se encoló en el momento de
+escribirse: un producto que **nunca fue encolado** (creado antes de que existiera
+el encolado, o mientras el equipo operaba como Primary) no se enviará nunca, por
+muchas sincronizaciones manuales que se lancen.
 
-- Solo viaja lo que se encoló explícitamente en el momento de escribirse.
-- Un producto que **nunca fue encolado** (porque se creó mientras el equipo estaba
-  en modo Primary, o antes de que existiera el encolado) **no se enviará nunca**,
-  por muchas sincronizaciones manuales que se lancen.
+### Bug encontrado al arreglarlo: la outbox no podía re-encolar
 
-Esto significa que un catálogo acumulado mientras el equipo operaba como Primary
-queda huérfano: existe localmente pero jamás se ha encolado.
+`enqueue` usaba `INSERT OR IGNORE` y hay un índice UNIQUE sobre `item_uuid`, que
+para un producto es su `uuid`. La primera vez que el producto se sincronizó, la
+fila quedó con `synced = 1`; **toda edición posterior caía contra esa fila y se
+descartaba en silencio**. Es decir: el canal de alta funcionaba, pero el de
+actualización no. La Primary se quedaba con la primera versión para siempre
+(nombre, precio o categoría viejos) y una baja de producto nunca se propagaba.
 
-> La migración 022 reencoló el catálogo **una sola vez**, como efecto puntual.
-> No es un mecanismo reutilizable: si mañana se amplía el catálogo mientras el
-> está en Primary, y luego se cambia a Réplica, esos productos tampoco se enviarán.
+Ahora `enqueue` hace `ON CONFLICT(item_uuid) DO UPDATE`: refresca el payload y
+reabre el envío (`synced = 0`). Si la Primary ya tenía el item, responde
+`duplicate`, que el cliente trata igual que `accepted`.
 
-### Riesgo adicional detectado en la migración 022
+Este bug era el que hacía que «la categoría no aparece» volviera a aparecer: una
+corrección de categoría aplicada en la réplica nunca llegaba a la Primary.
 
-El `INSERT ... SELECT` filtra por `WHERE p.is_active = 1`. Los productos
-**inactivos quedan fuera** y no se reencolan. Hoy no hay ninguno en la base de
-desarrollo (`is_active=0: 0`), pero es una limitación a corregir cuando se
-generalice el mecanismo.
+### Solución implementada: reconciliación bajo demanda y reutilizable
 
-### Solución propuesta (para hacer más adelante)
+- Comando Tauri `force_full_inventory_sync` (`commands/sync.rs`) → botón
+  **«Reenviar todo el catálogo»** en Configuración → Sincronización, visible
+  solo en modo Réplica.
+- `inventory_repo.rs` → `reconcile_with_primary()` recorre el catálogo completo y
+  reencola cada producto con su `item_uuid` real, por la misma ruta que
+  `enqueue_product`.
+- **Incluye `is_active = 0`**, que era la limitación pendiente de la migración
+  022: dar de baja un producto se propaga como estado, no como ausencia.
+- El stock solo manda la **diferencia** entre `products.stock` y
+  `products.stock_synced`. Con la migración 023 ambos nacen en 0, así que la
+  primera reconciliación recupera todo el inventario acumulado; repetida no
+  duplica nada.
+- Idempotente y sin efecto en Primary/Hybrid (`reject_in_primary`).
 
-Un reencolado **bajo demanda y reutilizable**, no una migración de un solo uso:
-
-- Comando Tauri tipo `force_full_inventory_sync` (o un item de menú en la UI de
-  Configuración → Sincronización).
-- Recorre el catálogo completo local y encola cada producto **con su `item_uuid`
-  real** (= su `uuid`), usando la misma ruta que `enqueue_product`.
-- Idempotente: si un producto ya fue aceptado por la Primary, el ack llega como
-  `duplicate` y no duplica nada.
-- Reencola también `is_active = 0`, para que dar de baja un producto se propague
-  como estado, no solo como ausencia.
-- Complementa al worker de reintento automático en background que ya está
-  pendiente en `SINCRONIZACION_REPLICA.md` §7b.
-
-Esto es exactamente la pieza que falta para que "importar catálogo" y "cambiar de
-Primary a Réplica" sean operaciones seguras.
+Esto es exactamente la pieza que hacía falta para que «importar catálogo» y
+«cambiar de Primary a Réplica» sean operaciones seguras.
 
 ---
 
@@ -185,27 +209,61 @@ con el mismo cuidado que productos, en especial `cash_sessions`, donde
 
 ## 6. Cómo retomar el trabajo
 
-### Para el pendiente A (cantidad)
-- `src-tauri/src/sync/apply.rs` → `apply_one_purchase` (línea ~554) y
-  `resolve_or_create_product_id` (línea ~194).
-- `src-tauri/src/sync/payloads.rs` → `StockMovementSync` (línea ~107).
-- `src-tauri/src/repositories/inventory_repo.rs` → `add_stock_to_product`.
-- Tests de referencia: `src-tauri/src/sync/apply_tests.rs` (ya hay un caso con
-  `stock_movements` en la línea ~208, sirve de base).
+### Pendientes A y B: implementación y dónde extenderla
 
-### Para el pendiente B (catálogo incompleto)
-- `src-tauri/src/sync/queue.rs` → `enqueue`, `pending`, `is_replica`.
-- `src-tauri/migrations/022_products_uuid_backfill.sql` → modelo del `INSERT
-  ... SELECT` con `json_object` y el guard de `operating_mode`.
-- `src-tauri/src/commands/sync.rs` → donde registrar el comando nuevo.
+- `src-tauri/src/repositories/inventory_repo.rs` → `enqueue_stock_movement`,
+  `increase_stock`, `reconcile_with_primary`, `ReconcileReport`.
+- `src-tauri/src/repositories/sales_repo.rs` → alta de venta y `anular_venta`
+  (cada uno encola su movimiento con la misma función).
+- `src-tauri/src/sync/apply.rs` → `apply_stock_movement`,
+  `resolve_or_create_product_id`, `apply_product_upsert`, `apply_one_purchase`.
+- `src-tauri/src/sync/queue.rs` → `enqueue` (el `ON CONFLICT`) y `pending`.
+- `src-tauri/migrations/023_stock_sync.sql` → `stock_synced` y
+  `stock_moves_synced`.
+- `src-tauri/src/commands/sync.rs` → `force_full_inventory_sync`;
+  registrar en `src-tauri/src/lib.rs`.
+- UI: `src/services/syncService.ts` y
+  `src/features/user/components/modals/SyncSettingsModal.tsx`.
+
+### Lo que sigue abierto
+
+- §5: `uuid` que no se persiste en `expenses`, `purchase_orders`, `orders` y
+  `cash_sessions`.
+- El worker de reintento automático en background
+  (`SINCRONIZACION_REPLICA.md` §7b) sigue sin existir: hoy las filas con error
+  solo se reintentan cuando alguien pulsa «Sincronizar ahora».
+- Riesgo conocido de concurrencia: si una edición ocurre mientras la anterior
+  está en vuelo, `mark_synced` puede marcar como al día la fila que esa misma
+  edición reactivó. Hoy no se detecta; la reconciliación lo corrige en el
+  siguiente paso, pero la causa (un `generation` por fila en la outbox) sigue
+  abierta.
 
 ### Comandos
 ```bash
-cd src-tauri && cargo test          # debe quedar en 34 passed
+cd src-tauri && cargo test          # 52 passed
 npx tsc -b --noEmit
 pnpm build
 pnpm tauri build                    # genera NSIS + MSI
 ```
+
+### Tests que fijan los bugs corregidos
+
+| Test | Qué impediría |
+|---|---|
+| `crear_producto_encola_el_stock_inicial` | Producto que llega a la Primary con cantidad 0 |
+| `reposicion_encola_el_delta_de_stock` | Reposición que no viaja |
+| `edicion_de_stock_encola_solo_la_diferencia` | Enviar el valor absoluto y pisar otras réplicas |
+| `editar_sin_cambiar_el_stock_no_genera_movimiento` | Ruido de deltas 0 en cada edición de precio |
+| `editar_dos_veces_reencola_la_ultima_version` | Primary congelada en la primera versión del producto |
+| `venta_y_anulacion_no_repiten_el_item_uuid` | Anulación rechazada como `duplicate`, delta perdido |
+| `dar_de_baja_el_producto_se_sincroniza` | Bajas que nunca se propagan |
+| `reconciliacion_manda_el_stock_pendiente_y_solo_una_vez` | Duplicar stock al reconciliar dos veces |
+| `reconciliacion_incluye_productos_inactivos` | La limitación pendiente de la migración 022 |
+| `movimiento_de_stock_crea_el_producto_si_no_existe` | Movimientos atascados en `synced = 0` para siempre |
+| `ficha_y_movimiento_deja_el_producto_completo_y_con_stock` | El síntoma reportado, exacto |
+| `refrescar_la_ficha_no_revierte_el_stock_ya_vendido` | Reponer lo ya vendido al editar el precio |
+| `la_compra_no_duplica_el_stock_del_lote` | Doble conteo del ingreso de mercadería |
+| `un_gasto_no_viaja_tambien_como_otro_ingreso` | Gastos duplicados como ingresos en la Primary |
 
 ### Entorno de la Réplica de desarrollo
 ```
@@ -232,5 +290,10 @@ no basta, usar la API `backup()` de SQLite para un snapshot consistente).
 | v0.1.3 | Fix del INSERT de productos sincronizados. |
 | v0.1.4 | Reposición transaccional con costo. |
 | **v0.1.5** | **Identidad `uuid` del catálogo + migración 022.** |
+| **v0.1.6** (pendiente de publicar) | **Stock como delta + reconciliación de catálogo + outbox re-encolable + clasificación de payloads.** `52/52` tests. |
 
-Todos con `34/34` tests verdes al momento del cierre de v0.1.5.
+Todos con tests verdes al momento del cierre de cada versión.
+
+> `v0.1.6` requiere instaladores nuevos en **ambas** máquinas: el receptor (Primary)
+> y el emisor (Réplica) ejecutan el mismo binario, y el formato del lote de
+> inventario y de la outbox cambió.

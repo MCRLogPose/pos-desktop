@@ -188,3 +188,40 @@ pub async fn test_sync_connection(state: State<'_, AppState>) -> Result<SyncTest
 pub async fn force_sync_now(state: State<'_, AppState>) -> Result<String, String> {
     state.sync_client.sync_all().await
 }
+
+/// Reencola el catalogo completo y la diferencia de stock, y sincroniza.
+///
+/// Es la pieza que faltaba para que "importar catalogo" y "pasar de Primary a
+/// Replica" sean operaciones seguras: la outbox es un log de cambios, asi que un
+/// producto que nunca se encolo (creado antes de que existiera el encolado, o
+/// mientras la maquina operaba como Primary) no llegaria nunca por mas syncs
+/// manuales que se lancen.
+///
+/// Es idempotente: el catalogo se reaplica sobre las mismas filas y el stock solo
+/// manda la diferencia entre lo que hay y lo que ya se le comunico a la Primary.
+#[tauri::command]
+pub async fn force_full_inventory_sync(
+    state: State<'_, AppState>,
+) -> Result<FullSyncResult, String> {
+    state.config_service.reject_in_primary().await?;
+    let report = state
+        .inventory_service
+        .reconcile_with_primary()
+        .await?;
+    let summary = state.sync_client.sync_all().await?;
+    Ok(FullSyncResult {
+        categories: report.categories,
+        products: report.products,
+        stock_movements: report.stock_movements,
+        summary,
+    })
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FullSyncResult {
+    pub categories: usize,
+    pub products: usize,
+    pub stock_movements: usize,
+    pub summary: String,
+}

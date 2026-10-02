@@ -232,6 +232,337 @@ async fn stock_movements_apply_exactly_once() {
     );
 }
 
+/// Un movimiento de stock no puede quedarse sin aplicar.
+///
+/// Los movimientos viajan en su propio topic y pueden llegar antes que la ficha
+/// del producto: la Replica los encola en background y no hay garantia de orden.
+/// Antes se rechazaban con `Unknown`, el cliente los dejaba `synced = 0` para
+/// siempre y la Repeticion de la venta en la Primary descuenta el stock de mas.
+#[tokio::test]
+async fn movimiento_de_stock_crea_el_producto_si_no_existe() {
+    let pool = test_pool().await;
+    let batch = InventoryBatch {
+        categories: vec![],
+        product_upserts: vec![],
+        stock_movements: vec![StockMovementSync {
+            sync_uuid: "mov-nuevo-0001".into(),
+            product_code: Some("ZAP-NUEVO".into()),
+            product_name: "Zapato Nuevo".into(),
+            delta: 5,
+            reason: StockReason::Purchase,
+            reference_uuid: None,
+            resulting_stock: Some(5),
+            occurred_at: "2026-08-23 14:05:00".into(),
+        }],
+    };
+
+    let acks = apply_inventory_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
+    assert_eq!(acks[0].status, SyncItemStatus::Accepted);
+    assert_eq!(
+        count(&pool, "SELECT stock FROM products WHERE code = 'ZAP-NUEVO'").await,
+        5
+    );
+}
+
+/// El camino real completo: la ficha y el stock inicial viajan en el mismo lote.
+///
+/// Si el `product_upsert` crea con stock 0 y el movimiento suma el delta, la
+/// mercaderia queda con todos los campos y con la cantidad correcta. Este es el
+/// test que falla exactamente como el sintoma reportado (ficha completa,
+/// cantidad en 0) si alguien rompe una de las dos mitades.
+#[tokio::test]
+async fn ficha_y_movimiento_deja_el_producto_completo_y_con_stock() {
+    let pool = test_pool().await;
+    let batch = InventoryBatch {
+        categories: vec![CategorySync {
+            sync_uuid: "cat-0001".into(),
+            local_category_id: 4,
+            name: "Calzados".into(),
+        }],
+        product_upserts: vec![ProductUpsertSync {
+            sync_uuid: "prod-nuevo-0001".into(),
+            local_product_id: 77,
+            code: Some("ZAP-77".into()),
+            name: "Zapato de Cuero".into(),
+            display_name: None,
+            price: 120.0,
+            cost: 60.0,
+            category_name: Some("Calzados".into()),
+            unit: None,
+            image_url: None,
+            supplier_name: None,
+            created_by_username: None,
+            origin_device_id: None,
+            origin_username: None,
+            min_stock: Some(2),
+            is_active: true,
+            occurred_at: "2026-08-23 14:05:00".into(),
+        }],
+        stock_movements: vec![StockMovementSync {
+            sync_uuid: "mov-nuevo-0001".into(),
+            product_code: Some("ZAP-77".into()),
+            product_name: "Zapato de Cuero".into(),
+            delta: 12,
+            reason: StockReason::Purchase,
+            reference_uuid: None,
+            resulting_stock: Some(12),
+            occurred_at: "2026-08-23 14:05:00".into(),
+        }],
+    };
+
+    let acks = apply_inventory_batch(&pool, &batch, DEV_ONE, Some("Sucursal Uno")).await;
+    assert_eq!(acks.len(), 3);
+    assert!(acks.iter().all(|a| a.status == SyncItemStatus::Accepted));
+
+    let row: (f64, f64, Option<i64>, i64, Option<i64>) = sqlx::query_as(
+        "SELECT price, cost, min_stock, stock, category_id FROM products WHERE code = 'ZAP-77'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(row.0, 120.0, "precio de venta");
+    assert_eq!(row.1, 60.0, "costo");
+    assert_eq!(row.2, Some(2), "stock minimo");
+    assert_eq!(row.3, 12, "cantidad inicial");
+    let category_name: Option<String> =
+        sqlx::query_scalar("SELECT name FROM categories WHERE id = ?")
+            .bind(row.4)
+            .fetch_optional(&pool)
+            .await
+            .unwrap();
+    assert_eq!(
+        category_name.as_deref(),
+        Some("Calzados"),
+        "la categoria viaja por nombre, no por id local"
+    );
+}
+
+/// Reenviar la ficha despues de haber vendido no puede pisar el stock.
+///
+/// El `product_upsert` no lleva cantidad justamente por esto: si la refrescara,
+/// una edicion de precio posterior a una venta dejaria la mercaderia
+/// 'agotada' de nuevo en la Primary.
+#[tokio::test]
+async fn refrescar_la_ficha_no_revierte_el_stock_ya_vendido() {
+    let pool = test_pool().await;
+    let upsert = |code: &str, name: &str, price: f64, when: &str| ProductUpsertSync {
+        sync_uuid: format!("prod-{price}"),
+        local_product_id: 5,
+        code: Some(code.into()),
+        name: name.into(),
+        display_name: None,
+        price,
+        cost: 10.0,
+        category_name: Some("Ropa".into()),
+        unit: None,
+        image_url: None,
+        supplier_name: None,
+        created_by_username: None,
+        origin_device_id: None,
+        origin_username: None,
+        min_stock: Some(1),
+        is_active: true,
+        occurred_at: when.into(),
+    };
+
+    // Alta del producto: ficha + stock inicial de 4.
+    apply_inventory_batch(
+        &pool,
+        &InventoryBatch {
+            categories: vec![],
+            product_upserts: vec![upsert("VEST-5", "Vestido", 50.0, "2026-08-23 10:00:00")],
+            stock_movements: vec![StockMovementSync {
+                sync_uuid: "mov-inicial-0001".into(),
+                product_code: Some("VEST-5".into()),
+                product_name: "Vestido".into(),
+                delta: 4,
+                reason: StockReason::Purchase,
+                reference_uuid: None,
+                resulting_stock: Some(4),
+                occurred_at: "2026-08-23 10:00:05".into(),
+            }],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    // Venta de 2.
+    apply_inventory_batch(
+        &pool,
+        &InventoryBatch {
+            categories: vec![],
+            product_upserts: vec![],
+            stock_movements: vec![StockMovementSync {
+                sync_uuid: "mov-venta-0001".into(),
+                product_code: Some("VEST-5".into()),
+                product_name: "Vestido".into(),
+                delta: -2,
+                reason: StockReason::Sale,
+                reference_uuid: None,
+                resulting_stock: Some(2),
+                occurred_at: "2026-08-23 12:00:00".into(),
+            }],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(
+        count(&pool, "SELECT stock FROM products WHERE code = 'VEST-5'").await,
+        2
+    );
+
+    // Edicion de precio posterior a la venta.
+    apply_inventory_batch(
+        &pool,
+        &InventoryBatch {
+            categories: vec![],
+            product_upserts: vec![upsert("VEST-5", "Vestido Rebajado", 39.0, "2026-08-23 13:00:00")],
+            stock_movements: vec![],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+
+    assert_eq!(
+        count(&pool, "SELECT stock FROM products WHERE code = 'VEST-5'").await,
+        2,
+        "la edicion de precio no debe reponer lo vendido"
+    );
+    assert_eq!(
+        f64_at(&pool, "SELECT price FROM products WHERE code = 'VEST-5'").await,
+        39.0
+    );
+}
+
+/// La compra NO suma stock.
+///
+/// El ingreso de mercaderia de una compra llega como lote de `purchases`, y su
+/// stock como evento en `stock_movements`. Si `apply_one_purchase` tambien sumara
+/// `quantity`, la mercaderia de la compra apareceria duplicada en la Primary.
+#[tokio::test]
+async fn la_compra_no_duplica_el_stock_del_lote() {
+    let pool = test_pool().await;
+    apply_purchases_batch(
+        &pool,
+        &PurchasesBatch {
+            purchase_orders: vec![PurchaseOrderSync {
+                sync_uuid: "po-doble-0001".into(),
+                local_purchase_order_id: 11,
+                supplier_name: Some("Textiles SAC".into()),
+                batch_date: "2026-08-23".into(),
+                alias: Some("Lote".into()),
+                total_cost: 300.0,
+                created_by_username: Some("vendedor1".into()),
+                created_at: "2026-08-23 11:00:00".into(),
+                items: vec![PurchaseItemSync {
+                    product_code: Some("LOTE-77".into()),
+                    product_name: "Camisa Lote".into(),
+                    display_name: None,
+                    sku: None,
+                    category_name: Some("Short".into()),
+                    quantity: 10,
+                    unit_cost: 30.0,
+                    unit_price: 50.0,
+                }],
+                generated_expense: None,
+            }],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+    assert_eq!(
+        count(&pool, "SELECT stock FROM products WHERE code = 'LOTE-77'").await,
+        0,
+        "la compra sola no suma: el delta va aparte"
+    );
+
+    // El evento de stock que acompana a la compra.
+    apply_inventory_batch(
+        &pool,
+        &InventoryBatch {
+            categories: vec![],
+            product_upserts: vec![],
+            stock_movements: vec![StockMovementSync {
+                sync_uuid: "mov-lote-0001".into(),
+                product_code: Some("LOTE-77".into()),
+                product_name: "Camisa Lote".into(),
+                delta: 10,
+                reason: StockReason::Purchase,
+                reference_uuid: None,
+                resulting_stock: Some(10),
+                occurred_at: "2026-08-23 11:00:05".into(),
+            }],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+
+    assert_eq!(
+        count(&pool, "SELECT stock FROM products WHERE code = 'LOTE-77'").await,
+        10,
+        "una sola vez: la cantidad de la compra"
+    );
+}
+
+/// El producto que nace de una compra conserva su categoria.
+///
+/// La compra identifica la categoria por nombre (`category_name`), no por id
+/// local: los ids de la Replica no significan nada en la Primary, asi que sin
+/// resolver el nombre el producto queda colgado de la sede.
+#[tokio::test]
+async fn producto_de_compra_nace_con_su_categoria() {
+    let pool = test_pool().await;
+    apply_purchases_batch(
+        &pool,
+        &PurchasesBatch {
+            purchase_orders: vec![PurchaseOrderSync {
+                sync_uuid: "po-cat-0001".into(),
+                local_purchase_order_id: 12,
+                supplier_name: Some("Textiles SAC".into()),
+                batch_date: "2026-08-23".into(),
+                alias: None,
+                total_cost: 100.0,
+                created_by_username: Some("vendedor1".into()),
+                created_at: "2026-08-23 11:00:00".into(),
+                items: vec![PurchaseItemSync {
+                    product_code: Some("PANT-9".into()),
+                    product_name: "Pantalon".into(),
+                    display_name: None,
+                    sku: None,
+                    category_name: Some("Pantalones".into()),
+                    quantity: 4,
+                    unit_cost: 25.0,
+                    unit_price: 45.0,
+                }],
+                generated_expense: None,
+            }],
+        },
+        DEV_ONE,
+        Some("Sucursal Uno"),
+    )
+    .await;
+
+    let category: Option<String> =
+        sqlx::query_scalar("SELECT name FROM categories WHERE name = 'Pantalones'")
+            .fetch_optional(&pool)
+            .await
+            .unwrap();
+    assert_eq!(category.as_deref(), Some("Pantalones"), "la categoria se crea o se reutiliza");
+
+    let linked: i64 = sqlx::query_scalar(
+        "SELECT p.category_id FROM products p WHERE p.code = 'PANT-9' AND p.category_id IS NOT NULL",
+    )
+    .fetch_optional(&pool)
+    .await
+    .unwrap()
+    .unwrap_or(0);
+    assert!(linked > 0, "el producto debe quedar en su categoria");
+}
+
 #[tokio::test]
 async fn catalog_upsert_updates_existing_rows() {
     let pool = test_pool().await;
