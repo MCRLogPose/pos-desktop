@@ -1,16 +1,16 @@
-# Graph Report - pos-desktop  (2026-10-02)
+# Graph Report - pos-desktop  (2026-10-08)
 
 ## Corpus Check
-- 179 files · ~182,804 words
+- 179 files · ~185,084 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1704 nodes · 3103 edges · 141 communities (92 shown, 49 thin omitted)
+- 1720 nodes · 3147 edges · 141 communities (92 shown, 49 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 108 edges (avg confidence: 0.74)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e98c75e5`
+- Built from commit: `28621995`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -143,14 +143,14 @@
 - queue_tests.rs
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 78 edges
+1. `AppState` - 80 edges
 2. `test_pool()` - 33 edges
 3. `SyncItemAck` - 26 edges
 4. `test_pool()` - 25 edges
 5. `compilerOptions` - 25 edges
 6. `CashRepository` - 21 edges
 7. `seed_product()` - 21 edges
-8. `InventoryRepository` - 19 edges
+8. `InventoryRepository` - 20 edges
 9. `UserRepository` - 18 edges
 10. `compilerOptions` - 18 edges
 
@@ -192,11 +192,11 @@ Nodes (22): src/repositories/cash_repo.rs, CashSession, Expense Model, OtherInco
 
 ### Community 4 - "Auth and Cash Commands"
 Cohesion: 0.07
-Nodes (83): AppState, change_password(), create_user(), get_users(), login(), Arc, AtomicBool, Option (+75 more)
+Nodes (84): AppState, change_password(), create_user(), get_users(), login(), Arc, AtomicBool, Option (+76 more)
 
 ### Community 5 - "Inventory Models"
-Cohesion: 0.14
-Nodes (22): Product, enqueue_category(), enqueue_pending_catalog(), enqueue_product(), enqueue_stock_movement(), InventoryRepository, ReconcileReport, Category (+14 more)
+Cohesion: 0.13
+Nodes (23): Product, enqueue_category(), enqueue_pending_catalog(), enqueue_product(), enqueue_stock_movement(), InventoryRepository, random_seven_digit_code(), ReconcileReport (+15 more)
 
 ### Community 6 - "Package Dependencies"
 Cohesion: 0.40
@@ -251,8 +251,8 @@ Cohesion: 0.11
 Nodes (17): app, security, windows, build, beforeBuildCommand, beforeDevCommand, devUrl, frontendDist (+9 more)
 
 ### Community 19 - "Desktop Schema Definitions"
-Cohesion: 0.15
-Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
+Cohesion: 0.14
+Nodes (14): description, required, type, definitions, Capability, Number, Target, Value (+6 more)
 
 ### Community 20 - "Windows Schema Definitions"
 Cohesion: 0.15
@@ -311,8 +311,8 @@ Cohesion: 0.25
 Nodes (7): DashboardPage(), Expense, i64, localDateKey(), OrderItem, Product, Sale
 
 ### Community 35 - "Desktop Schema Root"
-Cohesion: 0.10
-Nodes (28): HeaderMap, Json, Next, Request, Response, AnulacionesBatch, authorize(), CashBatch (+20 more)
+Cohesion: 0.09
+Nodes (30): HeaderMap, Json, Next, Request, Response, AnulacionesBatch, authorize(), CashBatch (+22 more)
 
 ### Community 36 - "Windows Schema Root"
 Cohesion: 0.18
@@ -335,8 +335,8 @@ Cohesion: 0.07
 Nodes (43): Into, build_envelope_for_topic(), el_lote_de_inventario_separa_ficha_y_movimiento(), item(), orphan_uuids(), parse_item(), payload_matches(), payload_type_of() (+35 more)
 
 ### Community 41 - "Desktop Description Schema"
-Cohesion: 0.14
-Nodes (23): FullSyncResult, force_full_inventory_sync(), force_sync_now(), FullSyncResult, get_sync_info(), get_sync_token(), Option, Result (+15 more)
+Cohesion: 0.13
+Nodes (25): FullSyncResult, force_full_inventory_sync(), force_sync_now(), FullSyncResult, get_sync_info(), get_sync_queue_items(), get_sync_token(), Option (+17 more)
 
 ### Community 42 - "Windows Capability Schemas"
 Cohesion: 0.50
@@ -355,8 +355,8 @@ Cohesion: 0.10
 Nodes (19): 0. Changelog, 1. Propósito, 2. Navegación visible en Réplica, 3. Tópicos de sincronización y tablas, 4.1 Ventas (POS + Ventas), 4.2 Anulados, 4.3 Inventario, 4.4 Finanzas (caja) (+11 more)
 
 ### Community 52 - "Capability"
-Cohesion: 0.50
-Nodes (4): description, required, type, Capability
+Cohesion: 0.40
+Nodes (4): anyOf, description, $schema, title
 
 ### Community 53 - "Windows Identifier Schema"
 Cohesion: 0.67
@@ -376,7 +376,7 @@ Nodes (17): CashRepository, enqueue_cash_session_close(), enqueue_cash_session_o
 
 ### Community 59 - "sales.rs"
 Cohesion: 0.07
-Nodes (27): 1. Resumen del problema reportado, 2. Causa raíz del primer bloque (corregida), 3. Pendiente A — La cantidad nunca viaja ✅ RESUELTO, 4. Pendiente B — «10 productos en la Réplica, 2 en la Primary» ✅ RESUELTO, 5. Bug hermano pendiente: `uuid` que no se persiste en otras tablas, 6. Cómo retomar el trabajo, 7. Estado de releases, Bug encontrado al arreglarlo: la outbox no podía re-encolar (+19 more)
+Nodes (29): 1. Resumen del problema reportado, 2. Causa raíz del primer bloque (corregida), 3. Pendiente A — La cantidad nunca viaja ✅ RESUELTO, 4. Pendiente B — «10 productos en la Réplica, 2 en la Primary» ✅ RESUELTO, 5. Bug hermano pendiente: `uuid` que no se persiste en otras tablas, 6. Cómo retomar el trabajo, 7. Estado de releases, Bug encontrado al arreglarlo: la outbox no podía re-encolar (+21 more)
 
 ### Community 60 - "VESTIKPOS — Plan de pruebas de sincronización (2 máquinas, Tailscale)"
 Cohesion: 0.13
@@ -463,27 +463,27 @@ Cohesion: 0.15
 Nodes (14): CATEGORIES, Expense, GastoModalProps, categoryColor(), Expense, formatDate(), formatTime(), GastosTable() (+6 more)
 
 ### Community 136 - "syncService.ts"
-Cohesion: 0.25
-Nodes (6): FullSyncResult, SyncInfo, SyncSaveResult, syncService, SyncSettingsInput, SyncTestResult
+Cohesion: 0.22
+Nodes (7): FullSyncResult, SyncInfo, SyncQueueItem, SyncSaveResult, syncService, SyncSettingsInput, SyncTestResult
 
 ### Community 137 - "description"
 Cohesion: 0.50
 Nodes (4): default, description, type, description
 
 ### Community 138 - "desktop-schema.json"
-Cohesion: 0.40
-Nodes (4): anyOf, description, $schema, title
+Cohesion: 0.67
+Nodes (3): PermissionEntry, anyOf, description
 
 ### Community 139 - "InventoryService"
 Cohesion: 0.15
 Nodes (14): Category, Product, ProductWithCategory, NaiveDateTime, Option, String, InventoryService, Category (+6 more)
 
 ### Community 140 - "queue_tests.rs"
-Cohesion: 0.60
-Nodes (5): el_ack_marca_el_item_si_no_cambio(), el_ack_no_marca_un_payload_que_cambio_en_vuelo(), SqlitePool, synced(), test_pool()
+Cohesion: 0.46
+Nodes (7): el_ack_marca_el_item_si_no_cambio(), el_ack_no_marca_un_payload_que_cambio_en_vuelo(), el_detalle_de_la_cola_distingue_enviado_de_fallido(), el_detalle_de_la_cola_respeta_el_limite(), SqlitePool, synced(), test_pool()
 
 ## Knowledge Gaps
-- **513 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+508 more)
+- **516 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `name`, `private` (+511 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **49 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -491,13 +491,13 @@ Nodes (5): el_ack_marca_el_item_si_no_cambio(), el_ack_no_marca_un_payload_que_c
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `AppState` connect `Auth and Cash Commands` to `Sales Commands`, `Inventory Models`, `html2canvas Internal A`, `Main App Core`, `Cash Session Models`, `Desktop Capability Schemas`, `Desktop Description Schema`, `InventoryService`, `Cash Repository`?**
-  _High betweenness centrality (0.097) - this node is a cross-community bridge._
+  _High betweenness centrality (0.095) - this node is a cross-community bridge._
 - **Why does `SyncClient` connect `Desktop Capability Schemas` to `Auth and Cash Commands`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Why does `AuthService` connect `Main App Core` to `User Models`, `Auth and Cash Commands`, `html2canvas Internal A`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugin`, `@opencode-ai/plugin` to the rest of the system?**
-  _516 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _519 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `html2canvas Vendor Library` be split into smaller, more focused modules?**
   _Cohesion score 0.03163503163503163 - nodes in this community are weakly interconnected._
 - **Should `Sales Commands` be split into smaller, more focused modules?**
