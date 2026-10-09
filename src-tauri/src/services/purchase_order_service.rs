@@ -53,9 +53,19 @@ impl PurchaseOrderService {
         let mut created_items = Vec::new();
 
         for item in &payload.items {
-            // Normalizar SKU manualmente (validacion principal en la UI). Un
-            // SKU vacio se trata como ausente para no chocar con UNIQUE.
-            let sku = item.sku.as_deref().map(str::trim).filter(|s| !s.is_empty());
+            // El operador ya no escribe el SKU a mano: la UI lo autogenera y,
+            // si aun asi llega vacio, se genera aqui para que nunca haya un
+            // producto sin identidad. `generate_unique_code` garantiza que el
+            // codigo no choque con el UNIQUE global de `products.code`.
+            let sku = match item.sku.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+                Some(sku) => sku.to_string(),
+                None => self
+                    .inventory_repo
+                    .generate_unique_code()
+                    .await
+                    .map_err(|e| e.to_string())?,
+            };
+            let sku = Some(sku.as_str());
 
             // Try to find existing product by SKU
             let existing_product = if let Some(ref sku) = sku {

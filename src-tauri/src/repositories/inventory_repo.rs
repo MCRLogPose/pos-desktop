@@ -38,6 +38,17 @@ const STOCK_MOVEMENT_NAMESPACE: uuid::Uuid = uuid::Uuid::from_bytes([
 /// Primary sumaria de mas).
 ///
 /// Se invoca SIEMPRE despues del commit de la escritura que produjo el delta.
+/// SKU numérico de 7 dígitos derivado de bytes aleatorios de un UUID v4.
+///
+/// `uuid` ya es dependencia del proyecto y evita sumar un RNG extra: dos
+/// UUID v4 distintos raramente comparten los primeros 4 bytes, que son los que
+/// usamos como fuente de entropía.
+fn random_seven_digit_code() -> String {
+    let bytes = uuid::Uuid::new_v4().into_bytes();
+    let n = u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
+    format!("{:07}", n % 9_000_000 + 1_000_000)
+}
+
 pub(crate) async fn enqueue_stock_movement(
     pool: &SqlitePool,
     product_id: i64,
@@ -550,6 +561,30 @@ let product_uuid = uuid::Uuid::new_v4().to_string();
         .bind(store_id)
         .fetch_optional(&self.pool)
         .await
+    }
+
+    /// Genera un SKU numérico de 7 dígitos que no choque con ningún `code`
+    /// existente.
+    ///
+    /// `products.code` tiene un UNIQUE global (no por sede), así que la
+    /// comprobación es global e incluye los productos inactivos: reutilizar el
+    /// código de uno dado de baja también violaría la restricción. Reintenta
+    /// ante una colisión (improbable con 9 millones de combinaciones, pero no
+    /// imposible).
+    pub async fn generate_unique_code(&self) -> Result<String, sqlx::Error> {
+        for _ in 0..25 {
+            let candidate = random_seven_digit_code();
+            let exists: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products WHERE code = ?")
+                .bind(&candidate)
+                .fetch_one(&self.pool)
+                .await?;
+            if exists == 0 {
+                return Ok(candidate);
+            }
+        }
+        Err(sqlx::Error::Protocol(
+            "no se pudo generar un SKU único tras varios intentos".into(),
+        ))
     }
 
     /// Reencola el catalogo completo y la diferencia de stock de cada producto.

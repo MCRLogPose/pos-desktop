@@ -143,6 +143,15 @@ impl InventoryService {
             .await
     }
 
+    /// Devuelve un SKU numérico de 7 dígitos único entre los productos
+    /// existentes, para autogenerarlo en el alta de un lote.
+    pub async fn generate_unique_code(&self) -> Result<String, String> {
+        self.inventory_repo
+            .generate_unique_code()
+            .await
+            .map_err(|e| e.to_string())
+    }
+
     pub async fn delete_product(&self, id: i64, user_id: i64) -> Result<(), String> {
         if !self.inventory_repo.user_is_admin(user_id).await.map_err(|e| e.to_string())? {
             return Err("solo un ADMIN puede eliminar un producto de inventario".into());

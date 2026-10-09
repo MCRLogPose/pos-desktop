@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Package, DollarSign, BarChart3, Layers, Image as ImageIcon, Tag, Percent, Plus, Trash2, Calendar, Truck, Bookmark } from 'lucide-react';
+import { X, Package, DollarSign, BarChart3, Layers, Image as ImageIcon, Tag, Percent, Plus, Trash2, Calendar, Truck, Bookmark, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { invoke } from '@tauri-apps/api/core';
 import { useNotification } from '@/context/NotificationContext';
@@ -47,6 +47,7 @@ interface ProductModalProps {
 export default function ProductModal({ isOpen, onClose, onSubmit, initialData, categories, storeId }: ProductModalProps) {
     const { showNotification } = useNotification();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [skuLoading, setSkuLoading] = useState(false);
 
     // Batch items list
     const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
@@ -128,9 +129,30 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
             } else {
                 resetForm();
                 setBatchItems([]);
+                refreshSku([]);
             }
         }
     }, [initialData, isOpen]);
+
+    // Pide al backend un SKU de 7 dígitos único. Se reintenta si chocara con
+    // alguno de los items ya cargados en el lote (que aún no están en la base).
+    const refreshSku = async (exclude: BatchItem[] = batchItems) => {
+        setSkuLoading(true);
+        try {
+            for (let attempt = 0; attempt < 5; attempt++) {
+                const generated = await invoke<string>('generate_unique_sku');
+                if (!exclude.some(item => item.sku === generated)) {
+                    setSku(generated);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('[sku] no se pudo autogenerar el SKU', error);
+            showNotification('error', 'Error', 'No se pudo autogenerar el SKU');
+        } finally {
+            setSkuLoading(false);
+        }
+    };
 
     const resetForm = () => {
         setName('');
@@ -157,19 +179,17 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
             return;
         }
 
+        // El SKU es autogenerado, pero si el operador escribió uno a mano se
+        // valida. Vacío se permite: el backend lo genera al registrar el lote.
         const trimmedSku = sku.trim();
-        if (!trimmedSku) {
-            showNotification('warning', 'Faltan datos', 'El SKU es obligatorio');
-            return;
-        }
-        if (!/^\d{7}$/.test(trimmedSku)) {
+        if (trimmedSku && !/^\d{7}$/.test(trimmedSku)) {
             showNotification('warning', 'SKU inválido', 'El SKU debe ser un código numérico de 7 dígitos');
             return;
         }
         const skuExists = batchItems.some(
             item => item.id !== editingItemId && item.sku === trimmedSku
         );
-        if (skuExists) {
+        if (trimmedSku && skuExists) {
             showNotification('warning', 'SKU duplicado', 'Ya existe un producto en el lote con ese SKU');
             return;
         }
@@ -187,14 +207,18 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
             imageUrl,
         };
 
+        let nextItems: BatchItem[];
         if (editingItemId) {
-            setBatchItems(prev => prev.map(item => item.id === editingItemId ? newItem : item));
+            nextItems = batchItems.map(item => item.id === editingItemId ? newItem : item);
+            setBatchItems(nextItems);
             setEditingItemId(null);
         } else {
-            setBatchItems(prev => [...prev, newItem]);
+            nextItems = [...batchItems, newItem];
+            setBatchItems(nextItems);
         }
 
         resetForm();
+        refreshSku(nextItems);
     };
 
     const handleDeleteItem = (id: string) => {
@@ -482,7 +506,9 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-sm font-medium text-gray-700">SKU (Obligatorio)</label>
+                                                <label className="text-sm font-medium text-gray-700">
+                                                    {isEditMode ? 'SKU (Obligatorio)' : 'SKU (Autogenerado)'}
+                                                </label>
                                                 <div className="relative">
                                                     <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                                                     <input
@@ -491,9 +517,23 @@ export default function ProductModal({ isOpen, onClose, onSubmit, initialData, c
                                                         onChange={(e) => setSku(e.target.value)}
                                                         placeholder="Ej. 2601231"
                                                         maxLength={7}
-                                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                                        readOnly={!isEditMode}
+                                                        className={`w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${!isEditMode ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
                                                     />
-                                                    <span className="text-[11px] text-gray-400 mt-1 block">Código numérico de 7 dígitos</span>
+                                                    {!isEditMode && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => refreshSku()}
+                                                            disabled={skuLoading}
+                                                            title="Generar otro SKU"
+                                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors disabled:opacity-50"
+                                                        >
+                                                            <RefreshCw className={`w-4 h-4 ${skuLoading ? 'animate-spin' : ''}`} />
+                                                        </button>
+                                                    )}
+                                                    <span className="text-[11px] text-gray-400 mt-1 block">
+                                                        {isEditMode ? 'Código numérico de 7 dígitos' : 'Se genera automáticamente y es único'}
+                                                    </span>
                                                 </div>
                                             </div>
 

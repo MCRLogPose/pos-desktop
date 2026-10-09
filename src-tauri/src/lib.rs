@@ -145,6 +145,7 @@ pub fn run() {
             commands::inventory::delete_category,
             commands::inventory::get_products,
             commands::inventory::create_product,
+            commands::inventory::generate_unique_sku,
             commands::inventory::update_product,
             commands::inventory::add_stock_to_product,
             commands::inventory::delete_product,

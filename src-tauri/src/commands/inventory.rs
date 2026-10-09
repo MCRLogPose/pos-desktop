@@ -113,6 +113,12 @@ pub async fn update_product(
         .await
 }
 
+/// Autogenera un SKU numérico de 7 dígitos único entre los productos existentes.
+#[tauri::command]
+pub async fn generate_unique_sku(state: State<'_, AppState>) -> Result<String, String> {
+    state.inventory_service.generate_unique_code().await
+}
+
 /// Reposicion de mercaderia sobre un producto existente.
     ///
     /// Reemplaza el par `update_product` + `add_expense_standalone` que usaba el
